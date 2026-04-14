@@ -6,3 +6,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/tes', [RoasteryController::class, 'CekSistem']);
+
+// Rute Tampilan Testing (UI Login API)
+Route::get('/login', function () {
+    return view('login');
+});

@@ -7,22 +7,32 @@ use App\Http\Controllers\Api\RoastedBeanController;
 use App\Http\Controllers\Api\RoastingBatchController;
 use App\Http\Controllers\Api\PesananKeluarController;
 
+use App\Http\Controllers\Api\AuthController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 |
 | Semua route API TEFA Javanica didaftarkan di sini.
-| Sengaja diringkas pakai apiResource() biar programmer
-| gak perlu nulis route GET POST PUT DELETE satu-satu.
 |
 */
 
-// TODO: Nanti kalau fitur Login sudah dibuat anak koding, pindahkan semua ini ke dalam middleware auth:sanctum
 Route::prefix('v1')->group(function () {
     
-    // API Tabel Gudang Kopi Mentah
-    Route::apiResource('green-beans', GreenBeanController::class);
+    // ==========================================
+    // AREA PUBLIK (Gerbang Pintu Masuk Pak Deka)
+    // ==========================================
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/verify-2fa', [AuthController::class, 'verify2fa']);
+
+    // ==========================================
+    // AREA TERTUTUP (Harus Punya Token Sanctum)
+    // ==========================================
+    Route::middleware('auth:sanctum')->group(function() {
+        Route::post('/logout', [AuthController::class, 'logout']);
+        
+        Route::apiResource('green-beans', GreenBeanController::class);
     
     // API Tabel Produk Kopi Matang
     Route::apiResource('roasted-beans', RoastedBeanController::class);
@@ -32,5 +42,5 @@ Route::prefix('v1')->group(function () {
     
     // API Form Kasir "Mode Timbangan Dinamis"
     Route::apiResource('pesanan-keluar', PesananKeluarController::class);
-
+    });
 });
