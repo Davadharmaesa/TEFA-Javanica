@@ -177,7 +177,7 @@
                                 }
                             } else {
                                 // Misal untuk Mahasiswa Praktikum (Akses Langsung)
-                                alert('Login Berhasil (Tanpa MFA)! Token : ' + (data.access_token || 'Bypass'));
+                                window.location.href = '/dashboard';
                             }
                         } else {
                             this.error = data.message || 'Login Gagal, Kredensial tidak cocok.';
@@ -209,9 +209,7 @@
                         
                         if (response.ok) {
                             // Sukses Total!
-                            alert('Akses Diberikan! Token Kamu: ' + data.access_token);
-                            // Logika aslinya adalah redirect ke Dasbor.
-                            // window.location.href = '/dashboard';
+                            window.location.href = '/dashboard';
                         } else {
                             this.error = data.message || 'OTP Salah atau Kadaluarsa!';
                         }
