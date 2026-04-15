@@ -1,0 +1,40 @@
+<header class="h-20 bg-card shadow-md flex items-center justify-between px-8 z-10 relative">
+    <div class="flex items-center gap-4 flex-1">
+        <div class="relative w-96 hidden md:block group">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </span>
+            <input
+                type="text"
+                placeholder="Cari data stok, batch, atau laporan..."
+                class="w-full bg-background border border-border rounded-md pl-10 pr-4 py-2 text-sm text-primary font-sans focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+            >
+        </div>
+    </div>
+
+    <div class="flex items-center gap-6">
+        <!-- Theme Toggle Mock -->
+        <button class="text-muted-foreground hover:text-primary transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1"/><path d="M12 20v1"/><path d="M3 12h1"/><path d="M20 12h1"/><path d="m18.364 5.636-.707.707"/><path d="m6.343 17.657-.707.707"/><path d="m5.636 5.636.707.707"/><path d="m17.657 17.657.707.707"/></svg>
+        </button>
+
+        <!-- Notifications -->
+        <button class="relative text-muted-foreground hover:text-primary transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-surface"></span>
+        </button>
+
+        <div class="w-px h-6 bg-border"></div>
+
+        <!-- User Profile -->
+        <div class="flex items-center gap-3 cursor-pointer group">
+            <div class="text-right hidden sm:block">
+                <p class="text-sm font-sans font-medium text-primary group-hover:text-primary transition-colors">Budi Coordinator</p>
+                <p class="text-xs text-muted-foreground font-mono">Role: Admin</p>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+        </div>
+    </div>
+</header>
