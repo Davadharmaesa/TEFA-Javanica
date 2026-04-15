@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RoasteryController;
+use App\Http\Controllers\DashboardController;
+
 Route::get('/', function () {
     return view('login');
 });
@@ -15,3 +17,4 @@ Route::get('/login', function () {
 // Rute Lab Produksi (Roastery Dashboard)
 use App\Http\Controllers\ProductionController;
 Route::get('/production', [ProductionController::class, 'index']);
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

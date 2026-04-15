@@ -189,7 +189,9 @@
                                     this.secretKey = data.secret_key;
                                 }
                             } else {
-                                window.location.href = '/production';
+                                // Menerima URL tujuan dari API backend (jika ada), 
+                                // kalau tidak ada otomatis lempar ke /dashboard
+                                window.location.href = data.redirect_url ? data.redirect_url : '/dashboard';
                             }
                         } else {
                             this.error = data.message || 'Email atau Password salah.';
@@ -211,7 +213,8 @@
                         });
                         const data = await response.json();
                         if (response.ok) {
-                            window.location.href = '/production';
+                            // Sama seperti di atas, biarkan backend yang menentukan arah url-nya
+                            window.location.href = data.redirect_url ? data.redirect_url : '/dashboard';
                         } else {
                             this.error = data.message || 'Kode OTP Salah!';
                         }
