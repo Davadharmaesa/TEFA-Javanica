@@ -29,8 +29,8 @@
         <!-- User Profile -->
         <div class="flex items-center gap-3 cursor-pointer group">
             <div class="text-right hidden sm:block">
-                <p class="text-sm font-sans font-medium text-primary group-hover:text-primary transition-colors">Budi Coordinator</p>
-                <p class="text-xs text-muted-foreground font-mono">Role: Admin</p>
+                <p class="text-sm font-sans font-medium text-primary group-hover:text-primary transition-colors">{{ Auth::user()->name ?? 'Pak Deka' }}</p>
+                <p class="text-xs text-muted-foreground font-mono">Role: {{ ucfirst(Auth::user()->role ?? 'Operator') }}</p>
             </div>
             <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>

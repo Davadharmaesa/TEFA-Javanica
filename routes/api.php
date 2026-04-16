@@ -19,12 +19,6 @@ use App\Http\Controllers\Api\AuthController;
 */
 
 Route::prefix('v1')->group(function () {
-    
-    // ==========================================
-    // AREA PUBLIK (Gerbang Pintu Masuk Pak Deka)
-    // ==========================================
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/verify-2fa', [AuthController::class, 'verify2fa']);
 
     // ==========================================
     // AREA TERTUTUP (Harus Punya Token Sanctum)

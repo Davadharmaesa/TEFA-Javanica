@@ -46,8 +46,14 @@
                         border: "hsl(var(--border))",
                         background: "hsl(var(--background))",
                         foreground: "hsl(var(--foreground))",
-                        primary: "hsl(var(--primary))",    /* Terracotta / Coklat Muda */
-                        secondary: "hsl(var(--secondary))", /* Green */
+                        primary: {
+                            DEFAULT: "hsl(var(--primary))",
+                            foreground: "#ffffff"
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(var(--secondary))",
+                            foreground: "#ffffff"
+                        },
                         accent: "hsl(var(--accent))",
                         surface: "hsl(var(--card))",
                         card: "hsl(var(--card))",
@@ -79,7 +85,7 @@
 
             <!-- MAIN CONTENT -->
             <main class="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 custom-scrollbar">
-                <div class="max-w-7xl mx-auto animate-in fade-in duration-500">
+                <div class="max-w-7xl mx-auto">
                     @yield('content')
                 </div>
             </main>

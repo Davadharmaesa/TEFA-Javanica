@@ -35,18 +35,17 @@
     <nav class="flex-1 px-3 py-6 space-y-2 overflow-y-auto overflow-x-hidden custom-scrollbar">
         @php
             $navItems = [
-                ['name' => 'Beranda', 'href' => '/', 'icon' => 'home'],
-                ['name' => 'Lab Produksi', 'href' => '/production', 'icon' => 'coffee'],
-                ['name' => 'Gudang', 'href' => '/inventory', 'icon' => 'package'],
-                ['name' => 'Input Transaksi', 'href' => '/pos', 'icon' => 'shopping-cart'],
-                ['name' => 'Laporan', 'href' => '/reports', 'icon' => 'file-text'],
-                ['name' => 'Pengaturan', 'href' => '/settings', 'icon' => 'settings'],
+                ['name' => 'Beranda', 'path' => 'dashboard', 'href' => route('dashboard'), 'icon' => 'home'],
+                ['name' => 'Lab Produksi', 'path' => 'production', 'href' => '/production', 'icon' => 'coffee'],
+                ['name' => 'Gudang', 'path' => 'inventory', 'href' => '/inventory', 'icon' => 'package'],
+                ['name' => 'Input Transaksi', 'path' => 'pos', 'href' => '/pos', 'icon' => 'shopping-cart'],
+                ['name' => 'Laporan', 'path' => 'reports', 'href' => '/reports', 'icon' => 'file-text'],
+                ['name' => 'Pengaturan', 'path' => 'settings', 'href' => '/settings', 'icon' => 'settings'],
             ];
-            $currentPath = request()->getPathInfo();
         @endphp
 
         @foreach($navItems as $item)
-            @php $isActive = $currentPath === $item['href']; @endphp
+            @php $isActive = request()->is($item['path'] . '*'); @endphp
             <a 
                 href="{{ $item['href'] }}" 
                 class="flex items-center gap-3 py-2.5 rounded-md font-sans text-sm font-medium transition-all group {{ $isActive ? 'bg-secondary text-secondary-foreground shadow-sm' : 'text-primary hover:bg-muted hover:text-secondary' }}"
@@ -76,17 +75,21 @@
 
     <!-- Footer / User Profile -->
     <div class="p-3 space-y-3 overflow-hidden">
-        <div class="flex items-center gap-3 bg-background border border-border rounded-lg transition-all duration-300" :class="isCollapsed ? 'p-2 justify-center' : 'p-3'">
-            <div class="p-1.5 bg-secondary/10 text-secondary rounded-full flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <div class="flex-1 overflow-hidden transition-all duration-300 whitespace-nowrap" :class="isCollapsed ? 'w-0 opacity-0 hidden' : 'opacity-100'">
-                <p class="text-sm font-bold text-primary truncate">Pak Deka</p>
-                <p class="text-xs text-muted-foreground font-mono truncate">Operator</p>
-            </div>
+    <div class="flex items-center gap-3 bg-background border border-border rounded-lg transition-all duration-300" :class="isCollapsed ? 'p-2 justify-center' : 'p-3'">
+        <div class="p-1.5 bg-secondary/10 text-secondary rounded-full flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
+        <div class="flex-1 overflow-hidden transition-all duration-300 whitespace-nowrap" :class="isCollapsed ? 'w-0 opacity-0 hidden' : 'opacity-100'">
+            <p class="text-sm font-bold text-primary truncate">{{ Auth::user()->name }}</p>
+            <p class="text-xs text-muted-foreground font-mono truncate">{{ ucfirst(Auth::user()->role ?? 'Operator') }}</p>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
         <button
-            class="w-full flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold text-destructive bg-destructive/10 border border-destructive/20 hover:bg-destructive hover:text-white transition-all shadow-sm"
+            type="submit"
+            class="w-full flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold text-red-600 bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white transition-all shadow-sm"
             :class="isCollapsed ? 'px-2' : 'px-4'"
         >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
@@ -94,5 +97,6 @@
                 Keluar
             </span>
         </button>
-    </div>
+    </form>
+</div>
 </aside>

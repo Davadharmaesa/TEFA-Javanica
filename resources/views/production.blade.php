@@ -3,7 +3,7 @@
 @section('title', 'Lab Roasting - TEFA Javanica')
 
 @section('content')
-<div class="space-y-6 animate-in fade-in duration-500" x-data="productionLab()">
+<div class="space-y-6" x-data="productionLab()">
     <div class="flex flex-col gap-2">
         <h1 class="text-3xl font-heading font-bold text-primary">Lab Roasting (Sangrai)</h1>
         <p class="text-muted-foreground font-sans">

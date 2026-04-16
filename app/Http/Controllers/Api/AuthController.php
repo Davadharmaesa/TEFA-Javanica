@@ -6,15 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-// TODO Programmer: Pastikan kalian sudah install package Google2FA ya!
-// composer require pragmarx/google2fa-laravel bacon/bacon-qr-code
+use Illuminate\Support\Facades\Auth;
 use PragmaRX\Google2FALaravel\Facade as Google2FA;
 
 class AuthController extends Controller
 {
-    /**
-     * Langkah 1: Pak Deka memasukkan Email & Password
-     */
     public function login(Request $request)
     {
         $request->validate([
@@ -24,123 +20,94 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        // Cek kecocokan password
+        // 1. Cek User & Password
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Email atau Password salah'], 401);
+            return back()->withErrors(['message' => 'Email atau Password Salah!']);
         }
 
-        // ==========================================
-        // LOGIKA HYBRID: Cek Role User
-        // ==========================================
+        // 2. Login secara Session (Web)
+        Auth::login($user);
+
+        // 3. Jika Mahasiswa/Operator tanpa MFA (VIP), langsung masuk
+        // Sesuaikan role-nya di sini
         if ($user->role === 'mahasiswa') {
-            // Jalur VIP Mahasiswa: Langsung Berikan Token (Tanpa MFA)
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            return response()->json([
-                'message' => 'Login Berhasil (Mahasiswa)!',
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role
-                ]
-            ], 200);
+            return redirect()->intended('/dashboard');
         }
 
-        // Skenario A: Pak Deka belum pernah setup HP (Baru pertama kali login)
+        // 4. Skenario A: Belum setup 2FA
         if (empty($user->two_factor_secret)) {
-            try {
-                // Buatkan Secret Rahasia
-                $secret = Google2FA::generateSecretKey();
-                
-                // Simpan ke database
-                $user->update(['two_factor_secret' => $secret]);
+            $secret = Google2FA::generateSecretKey();
+            $user->update(['two_factor_secret' => $secret]);
 
-                // Bangun Gambar Barcode SVG agar langsung tampil di layar HTML
-                $qrCodeInline = Google2FA::getQRCodeInline(
-                    config('app.name'),
-                    $user->email,
-                    $secret
-                );
+            $qrCodeInline = Google2FA::getQRCodeInline(
+                config('app.name'),
+                $user->email,
+                $secret
+            );
 
-                return response()->json([
-                    'message' => 'Setup Google Authenticator Required',
-                    'requires_2fa_setup' => true,
-                    'secret_key' => $secret,
-                    'qr_code_url' => $qrCodeInline,
-                    'user_id' => $user->id
-                ], 200);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'Gagal membuat QR Code: ' . $e->getMessage()
-                ], 500);
-            }
+            // Tampilkan halaman setup (pastikan file view-nya ada)
+            return response()->json([
+                'requires_2fa_setup' => true,
+                'qr_code_url' => $qrCodeInline,
+                'secret_key' => $secret,
+                'user_id' => $user->id
+            ]);
         }
 
-        // Skenario B: Sudah pernah setup, menagih 6 Angka
+        // 5. Skenario B: Sudah setup, minta kode OTP
+        // Tampilkan halaman input 6 angka
         return response()->json([
-            'message' => 'Masukkan 6 Digit Angka dari Hape Anda',
             'requires_2fa' => true,
             'user_id' => $user->id
-        ], 200);
+        ]);
     }
 
-    /**
-     * Langkah 2: Pak Deka Menyerahkan 6 Angka dari Hape (OTP)
-     */
     public function verify2fa(Request $request)
     {
+        // Validasi input
         $request->validate([
-            'user_id' => 'required',
-            'otp' => 'required|digits:6'
+            'otp' => 'required|digits:6',
+            'user_id' => 'required'
         ]);
 
+        // Ambil user berdasarkan ID yang dikirim Alpine
         $user = User::find($request->user_id);
+
         if (!$user) {
-            return response()->json(['message' => 'User tidak ditemukan'], 404);
+            return response()->json(['message' => 'User tidak ditemukan!'], 404);
         }
 
-        // Validasi Matematis OTP
+        // Cek OTP pakai Google2FA
         $valid = Google2FA::verifyKey($user->two_factor_secret, $request->otp);
 
         if ($valid) {
-            // Tandai bahwa HP sudah resmi tersinkronisasi jika ini login pertama
-            if (is_null($user->two_factor_confirmed_at)) {
-                $user->two_factor_confirmed_at = now();
-                $user->save();
-            }
+            // LOGIN KAN SECARA RESMI DI SINI
+            Auth::login($user);
 
-            // Hancurkan Token Lama agar tidak dobel sesi
-            $user->tokens()->delete();
+            // Tandai sudah dikonfirmasi
+            $user->update(["two_factor_confirmed_at" => now()]);
 
-            // Berikan Akses Brankas (Token Sanctum)
-            $token = $user->createToken('auth_token')->plainTextToken;
-
+            // KIRIM RESPONS JSON (Ini yang bikin Alpine seneng)
             return response()->json([
                 'message' => 'Login Berhasil!',
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                ]
+                'redirect_url' => route('dashboard')
             ], 200);
         }
 
-        return response()->json(['message' => 'Kode OTP Salah, jangan ngawur!'], 401);
+        // Jika salah
+        return response()->json(['message' => 'Kode OTP Salah atau Kadaluarsa!'], 422);
     }
 
-    /**
-     * Langkah 3: Auto-Logout saat Jam 11.30 (Menghancurkan Token)
-     */
     public function logout(Request $request)
     {
-        // Fitur ini harus diakses dengan Header: Authorization Bearer (Token)
-        $request->user()->currentAccessToken()->delete();
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-        return response()->json(['message' => 'Sesi Berakhir. Silakan Pulang atau Istirahat.'], 200);
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Logout Berhasil  !']);
+        }
+
+        return redirect()->route('login');
     }
 }

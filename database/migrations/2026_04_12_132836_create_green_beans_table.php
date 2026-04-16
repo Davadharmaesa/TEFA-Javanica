@@ -9,10 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('green_beans', function (Blueprint $table) {
+    public function up(): void {
+        Schema::create('green_bean', function (Blueprint $table) {
             $table->id();
+            $table->string('nama_biji');
+            $table->integer('stok_gram')->default(0);
+            $table->string('asal_kopi');
+            $table->integer('harga_jual')->default(0);
             $table->timestamps();
         });
     }
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('green_beans');
+        Schema::dropIfExists('green_bean');
     }
 };
