@@ -75,14 +75,23 @@
         <!-- Left Side: Warning & Actions (Takes 2 columns) -->
         <div class="lg:col-span-2 flex flex-col gap-6">
             
-            <!-- Warning Box -->
-            <div class="bg-red-50 border border-red-200 rounded-xl p-6 shadow-sm">
-                <div class="flex items-center gap-2 mb-4 text-red-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <!-- Warning/Safe Box -->
+            @php $isWarning = count($stok_menipis) > 0; @endphp
+            <div class="{{ $isWarning ? 'bg-red-50 border-red-200' : 'bg-secondary/5 border-secondary/20' }} border rounded-xl p-6 shadow-sm transition-colors duration-500">
+                <div class="flex items-center gap-2 mb-4 {{ $isWarning ? 'text-red-600' : 'text-secondary' }}">
+                    @if($isWarning)
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    @else
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    @endif
                     <h3 class="text-xl font-heading font-bold">Monitor Bahan Baku</h3>
                 </div>
                 
-                <h4 class="text-red-700 font-bold mb-4 text-sm">Stok Menipis (&lt; 5kg)</h4>
+                @if($isWarning)
+                    <h4 class="text-red-700 font-bold mb-4 text-sm">Stok Menipis (&lt; 5kg)</h4>
+                @else
+                    <h4 class="text-secondary/80 font-bold mb-4 text-[11px] uppercase tracking-widest">Kapasitas Produksi Optimal</h4>
+                @endif
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     @forelse($stok_menipis as $item)
@@ -97,8 +106,9 @@
                             </div>
                         </div>
                     @empty
-                        <div class="col-span-full bg-white border border-red-100 rounded-lg p-4 text-center text-red-700 shadow-sm opacity-70">
-                            Volume bahan baku (Green Bean) aman untuk produksi hari ini.
+                        <div class="col-span-full bg-white/60 border border-secondary/20 rounded-lg p-4 text-center text-secondary shadow-sm font-medium">
+                            <span class="block font-bold mb-1">Seluruh jenis kopi di gudang tersedia melimpah!</span>
+                            <span class="text-xs opacity-80">Siap dieksekusi oleh mesin Roasting tanpa batas cadangan minimum.</span>
                         </div>
                     @endforelse
                 </div>

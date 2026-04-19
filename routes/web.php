@@ -23,12 +23,68 @@ Route::post('/verify-2fa', [AuthController::class, 'verify2fa'])->name('verify.2
 // AREA TERTUTUP (Harus Lolos Login & OTP)
 // ==========================================
 Route::middleware(['auth'])->group(function () {
+    
+    // ------------------------------------------
+    // DASHBOARD & GLOBAL AUTHS
+    // ------------------------------------------
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/production', [ProductionController::class, 'index'])->name('production.index');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
     // Setup 2FA hanya bisa diakses kalau sudah login (untuk setting ulang)
     Route::get('/setup-2fa', function() {
         return view('auth.setup-2fa');
     })->name('setup.2fa');
+
+    // ------------------------------------------
+    // MODUL LAB PRODUKSI (OPERATOR)
+    // ------------------------------------------
+    Route::prefix('production')->name('production.')->group(function () {
+        Route::get('/', [ProductionController::class, 'index'])->name('index');
+    });
+
+    // ------------------------------------------
+    // INTERNAL AJAX ENDPOINTS (Untuk AlpineJS & Fitur Dinamis)
+    // ------------------------------------------
+    Route::prefix('internal-api')->group(function () {
+        Route::get('/roasting/green-beans', [\App\Http\Controllers\Api\RoastingApiController::class, 'getGreenBeans']);
+        Route::get('/roasting/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'getBatches']);
+        Route::post('/roasting/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'storeBatch']);
+    });
+
+    // ------------------------------------------
+    // MODUL GUDANG (INVENTORY)
+    // ------------------------------------------
+    Route::prefix('inventory')->name('inventory.')->group(function () {
+        Route::get('/', function() {
+            return "<div style='padding:50px; text-align:center;'><h2> Modul Gudang & Stok </h2><p>Halaman sedang dirakit...</p><a href='/dashboard'>Kembali</a></div>";
+        })->name('index');
+    });
+
+    // ------------------------------------------
+    // MODUL KASIR / PENJUALAN
+    // ------------------------------------------
+    Route::prefix('sales')->name('sales.')->group(function () {
+        Route::get('/', function() {
+            return "<div style='padding:50px; text-align:center;'><h2> Modul Penjualan / Distribusi </h2><p>Halaman sedang dirakit...</p><a href='/dashboard'>Kembali</a></div>";
+        })->name('index');
+    });
+
+    // ------------------------------------------
+    // MODUL PELAPORAN / MANAJERIAL (ADMIN)
+    // ------------------------------------------
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', function() {
+            return "<div style='padding:50px; text-align:center;'><h2> Modul Laporan Akuntansi </h2><p>Halaman sedang dirakit...</p><a href='/dashboard'>Kembali</a></div>";
+        })->name('index');
+    });
+
+    // ------------------------------------------
+    // MODUL SISTEM / PENGATURAN (ADMIN)
+    // ------------------------------------------
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', function() {
+            return "<div style='padding:50px; text-align:center;'><h2> Modul Pengaturan Karyawan </h2><p>Halaman sedang dirakit...</p><a href='/dashboard'>Kembali</a></div>";
+        })->name('index');
+    });
+
 });

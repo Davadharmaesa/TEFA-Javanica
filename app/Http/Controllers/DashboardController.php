@@ -16,7 +16,7 @@ class DashboardController extends Controller
         $total_stok_biji_mentah = GreenBean::sum('stok_gram') / 1000;
 
         // 2. Total Kopi Matang (Ambil SUM dari kolom berat_matang di tabel Roasting)
-        $total_kopi_matang = RoastingBatch::sum('berat_matang') / 1000;
+        $total_kopi_matang = RoastingBatch::sum('berat_matang');
 
         // 3. Penjualan Retail Hari Ini (Hanya transaksi hari ini yang statusnya LUNAS)
         $penjualan_retail = PesananKeluar::whereDate('created_at', Carbon::today())
@@ -43,7 +43,7 @@ class DashboardController extends Controller
             ->map(function ($log) {
                 return [
                     'type'        => 'ROASTING',
-                    'description' => "Proses sangrai {$log->greenBean->nama_biji} selesai. Hasil: " . ($log->berat_matang / 1000) . "kg",
+                    'description' => "Sangrai {$log->greenBean->nama_biji} (" . $log->profil_sangrai . "). Hasil: " . $log->berat_matang . "kg",
                     'time'        => $log->created_at->diffForHumans(),
                     'user'        => $log->user->name ?? 'System' // Jika ada relasi user
                 ];

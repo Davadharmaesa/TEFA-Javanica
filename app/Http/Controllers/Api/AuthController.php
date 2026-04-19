@@ -22,16 +22,19 @@ class AuthController extends Controller
 
         // 1. Cek User & Password
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return back()->withErrors(['message' => 'Email atau Password Salah!']);
+            return response()->json(['message' => 'Email atau Password Salah!'], 422);
         }
 
         // 2. Login secara Session (Web)
         Auth::login($user);
 
-        // 3. Jika Mahasiswa/Operator tanpa MFA (VIP), langsung masuk
+        // 3. Jika Operator tanpa MFA (VIP), langsung masuk
         // Sesuaikan role-nya di sini
-        if ($user->role === 'mahasiswa') {
-            return redirect()->intended('/dashboard');
+        if (strtolower($user->role) === 'operator') {
+            return response()->json([
+                'requires_2fa' => false,
+                'redirect_url' => '/dashboard'
+            ], 200);
         }
 
         // 4. Skenario A: Belum setup 2FA
@@ -108,6 +111,6 @@ class AuthController extends Controller
             return response()->json(['message' => 'Logout Berhasil  !']);
         }
 
-        return redirect()->route('login');
+        return redirect('/login');
     }
 }

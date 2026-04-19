@@ -34,14 +34,23 @@
     <!-- Navigation -->
     <nav class="flex-1 px-3 py-6 space-y-2 overflow-y-auto overflow-x-hidden custom-scrollbar">
         @php
+            $role = strtolower(Auth::user()->role ?? 'operator');
+            
+            // Menu Dasar (Bisa diakses siapapun, termasuk Pak Deka)
             $navItems = [
                 ['name' => 'Beranda', 'path' => 'dashboard', 'href' => route('dashboard'), 'icon' => 'home'],
-                ['name' => 'Lab Produksi', 'path' => 'production', 'href' => '/production', 'icon' => 'coffee'],
+                ['name' => 'Roasting', 'path' => 'production', 'href' => '/production', 'icon' => 'coffee'],
                 ['name' => 'Gudang', 'path' => 'inventory', 'href' => '/inventory', 'icon' => 'package'],
-                ['name' => 'Input Transaksi', 'path' => 'pos', 'href' => '/pos', 'icon' => 'shopping-cart'],
-                ['name' => 'Laporan', 'path' => 'reports', 'href' => '/reports', 'icon' => 'file-text'],
-                ['name' => 'Pengaturan', 'path' => 'settings', 'href' => '/settings', 'icon' => 'settings'],
             ];
+
+            // Filter Khusus: Jika bukan Operator/Mahasiswa, buka akses menu Akuntansi & Manajerial
+            if (!in_array($role, ['operator'])) {
+                $navItems = array_merge($navItems, [
+                    ['name' => 'Penjualan', 'path' => 'sales', 'href' => '/sales', 'icon' => 'shopping-cart'],
+                    ['name' => 'Laporan', 'path' => 'reports', 'href' => '/reports', 'icon' => 'file-text'],
+                    ['name' => 'Pengaturan', 'path' => 'settings', 'href' => '/settings', 'icon' => 'settings'],
+                ]);
+            }
         @endphp
 
         @foreach($navItems as $item)

@@ -31,8 +31,7 @@ Route::prefix('v1')->group(function () {
     // API Tabel Produk Kopi Matang
     Route::apiResource('roasted-beans', RoastedBeanController::class);
     
-    // API Tabel Aktivitas Roasting (Pak Deka masak kopi)
-    Route::apiResource('roasting-batches', RoastingBatchController::class);
+    // (Dipindahkan ke web.php untuk menggunakan proteksi CSRF Session Blade)
     
     // API Form Kasir "Mode Timbangan Dinamis"
     Route::apiResource('pesanan-keluar', PesananKeluarController::class);
