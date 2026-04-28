@@ -52,6 +52,15 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // ------------------------------------------
+    // MASTER DATA
+    // ------------------------------------------
+    Route::prefix('master')->name('master.')->group(function () {
+        Route::get('/', function() {
+            return view('master');
+        })->name('index');
+    });
+
+    // ------------------------------------------
     // MODUL GUDANG (INVENTORY)
     // ------------------------------------------
     Route::prefix('inventory')->name('inventory.')->group(function () {

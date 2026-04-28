@@ -84,19 +84,23 @@
 
             <form @submit.prevent="submitBatch" class="p-6 flex-1 flex flex-col gap-6">
                 <!-- Data Pokok -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Silinder Biji Mentah</label>
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Bahan Mentah</label>
                         <select x-model="form.green_bean_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
-                            <option value="">-- TARIK BAHAN DARI GUDANG --</option>
+                            <option value="">-- TARIK DARI GUDANG --</option>
                             <template x-for="item in greenBeans" :key="item.id">
-                                <option :value="item.id" x-text="item.nama_biji + ' (Tersedia: ' + (item.stok_gram/1000) + ' kg)'"></option>
+                                <option :value="item.id" x-text="item.nama_biji + ' (' + (item.stok_gram/1000) + 'kg)'"></option>
                             </template>
                         </select>
                     </div>
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">ID Log / Kode Batch</label>
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Kode Batch</label>
                         <input type="text" x-model="form.kode_batch" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] uppercase placeholder:font-sans placeholder:font-medium placeholder:uppercase" placeholder="Cth: BATCH-001" required />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Durasi (Menit)</label>
+                        <input type="number" x-model.number="form.durasi_roasting" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] uppercase placeholder:font-sans placeholder:font-medium placeholder:uppercase" placeholder="0" required />
                     </div>
                 </div>
 
@@ -139,38 +143,18 @@
                         </div>
                     </div>
 
-                    <!-- Bentuk Akhir -->
+                    <!-- Target Hasil -->
                     <div class="space-y-3">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest flex items-center justify-between">
-                            Bentuk Akhir
+                            Target Produk (Roasted Bean)
                             <span class="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-black normal-case">Wajib Pilih</span>
                         </label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <label class="relative cursor-pointer group">
-                                <input type="radio" x-model="form.bentuk_akhir" value="Biji Utuh" class="peer sr-only" required>
-                                <div class="h-20 bg-background border px-1 border-border rounded-lg flex flex-col items-center justify-center gap-1 group-hover:border-secondary/40 group-hover:shadow-[0_0_15px_rgba(20,80,30,0.1)] peer-checked:border-secondary peer-checked:bg-secondary/5 peer-checked:shadow-[0_0_15px_rgba(20,80,30,0.2)] transition-all">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="text-muted-foreground peer-checked:text-secondary transition-colors duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
-                                    <span class="text-[10px] font-bold text-primary/80 peer-checked:text-secondary text-center leading-tight transition-colors">Biji<br>Utuh</span>
-                                </div>
-                                <div class="absolute -top-1.5 -right-1.5 bg-secondary text-white rounded-full p-0.5 opacity-0 scale-0 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 shadow-md"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                            </label>
-                            <label class="relative cursor-pointer group">
-                                <input type="radio" x-model="form.bentuk_akhir" value="Bubuk Kasar" class="peer sr-only" required>
-                                <div class="h-20 bg-background border px-1 border-border rounded-lg flex flex-col items-center justify-center gap-1 group-hover:border-secondary/40 group-hover:shadow-[0_0_15px_rgba(20,80,30,0.1)] peer-checked:border-secondary peer-checked:bg-secondary/5 peer-checked:shadow-[0_0_15px_rgba(20,80,30,0.2)] transition-all">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="text-muted-foreground peer-checked:text-secondary transition-colors duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
-                                    <span class="text-[10px] font-bold text-primary/80 peer-checked:text-secondary text-center leading-tight transition-colors">Bubuk<br>Kasar</span>
-                                </div>
-                                <div class="absolute -top-1.5 -right-1.5 bg-secondary text-white rounded-full p-0.5 opacity-0 scale-0 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 shadow-md"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                            </label>
-                            <label class="relative cursor-pointer group">
-                                <input type="radio" x-model="form.bentuk_akhir" value="Bubuk Halus" class="peer sr-only" required>
-                                <div class="h-20 bg-background border px-1 border-border rounded-lg flex flex-col items-center justify-center gap-1 group-hover:border-secondary/40 group-hover:shadow-[0_0_15px_rgba(20,80,30,0.1)] peer-checked:border-secondary peer-checked:bg-secondary/5 peer-checked:shadow-[0_0_15px_rgba(20,80,30,0.2)] transition-all">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="text-muted-foreground peer-checked:text-secondary transition-colors duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
-                                    <span class="text-[10px] font-bold text-primary/80 peer-checked:text-secondary text-center leading-tight transition-colors">Bubuk<br>Halus</span>
-                                </div>
-                                <div class="absolute -top-1.5 -right-1.5 bg-secondary text-white rounded-full p-0.5 opacity-0 scale-0 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 shadow-md"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                            </label>
-                        </div>
+                        <select x-model="form.roasted_bean_id" class="w-full h-20 bg-background border border-border/60 rounded-xl px-4 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
+                            <option value="">-- DAFTAR PRODUK JAVANICA --</option>
+                            <template x-for="item in roastedBeans" :key="item.id">
+                                <option :value="item.id" x-text="item.nama"></option>
+                            </template>
+                        </select>
                     </div>
                 </div>
 
@@ -180,14 +164,18 @@
                     <div class="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 16px 16px;"></div>
                     
                     <div class="relative z-10 flex flex-col gap-4">
-                        <div class="grid grid-cols-2 gap-6">
+                        <div class="grid grid-cols-3 gap-4">
                             <div class="space-y-2">
-                                <label class="text-[10px] font-black text-primary uppercase tracking-widest bg-muted px-2 py-1 rounded inline-block">1. Massa Masuk (Kg)</label>
-                                <input type="number" step="0.1" x-model.number="form.berat_mentah_kg" class="w-full bg-transparent border-b-2 border-border/80 py-2 text-3xl text-primary font-black font-mono focus:outline-none focus:border-secondary transition-all placeholder:text-muted/50" placeholder="0.0" required />
+                                <label class="text-[10px] font-black text-primary uppercase tracking-widest bg-muted px-2 py-1 rounded inline-block">1. Mentah Masuk (Kg)</label>
+                                <input type="number" step="0.01" x-model.number="form.berat_sebelum_sort" class="w-full bg-transparent border-b-2 border-border/80 py-2 text-2xl text-primary font-black font-mono focus:outline-none focus:border-primary transition-all placeholder:text-muted/50" placeholder="0.00" required />
                             </div>
                             <div class="space-y-2">
-                                <label class="text-[10px] font-black text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded inline-block">2. Massa Keluar (Kg)</label>
-                                <input type="number" step="0.1" x-model.number="form.berat_akhir_kg" class="w-full bg-transparent border-b-2 border-secondary/40 py-2 text-3xl text-secondary font-black font-mono focus:outline-none focus:border-secondary transition-all placeholder:text-muted/50" placeholder="0.0" required />
+                                <label class="text-[10px] font-black text-accent uppercase tracking-widest bg-accent/10 px-2 py-1 rounded inline-block">2. Matang Kotor (Kg)</label>
+                                <input type="number" step="0.01" x-model.number="form.berat_sesudah_roast_sort" class="w-full bg-transparent border-b-2 border-accent/40 py-2 text-2xl text-accent font-black font-mono focus:outline-none focus:border-accent transition-all placeholder:text-muted/50" placeholder="0.00" required />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded inline-block">3. Matang Bersih (Kg)</label>
+                                <input type="number" step="0.01" x-model.number="form.berat_matang_sort" class="w-full bg-transparent border-b-2 border-secondary/40 py-2 text-2xl text-secondary font-black font-mono focus:outline-none focus:border-secondary transition-all placeholder:text-muted/50" placeholder="0.00" required />
                             </div>
                         </div>
 
@@ -199,7 +187,7 @@
                                     MONITOR PENYUSUTAN
                                 </label>
                                 <div class="text-right flex items-center gap-3">
-                                    <span x-show="form.berat_mentah_kg > 0" class="text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-sm" :class="isOptimal ? 'bg-secondary text-white' : 'bg-accent text-white'" x-text="isOptimal ? 'Mulus' : 'Peringatan'"></span>
+                                    <span x-show="form.berat_sebelum_sort > 0" class="text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-sm" :class="isOptimal ? 'bg-secondary text-white' : 'bg-accent text-white'" x-text="isOptimal ? 'Mulus' : 'Peringatan'"></span>
                                     <span class="text-4xl font-black font-mono tracking-tighter" :class="isOptimal ? 'text-secondary drop-shadow-[0_2px_10px_rgba(20,80,30,0.3)]' : 'text-accent drop-shadow-[0_2px_10px_rgba(200,30,30,0.3)]'">
                                         <span x-text="shrinkagePercent"></span><span class="text-xl opacity-60">%</span>
                                     </span>
@@ -232,7 +220,7 @@
                 </div>
 
                 <div class="pt-2 mt-auto">
-                    <button type="submit" :disabled="loading || !form.green_bean_id || !form.berat_akhir_kg || !form.profil_sangrai || !form.bentuk_akhir" class="w-full h-14 bg-primary text-primary-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_10px_30px_rgb(0,0,0,0.15)] hover:shadow-[0_10px_40px_rgba(200,80,50,0.35)] flex justify-center items-center gap-3 group relative overflow-hidden transform hover:-translate-y-0.5 active:translate-y-0">
+                    <button type="submit" :disabled="loading || !form.green_bean_id || !form.roasted_bean_id || !form.berat_matang_sort || !form.profil_sangrai || !form.durasi_roasting" class="w-full h-14 bg-primary text-primary-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_10px_30px_rgb(0,0,0,0.15)] hover:shadow-[0_10px_40px_rgba(200,80,50,0.35)] flex justify-center items-center gap-3 group relative overflow-hidden transform hover:-translate-y-0.5 active:translate-y-0">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent w-full transition-opacity duration-300"></div>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="relative z-10 group-disabled:opacity-50"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                         <span x-show="!loading" class="relative z-10">Tembakkan Data Batch ke Server</span>
@@ -270,7 +258,7 @@
                             <div class="grid grid-cols-2 gap-2 mb-3">
                                 <div class="bg-muted/40 border border-border/60 rounded-lg p-2 text-center group-hover:bg-muted/60 transition-colors">
                                     <p class="text-[9px] text-primary/60 font-black uppercase mb-0.5" x-text="batch.profil_sangrai || 'Profil'"></p>
-                                    <p class="text-xs font-black text-primary truncate" x-text="batch.bentuk_akhir || 'Biji'"></p>
+                                    <p class="text-xs font-black text-primary truncate" x-text="batch.roasted_bean_nama || 'Produk'"></p>
                                 </div>
                                 <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-2 text-center group-hover:bg-secondary/20 transition-colors">
                                     <p class="text-[9px] text-secondary/80 font-black uppercase mb-0.5">Susut</p>
@@ -317,9 +305,10 @@
     function productionLab() {
         return {
             greenBeans: [],
+            roastedBeans: [],
             history: [],
             loading: false,
-            form: { green_bean_id: '', kode_batch: '', profil_sangrai: '', bentuk_akhir: '', berat_mentah_kg: '', berat_akhir_kg: '' },
+            form: { green_bean_id: '', roasted_bean_id: '', kode_batch: '', profil_sangrai: '', durasi_roasting: '', berat_sebelum_sort: '', berat_sesudah_roast_sort: '', berat_matang_sort: '' },
             toast: { show: false, msg: '' },
             timeObj: new Date(),
 
@@ -337,8 +326,8 @@
             },
 
             get shrinkagePercent() {
-                if (!this.form.berat_mentah_kg || !this.form.berat_akhir_kg || this.form.berat_mentah_kg <= 0) return '0.0';
-                let p = (((this.form.berat_mentah_kg - this.form.berat_akhir_kg) / this.form.berat_mentah_kg) * 100);
+                if (!this.form.berat_sebelum_sort || !this.form.berat_sesudah_roast_sort || this.form.berat_sebelum_sort <= 0) return '0.0';
+                let p = (((this.form.berat_sebelum_sort - this.form.berat_sesudah_roast_sort) / this.form.berat_sebelum_sort) * 100);
                 if (p < 0) p = 0; // Guard against negative
                 return p.toFixed(1);
             },
@@ -365,6 +354,12 @@
                         {id: 2, nama_biji: "GB Robusta Dampit", stok_gram: 35000},
                         {id: 3, nama_biji: "GB Arabika Gayo Fullwash", stok_gram: 10000}
                     ];
+                    this.roastedBeans = [
+                        {id: 101, nama: "Medium Arabika Ijen"},
+                        {id: 102, nama: "Arabika Bubuk Tubruk"},
+                        {id: 103, nama: "Arabika Bubuk Espresso"},
+                        {id: 104, nama: "Robusta Dark Roast Biji"}
+                    ];
                 }
             },
 
@@ -373,11 +368,13 @@
                 try {
                     const payload = {
                         green_bean_id: this.form.green_bean_id,
+                        roasted_bean_id: this.form.roasted_bean_id,
                         kode_batch: this.form.kode_batch,
+                        durasi_roasting: this.form.durasi_roasting,
                         profil_sangrai: this.form.profil_sangrai,
-                        bentuk_akhir: this.form.bentuk_akhir,
-                        berat_mentah_gram: this.form.berat_mentah_kg * 1000,
-                        berat_siap_jual_gram: this.form.berat_akhir_kg * 1000
+                        berat_sebelum_sort: this.form.berat_sebelum_sort,
+                        berat_sesudah_roast_sort: this.form.berat_sesudah_roast_sort,
+                        berat_matang_sort: this.form.berat_matang_sort
                     };
                     
                     // Simulate API network delay
@@ -401,17 +398,17 @@
                             id: Math.floor(Math.random() * 1000),
                             kode_batch: this.form.kode_batch,
                             green_bean: this.greenBeans.find(g => g.id == this.form.green_bean_id) || { nama_biji: "Custom Bean" },
+                            roasted_bean_nama: (this.roastedBeans.find(r => r.id == this.form.roasted_bean_id) || {}).nama || "Produk Custom",
                             profil_sangrai: this.form.profil_sangrai,
-                            bentuk_akhir: this.form.bentuk_akhir,
-                            berat_mentah: this.form.berat_mentah_kg,
-                            berat_matang: this.form.berat_akhir_kg,
+                            berat_mentah: this.form.berat_sebelum_sort,
+                            berat_matang: this.form.berat_matang_sort,
                             persentase_susut: this.shrinkagePercent,
                             created_at: new Date().toISOString()
                         });
                     }
 
                     this.showToast(`Log ${this.form.kode_batch} berhasil direkam ke Jaringan.`);
-                    this.form = { green_bean_id: '', kode_batch: '', profil_sangrai: '', bentuk_akhir: '', berat_mentah_kg: '', berat_akhir_kg: '' };
+                    this.form = { green_bean_id: '', roasted_bean_id: '', kode_batch: '', profil_sangrai: '', durasi_roasting: '', berat_sebelum_sort: '', berat_sesudah_roast_sort: '', berat_matang_sort: '' };
                 } finally { 
                     this.loading = false; 
                 }
