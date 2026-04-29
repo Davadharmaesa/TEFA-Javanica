@@ -64,9 +64,7 @@ Route::middleware(['auth'])->group(function () {
     // MODUL GUDANG (INVENTORY)
     // ------------------------------------------
     Route::prefix('inventory')->name('inventory.')->group(function () {
-        Route::get('/', function() {
-            return "<div style='padding:50px; text-align:center;'><h2> Modul Gudang & Stok </h2><p>Halaman sedang dirakit...</p><a href='/dashboard'>Kembali</a></div>";
-        })->name('index');
+        Route::get('/', [\App\Http\Controllers\InventoryController::class, 'index'])->name('index');
     });
 
     // ------------------------------------------
