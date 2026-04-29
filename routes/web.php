@@ -73,9 +73,8 @@ Route::middleware(['auth'])->group(function () {
     // MODUL KASIR / PENJUALAN
     // ------------------------------------------
     Route::prefix('sales')->name('sales.')->group(function () {
-        Route::get('/', function() {
-            return "<div style='padding:50px; text-align:center;'><h2> Modul Penjualan / Distribusi </h2><p>Halaman sedang dirakit...</p><a href='/dashboard'>Kembali</a></div>";
-        })->name('index');
+        Route::get('/', [\App\Http\Controllers\SalesController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\SalesController::class, 'create'])->name('create');
     });
 
     // ------------------------------------------
