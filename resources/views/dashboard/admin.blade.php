@@ -76,33 +76,35 @@
         <div class="lg:col-span-2 flex flex-col gap-6">
             
             <!-- Warning Box -->
-            <div class="bg-red-50 border border-red-200 rounded-xl p-6 shadow-sm">
-                <div class="flex items-center gap-2 mb-4 text-red-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    <h3 class="text-xl font-heading font-bold">Perhatian Dibutuhkan</h3>
+            @if($has_warning)
+<div class="bg-red-50 dark:bg-[#3d211e] border border-red-200 dark:border-[#612b27] rounded-xl p-6 shadow-sm transition-colors">
+    <div class="flex items-center gap-2 mb-4 text-red-600 dark:text-[#CF544D]">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        <h3 class="text-xl font-heading font-bold">Perhatian Dibutuhkan</h3>
+    </div>
+
+    <h4 class="text-red-700 dark:text-[#CF544D] font-bold mb-4 text-sm">
+        Stok Menipis (&lt; 5kg)
+    </h4>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        @foreach($stok_menipis as $item)
+            <div class="bg-white dark:bg-[#2e1d1a] border border-red-100 dark:border-[#4a2622] rounded-lg p-4 flex justify-between items-center">
+                <div>
+                    <p class="font-bold text-[15px]">{{ $item['name'] }}</p>
+                    <p class="text-xs uppercase">{{ $item['type'] }}</p>
                 </div>
-                
-                <h4 class="text-red-700 font-bold mb-4 text-sm">Stok Menipis (&lt; 5kg)</h4>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    @forelse($stok_menipis as $item)
-                        <div class="bg-white border border-red-100 rounded-lg p-4 flex justify-between items-center text-red-800 shadow-sm">
-                            <div>
-                                <p class="font-bold text-[15px] font-sans">{{ $item['name'] }}</p>
-                                <p class="text-xs font-bold uppercase tracking-widest text-red-700/60">{{ $item['type'] }}</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-xl font-mono font-extrabold text-red-600">{{ $item['amount'] }}</span>
-                                <span class="text-sm font-mono font-bold text-red-600 ml-0.5">{{ $item['unit'] }}</span>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="col-span-full bg-white border border-red-100 rounded-lg p-4 text-center text-red-700 shadow-sm opacity-70">
-                            Stok bahan baku terpantau aman.
-                        </div>
-                    @endforelse
+                <div class="text-right">
+                    <span class="text-xl font-bold">{{ $item['amount'] }}</span>
+                    <span class="text-sm">{{ $item['unit'] }}</span>
                 </div>
             </div>
+        @endforeach
+    </div>
+</div>
+@endif
 
             <!-- Quick Actions Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">

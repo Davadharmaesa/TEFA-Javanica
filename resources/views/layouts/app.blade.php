@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" x-data="{ darkMode: localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches) }" :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,6 +27,21 @@
             --radius: 0.5rem;
         }
 
+        .dark {
+            --background: 18 18% 13%; /* #281f1c */
+            --foreground: 40 40% 83%; /* #e6dac3 */
+            --card: 18 18% 18%;       /* #362a26 */
+            --card-foreground: 40 40% 83%;
+            --primary: 17 48% 60%;    /* #ca8569 */
+            --secondary: 96 24% 34%;  
+            --accent: 17 48% 60%;
+            --muted: 18 18% 25%;      /* #4a3a34 */
+            --muted-foreground: 17 48% 60%;
+            --border: 18 18% 25%;     /* #4a3a34 */
+            --input: 18 18% 25%;
+            --ring: 17 48% 60%;
+        }
+
         [x-cloak] { display: none !important; }
         
         body {
@@ -41,6 +56,7 @@
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {

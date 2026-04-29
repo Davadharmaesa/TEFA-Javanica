@@ -20,20 +20,23 @@ class DashboardController extends Controller
 
         // 3. Penjualan Retail Hari Ini (Hanya transaksi hari ini yang statusnya LUNAS)
         $penjualan_retail = PesananKeluar::whereDate('created_at', Carbon::today())
-                            ->where('status_pembayaran', 'lunas')
-                            ->sum('total_pembayaran');
+            ->where('status_pembayaran', 'lunas')
+            ->sum('total_pembayaran');
 
-        // 4. Stok Menipis (Ambil Green Bean yang stoknya di bawah 5kg)
+        // 4. Stok Menipis
         $stok_menipis = GreenBean::where('stok_gram', '<', 5000)
             ->get()
             ->map(function ($item) {
                 return [
-                    'name'   => $item->nama_biji,
-                    'type'   => 'Green Bean',
+                    'name' => $item->nama_biji,
+                    'type' => 'Green Bean',
                     'amount' => $item->stok_gram / 1000,
-                    'unit'   => 'kg'
+                    'unit' => 'kg'
                 ];
             });
+
+        // FLAG WARNING
+        $has_warning = $stok_menipis->isNotEmpty();
 
         // 5. Log Aktivitas Terbaru (Ambil 5 batch roasting terakhir)
         $recent_logs = RoastingBatch::with('greenBean') // Pastikan ada relasi greenBean di Model
@@ -42,18 +45,18 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($log) {
                 return [
-                    'type'        => 'ROASTING',
+                    'type' => 'ROASTING',
                     'description' => "Sangrai {$log->greenBean->nama_biji} (" . $log->profil_sangrai . "). Hasil: " . $log->berat_matang . "kg",
-                    'time'        => $log->created_at->diffForHumans(),
-                    'user'        => $log->user->name ?? 'System' // Jika ada relasi user
+                    'time' => $log->created_at->diffForHumans(),
+                    'user' => $log->user->name ?? 'System' // Jika ada relasi user
                 ];
             });
 
         // 6. Rata-Rata Burnoff (Penyusutan)
         $total_raw_roasted = RoastingBatch::sum('berat_mentah');
         $total_cooked_roasted = RoastingBatch::sum('berat_matang');
-        $avg_burnoff = $total_raw_roasted > 0 
-            ? round((($total_raw_roasted - $total_cooked_roasted) / $total_raw_roasted) * 100, 1) 
+        $avg_burnoff = $total_raw_roasted > 0
+            ? round((($total_raw_roasted - $total_cooked_roasted) / $total_raw_roasted) * 100, 1)
             : 0;
 
         return view('dashboard', compact(
@@ -62,7 +65,8 @@ class DashboardController extends Controller
             'penjualan_retail',
             'stok_menipis',
             'recent_logs',
-            'avg_burnoff'
+            'avg_burnoff',
+            'has_warning' 
         ));
     }
 }
