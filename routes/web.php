@@ -79,9 +79,7 @@ Route::middleware(['auth'])->group(function () {
     // MODUL PELAPORAN / MANAJERIAL (ADMIN)
     // ------------------------------------------
     Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('/', function() {
-            return "<div style='padding:50px; text-align:center;'><h2> Modul Laporan Akuntansi </h2><p>Halaman sedang dirakit...</p><a href='/dashboard'>Kembali</a></div>";
-        })->name('index');
+        Route::get('/', [\App\Http\Controllers\ReportController::class, 'index'])->name('index');
     });
 
     // ------------------------------------------

@@ -1,0 +1,283 @@
+@extends('layouts.app')
+
+@section('title', 'Laporan Keuangan - TEFA Javanica')
+
+@section('content')
+<div x-data="reportData()" class="space-y-6">
+
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-2xl shadow-sm border border-border/40">
+        <div>
+            <h1 class="text-2xl font-heading font-bold text-primary flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Laporan Keuangan
+            </h1>
+            <p class="text-sm text-muted-foreground mt-1">Pantau kinerja finansial, profitabilitas, dan arus kas roastery.</p>
+        </div>
+        <div class="flex gap-2">
+            <!-- Filter Tanggal -->
+            <div class="bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+                <select class="bg-transparent border-none focus:ring-0 outline-none cursor-pointer">
+                    <option value="this_month">Bulan Ini (Mei 2026)</option>
+                    <option value="last_month">Bulan Lalu (Apr 2026)</option>
+                    <option value="this_year">Tahun Ini</option>
+                </select>
+            </div>
+            <button @click="printReport()" class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                Cetak PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Pendapatan -->
+        <div class="bg-card border border-border/40 rounded-2xl p-6 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+            <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-green-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="w-14 h-14 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Pendapatan</p>
+                <p class="text-xl font-heading font-black text-foreground">Rp 12.500.000</p>
+            </div>
+        </div>
+        <!-- HPP -->
+        <div class="bg-card border border-border/40 rounded-2xl p-6 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+            <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="w-14 h-14 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Harga Pokok (HPP)</p>
+                <p class="text-xl font-heading font-black text-foreground">Rp 4.200.000</p>
+            </div>
+        </div>
+        <!-- Operasional -->
+        <div class="bg-card border border-border/40 rounded-2xl p-6 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+            <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="w-14 h-14 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Biaya Operasional</p>
+                <p class="text-xl font-heading font-black text-foreground">Rp 2.100.000</p>
+            </div>
+        </div>
+        <!-- Laba Bersih -->
+        <div class="bg-card border border-border/40 rounded-2xl p-6 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+            <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.3 7H6a2 2 0 0 1 2 2v5"/><path d="M7.9 15.2c.4 1 1.4 1.8 2.5 1.8h7.1c1.5 0 2.7-1.4 2.4-2.9-.2-.8-.8-1.4-1.6-1.6-.5-.1-1.1-.1-1.6.2-1.4.7-3.1.2-3.8-1.2s-.2-3.1 1.2-3.8c.5-.3 1.1-.3 1.6-.2.8.2 1.4.8 1.6 1.6.3 1.5-.9 2.9-2.4 2.9H8.6c-1.1 0-2.1.8-2.5 1.8"/></svg>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Laba Bersih</p>
+                <p class="text-xl font-heading font-black text-primary">Rp 6.200.000</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50">
+        <button @click="activeTab = 'labarugi'" 
+            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            :class="activeTab === 'labarugi' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            Laba / Rugi
+        </button>
+        <button @click="activeTab = 'aruskas'" 
+            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            :class="activeTab === 'aruskas' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8a2 2 0 0 0 2-2v-3.5c0-1.19.68-2.32 1.77-2.8l.64-.28a2.5 2.5 0 0 0 0-4.58l-.64-.28C18.68 7.08 18 5.95 18 4.76V3a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v1.76c0 1.19-.68 2.32-1.77 2.8l-.64.28a2.5 2.5 0 0 0 0 4.58l.64.28c1.09.48 1.77 1.61 1.77 2.8V19a2 2 0 0 0 2 2Z"/></svg>
+            Arus Kas (Cash Flow)
+        </button>
+    </div>
+
+    <!-- Tab Content: Laba Rugi -->
+    <div x-show="activeTab === 'labarugi'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-border/40 bg-muted/10">
+            <h2 class="text-xl font-heading font-bold text-primary">Laporan Laba Rugi</h2>
+            <p class="text-sm text-muted-foreground">Periode: 1 Mei 2026 - 31 Mei 2026</p>
+        </div>
+        <div class="p-6">
+            <table class="w-full text-left">
+                <tbody>
+                    <!-- Pendapatan -->
+                    <tr class="border-b border-border/30">
+                        <td class="py-4 font-bold text-foreground text-lg" colspan="2">Pendapatan</td>
+                    </tr>
+                    <tr class="hover:bg-muted/10">
+                        <td class="py-2 pl-6 text-muted-foreground">Penjualan Biji Kopi Matang (Retail)</td>
+                        <td class="py-2 text-right font-mono font-medium text-foreground">Rp 9.500.000</td>
+                    </tr>
+                    <tr class="hover:bg-muted/10 border-b border-border/30">
+                        <td class="py-2 pl-6 text-muted-foreground">Penjualan Grosir / Wholesale</td>
+                        <td class="py-2 text-right font-mono font-medium text-foreground">Rp 3.000.000</td>
+                    </tr>
+                    <tr class="bg-muted/10 border-b border-border/50">
+                        <td class="py-3 pl-6 font-bold text-green-600">Total Pendapatan</td>
+                        <td class="py-3 text-right font-mono font-bold text-green-600">Rp 12.500.000</td>
+                    </tr>
+
+                    <!-- HPP -->
+                    <tr>
+                        <td class="py-4 font-bold text-foreground text-lg" colspan="2">Harga Pokok Penjualan (HPP)</td>
+                    </tr>
+                    <tr class="hover:bg-muted/10">
+                        <td class="py-2 pl-6 text-muted-foreground">Persediaan Awal Green Bean</td>
+                        <td class="py-2 text-right font-mono font-medium text-foreground">Rp 2.000.000</td>
+                    </tr>
+                    <tr class="hover:bg-muted/10">
+                        <td class="py-2 pl-6 text-muted-foreground">Pembelian Green Bean (Pengadaan)</td>
+                        <td class="py-2 text-right font-mono font-medium text-foreground">Rp 3.500.000</td>
+                    </tr>
+                    <tr class="hover:bg-muted/10 border-b border-border/30">
+                        <td class="py-2 pl-6 text-muted-foreground">Dikurangi: Persediaan Akhir Green Bean</td>
+                        <td class="py-2 text-right font-mono font-medium text-foreground">(Rp 1.300.000)</td>
+                    </tr>
+                    <tr class="bg-muted/10 border-b border-border/50">
+                        <td class="py-3 pl-6 font-bold text-orange-500">Total HPP</td>
+                        <td class="py-3 text-right font-mono font-bold text-orange-500">(Rp 4.200.000)</td>
+                    </tr>
+
+                    <!-- Laba Kotor -->
+                    <tr class="bg-primary/5 border-b border-border/50">
+                        <td class="py-4 pl-6 font-bold text-primary text-lg uppercase tracking-wider">Laba Kotor</td>
+                        <td class="py-4 text-right font-mono font-black text-primary text-lg">Rp 8.300.000</td>
+                    </tr>
+
+                    <!-- Biaya Operasional -->
+                    <tr>
+                        <td class="py-4 font-bold text-foreground text-lg" colspan="2">Biaya Operasional</td>
+                    </tr>
+                    <tr class="hover:bg-muted/10">
+                        <td class="py-2 pl-6 text-muted-foreground">Biaya Upah Roaster (Log Kerja)</td>
+                        <td class="py-2 text-right font-mono font-medium text-foreground">Rp 900.000</td>
+                    </tr>
+                    <tr class="hover:bg-muted/10">
+                        <td class="py-2 pl-6 text-muted-foreground">Biaya Kemasan (Packaging)</td>
+                        <td class="py-2 text-right font-mono font-medium text-foreground">Rp 450.000</td>
+                    </tr>
+                    <tr class="hover:bg-muted/10">
+                        <td class="py-2 pl-6 text-muted-foreground">Biaya Listrik & Gas (Komponen Biaya)</td>
+                        <td class="py-2 text-right font-mono font-medium text-foreground">Rp 750.000</td>
+                    </tr>
+                    <tr class="bg-muted/10 border-b border-border/50">
+                        <td class="py-3 pl-6 font-bold text-red-500">Total Biaya Operasional</td>
+                        <td class="py-3 text-right font-mono font-bold text-red-500">(Rp 2.100.000)</td>
+                    </tr>
+
+                    <!-- Laba Bersih -->
+                    <tr class="bg-primary border-b border-border/50">
+                        <td class="py-5 px-6 font-black text-primary-foreground text-xl uppercase tracking-wider rounded-l-lg">Laba Bersih Operasional</td>
+                        <td class="py-5 px-6 text-right font-mono font-black text-primary-foreground text-2xl rounded-r-lg">Rp 6.200.000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab Content: Arus Kas -->
+    <div x-show="activeTab === 'aruskas'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
+        <div class="p-6 border-b border-border/40 bg-muted/10 flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-heading font-bold text-primary">Riwayat Arus Kas (Buku Kas)</h2>
+                <p class="text-sm text-muted-foreground">Mencatat seluruh uang masuk dan keluar.</p>
+            </div>
+            <div class="text-right">
+                <p class="text-sm font-bold text-muted-foreground uppercase tracking-wider">Saldo Akhir Kas</p>
+                <p class="text-2xl font-mono font-black text-foreground">Rp 24.550.000</p>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
+                        <th class="p-4">Tanggal</th>
+                        <th class="p-4">Keterangan</th>
+                        <th class="p-4">Tipe</th>
+                        <th class="p-4 text-right">Nominal</th>
+                        <th class="p-4 text-right">Saldo Kas</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border/30">
+                    <tr class="hover:bg-muted/10 transition-colors">
+                        <td class="p-4 text-sm font-mono text-muted-foreground">01 Mei 2026</td>
+                        <td class="p-4 font-bold text-foreground">Saldo Awal Bulan</td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 bg-muted text-muted-foreground text-[10px] font-black rounded-full uppercase tracking-widest border border-border">Sistem</span>
+                        </td>
+                        <td class="p-4 text-right font-mono font-medium text-foreground">-</td>
+                        <td class="p-4 text-right font-mono font-bold text-primary">Rp 18.350.000</td>
+                    </tr>
+                    <tr class="hover:bg-muted/10 transition-colors">
+                        <td class="p-4 text-sm font-mono text-muted-foreground">02 Mei 2026</td>
+                        <td class="p-4">
+                            <p class="font-bold text-foreground">Pengadaan Green Bean</p>
+                            <p class="text-xs text-muted-foreground">Invoice: PGD-0009 - Robusta Dampit</p>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 bg-red-500/10 text-red-600 text-[10px] font-black rounded-full uppercase tracking-widest border border-red-500/20">Keluar</span>
+                        </td>
+                        <td class="p-4 text-right font-mono font-bold text-red-500">Rp 3.500.000</td>
+                        <td class="p-4 text-right font-mono font-bold text-primary">Rp 14.850.000</td>
+                    </tr>
+                    <tr class="hover:bg-muted/10 transition-colors">
+                        <td class="p-4 text-sm font-mono text-muted-foreground">05 Mei 2026</td>
+                        <td class="p-4">
+                            <p class="font-bold text-foreground">Penjualan Retail (POS)</p>
+                            <p class="text-xs text-muted-foreground">Invoice: INV-202605-001</p>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 bg-green-500/10 text-green-600 text-[10px] font-black rounded-full uppercase tracking-widest border border-green-500/20">Masuk</span>
+                        </td>
+                        <td class="p-4 text-right font-mono font-bold text-green-600">Rp 1.200.000</td>
+                        <td class="p-4 text-right font-mono font-bold text-primary">Rp 16.050.000</td>
+                    </tr>
+                    <tr class="hover:bg-muted/10 transition-colors">
+                        <td class="p-4 text-sm font-mono text-muted-foreground">10 Mei 2026</td>
+                        <td class="p-4">
+                            <p class="font-bold text-foreground">Pembayaran Upah Roaster</p>
+                            <p class="text-xs text-muted-foreground">10 Batch Roasting x Rp 15.000</p>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 bg-red-500/10 text-red-600 text-[10px] font-black rounded-full uppercase tracking-widest border border-red-500/20">Keluar</span>
+                        </td>
+                        <td class="p-4 text-right font-mono font-bold text-red-500">Rp 150.000</td>
+                        <td class="p-4 text-right font-mono font-bold text-primary">Rp 15.900.000</td>
+                    </tr>
+                    <tr class="hover:bg-muted/10 transition-colors">
+                        <td class="p-4 text-sm font-mono text-muted-foreground">15 Mei 2026</td>
+                        <td class="p-4">
+                            <p class="font-bold text-foreground">Penjualan Grosir</p>
+                            <p class="text-xs text-muted-foreground">Invoice: INV-202605-002 (Cafe XYZ)</p>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 bg-green-500/10 text-green-600 text-[10px] font-black rounded-full uppercase tracking-widest border border-green-500/20">Masuk</span>
+                        </td>
+                        <td class="p-4 text-right font-mono font-bold text-green-600">Rp 8.650.000</td>
+                        <td class="p-4 text-right font-mono font-bold text-primary">Rp 24.550.000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('reportData', () => ({
+            activeTab: 'labarugi',
+            
+            printReport() {
+                window.print();
+            }
+        }));
+    });
+</script>
+@endpush
+@endsection
