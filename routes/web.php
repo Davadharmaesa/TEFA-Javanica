@@ -40,6 +40,9 @@ Route::middleware(['auth'])->group(function () {
     // ------------------------------------------
     Route::prefix('production')->name('production.')->group(function () {
         Route::get('/', [ProductionController::class, 'index'])->name('index');
+        Route::get('/log-kerja', function() {
+            return view('log-kerja');
+        })->name('log_kerja');
     });
 
     // ------------------------------------------

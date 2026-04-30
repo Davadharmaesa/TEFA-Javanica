@@ -1,7 +1,7 @@
 # TEFA Javanica API
 
 ## Persyaratan Sistem (Environment)
-- PHP **8.2** atau lebih baru
+- PHP **8.3** atau lebih baru
 - MySQL / MariaDB
 
 ## Panduan Instalasi Lokal (Laragon)
