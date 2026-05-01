@@ -72,9 +72,14 @@
                                 Rp <span x-text="formatRupiah(item.harga)"></span>
                             </td>
                             <td class="p-4 text-center">
-                                <button @click="editBiaya(item)" class="p-1.5 text-muted-foreground hover:text-secondary bg-transparent hover:bg-secondary/10 rounded-md transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                                </button>
+                                <div class="flex justify-center gap-1">
+                                    <button @click="editBiaya(item)" class="p-1.5 text-muted-foreground hover:text-secondary bg-transparent hover:bg-secondary/10 rounded-md transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                                    </button>
+                                    <button @click="deleteBiaya(item.id)" class="p-1.5 text-muted-foreground hover:text-red-500 bg-transparent hover:bg-red-500/10 rounded-md transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     </template>
@@ -99,18 +104,23 @@
                     <template x-for="item in dataGreenBean" :key="item.id">
                         <tr class="hover:bg-muted/10 transition-colors group">
                             <td class="p-4">
-                                <p class="font-bold text-primary" x-text="item.nama"></p>
+                                <p class="font-bold text-primary" x-text="item.nama_biji"></p>
                             </td>
                             <td class="p-4">
-                                <span class="px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-widest" x-text="item.kategori"></span>
+                                <span class="px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-widest" x-text="item.asal_kopi"></span>
                             </td>
-                            <td class="p-4 text-right font-mono font-bold" :class="item.stok < 10 ? 'text-red-500' : 'text-primary'">
-                                <span x-text="item.stok"></span> Kg
+                            <td class="p-4 text-right font-mono font-bold" :class="(item.stok_gram/1000) < 10 ? 'text-red-500' : 'text-primary'">
+                                <span x-text="(item.stok_gram / 1000).toFixed(1)"></span> Kg
                             </td>
                             <td class="p-4 text-center">
-                                <button class="p-1.5 text-muted-foreground hover:text-secondary bg-transparent hover:bg-secondary/10 rounded-md transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                                </button>
+                                <div class="flex justify-center gap-1">
+                                    <button @click="editGreenBean(item)" class="p-1.5 text-muted-foreground hover:text-secondary bg-transparent hover:bg-secondary/10 rounded-md transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                                    </button>
+                                    <button @click="deleteGreenBean(item.id)" class="p-1.5 text-muted-foreground hover:text-red-500 bg-transparent hover:bg-red-500/10 rounded-md transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     </template>
@@ -135,18 +145,23 @@
                     <template x-for="item in dataRoastedBean" :key="item.id">
                         <tr class="hover:bg-muted/10 transition-colors group">
                             <td class="p-4">
-                                <p class="font-bold text-primary" x-text="item.nama"></p>
+                                <p class="font-bold text-primary" x-text="item.nama_kopi"></p>
                             </td>
                             <td class="p-4">
-                                <span class="px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-widest" x-text="item.bentuk"></span>
+                                <span class="px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-widest" x-text="item.bentuk_akhir"></span>
                             </td>
                             <td class="p-4 text-right font-mono font-bold text-primary">
-                                <span x-text="item.stok"></span> Kg
+                                <span x-text="(item.total_stok / 1000).toFixed(1)"></span> Kg
                             </td>
                             <td class="p-4 text-center">
-                                <button class="p-1.5 text-muted-foreground hover:text-secondary bg-transparent hover:bg-secondary/10 rounded-md transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                                </button>
+                                <div class="flex justify-center gap-1">
+                                    <button @click="editRoastedBean(item)" class="p-1.5 text-muted-foreground hover:text-secondary bg-transparent hover:bg-secondary/10 rounded-md transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                                    </button>
+                                    <button @click="deleteRoastedBean(item.id)" class="p-1.5 text-muted-foreground hover:text-red-500 bg-transparent hover:bg-red-500/10 rounded-md transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     </template>
@@ -199,10 +214,36 @@
                 </div>
             </div>
 
-            <!-- Form Lain (Placeholder) -->
-            <div x-show="activeTab !== 'biaya'" class="py-8 text-center text-muted-foreground">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 opacity-50"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
-                <p class="text-sm">Form input untuk <span class="font-bold uppercase" x-text="activeTab"></span> belum tersedia di mockup ini.</p>
+            <!-- Form Green Bean -->
+            <div x-show="activeTab === 'greenbean'" class="space-y-4">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Nama Biji Mentah</label>
+                    <input type="text" x-model="formGreenBean.nama_biji" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest">Asal Kopi</label>
+                        <input type="text" x-model="formGreenBean.asal_kopi" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest">Harga Jual (Rp)</label>
+                        <input type="number" min="0" x-model="formGreenBean.harga_jual" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
+                    </div>
+                </div>
+                <p class="text-xs text-muted-foreground italic mt-2">*Stok hanya bisa dirubah melalui menu Gudang / Barang Masuk.</p>
+            </div>
+
+            <!-- Form Roasted Bean -->
+            <div x-show="activeTab === 'roastedbean'" class="space-y-4">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Nama Produk Jadi</label>
+                    <input type="text" x-model="formRoastedBean.nama_kopi" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Bentuk Akhir</label>
+                    <input type="text" x-model="formRoastedBean.bentuk_akhir" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Biji Utuh / Bubuk Kasar" />
+                </div>
+                <p class="text-xs text-muted-foreground italic mt-2">*Stok produk jadi otomatis bertambah dari hasil Produksi Roasting.</p>
             </div>
 
             <div class="mt-8 flex gap-3">
@@ -222,30 +263,40 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('masterData', () => ({
-            activeTab: 'biaya',
+            activeTab: 'greenbean',
             isModalOpen: false,
             modalTitle: '',
             
-            // Form State
             formBiaya: { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' },
+            formGreenBean: { id: null, nama_biji: '', asal_kopi: '', harga_jual: 0 },
+            formRoastedBean: { id: null, nama_kopi: '', bentuk_akhir: '' },
 
-            // Mock Data
             dataBiaya: [
                 { id: 1, nama: 'Gas Elpiji 3Kg', kategori: 'Overhead', satuan: 'Tabung', harga: 20000 },
                 { id: 2, nama: 'Listrik Mesin', kategori: 'Overhead', satuan: 'Kwh', harga: 1500 },
-                { id: 3, nama: 'Upah Roaster', kategori: 'Tenaga Kerja', satuan: 'Batch', harga: 15000 },
-                { id: 4, nama: 'Penyusutan Mesin', kategori: 'Overhead', satuan: 'Bulan', harga: 500000 },
+                { id: 3, nama: 'Upah Roaster', kategori: 'Tenaga Kerja', satuan: 'Batch', harga: 15000 }
             ],
-            dataGreenBean: [
-                { id: 1, nama: 'Arabika Ijen Fullwash', kategori: 'Arabika', stok: 45.5 },
-                { id: 2, nama: 'Robusta Dampit', kategori: 'Robusta', stok: 120.0 },
-                { id: 3, nama: 'Arabika Gayo Wine', kategori: 'Arabika', stok: 8.0 },
-            ],
-            dataRoastedBean: [
-                { id: 1, nama: 'Medium Arabika Ijen', bentuk: 'Biji Utuh', stok: 12.5 },
-                { id: 2, nama: 'Robusta Dark Roast', bentuk: 'Biji Utuh', stok: 34.0 },
-                { id: 3, nama: 'House Blend Espresso', bentuk: 'Bubuk Halus', stok: 5.2 },
-            ],
+            dataGreenBean: [],
+            dataRoastedBean: [],
+
+            init() {
+                this.fetchData();
+            },
+
+            async fetchData() {
+                try {
+                    const [gbRes, rbRes, biayaRes] = await Promise.all([
+                        fetch('/internal-api/master/green-beans'),
+                        fetch('/internal-api/master/roasted-beans'),
+                        fetch('/internal-api/master/biaya')
+                    ]);
+                    if (gbRes.ok) this.dataGreenBean = await gbRes.json();
+                    if (rbRes.ok) this.dataRoastedBean = await rbRes.json();
+                    if (biayaRes.ok) this.dataBiaya = await biayaRes.json();
+                } catch (e) {
+                    console.error('Failed to fetch data:', e);
+                }
+            },
 
             getTabName() {
                 if(this.activeTab === 'biaya') return 'Biaya';
@@ -255,9 +306,9 @@
 
             openModal() {
                 this.modalTitle = 'Tambah Master ' + this.getTabName();
-                if(this.activeTab === 'biaya') {
-                    this.formBiaya = { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' };
-                }
+                if(this.activeTab === 'biaya') this.formBiaya = { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' };
+                if(this.activeTab === 'greenbean') this.formGreenBean = { id: null, nama_biji: '', asal_kopi: '', harga_jual: 0 };
+                if(this.activeTab === 'roastedbean') this.formRoastedBean = { id: null, nama_kopi: '', bentuk_akhir: '' };
                 this.isModalOpen = true;
             },
 
@@ -267,26 +318,74 @@
                 this.isModalOpen = true;
             },
 
-            saveData() {
-                if(this.activeTab === 'biaya') {
-                    if(!this.formBiaya.nama || !this.formBiaya.harga) {
-                        alert('Nama dan Harga wajib diisi!');
-                        return;
-                    }
-                    
-                    if(this.formBiaya.id) {
-                        // Edit
-                        let index = this.dataBiaya.findIndex(x => x.id === this.formBiaya.id);
-                        if(index !== -1) this.dataBiaya[index] = { ...this.formBiaya };
-                    } else {
-                        // Add
-                        this.dataBiaya.push({
-                            id: Date.now(),
-                            ...this.formBiaya
-                        });
-                    }
-                } else {
-                    alert('Simulasi simpan hanya tersedia untuk Tab Komponen Biaya di mockup ini.');
+            editGreenBean(item) {
+                this.modalTitle = 'Edit Data Kopi Mentah';
+                this.formGreenBean = { ...item };
+                this.isModalOpen = true;
+            },
+
+            editRoastedBean(item) {
+                this.modalTitle = 'Edit Produk Jadi';
+                this.formRoastedBean = { ...item };
+                this.isModalOpen = true;
+            },
+
+            async deleteGreenBean(id) {
+                if(!confirm('Yakin ingin menghapus data Biji Mentah ini?')) return;
+                const res = await fetch(`/internal-api/master/green-beans/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
+                });
+                if(res.ok) this.fetchData();
+            },
+
+            async deleteRoastedBean(id) {
+                if(!confirm('Yakin ingin menghapus data Produk Jadi ini?')) return;
+                const res = await fetch(`/internal-api/master/roasted-beans/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
+                });
+                if(res.ok) this.fetchData();
+            },
+
+            async deleteBiaya(id) {
+                if(!confirm('Yakin ingin menghapus Komponen Biaya ini?')) return;
+                const res = await fetch(`/internal-api/master/biaya/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
+                });
+                if(res.ok) this.fetchData();
+            },
+
+            async saveData() {
+                if(this.activeTab === 'greenbean') {
+                    if (!this.formGreenBean.id) return alert('Fitur tambah baru blm aktif.');
+                    const res = await fetch(`/internal-api/master/green-beans/${this.formGreenBean.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json',
+                                   'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                        body: JSON.stringify(this.formGreenBean)
+                    });
+                    if(res.ok) this.fetchData();
+                } else if(this.activeTab === 'roastedbean') {
+                    if (!this.formRoastedBean.id) return alert('Fitur tambah baru blm aktif.');
+                    const res = await fetch(`/internal-api/master/roasted-beans/${this.formRoastedBean.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json',
+                                   'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                        body: JSON.stringify(this.formRoastedBean)
+                    });
+                    if(res.ok) this.fetchData();
+                } else if(this.activeTab === 'biaya') {
+                    const method = this.formBiaya.id ? 'PUT' : 'POST';
+                    const url = this.formBiaya.id ? `/internal-api/master/biaya/${this.formBiaya.id}` : `/internal-api/master/biaya`;
+                    const res = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json',
+                                   'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                        body: JSON.stringify(this.formBiaya)
+                    });
+                    if(res.ok) this.fetchData();
                 }
                 this.isModalOpen = false;
             },

@@ -54,6 +54,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/roasting/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'getBatches']);
         Route::get('/roasting/stats', [\App\Http\Controllers\Api\RoastingApiController::class, 'getStats']);
         Route::post('/roasting/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'storeBatch']);
+
+        // Master Data API
+        Route::get('/master/biaya', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getBiaya']);
+        Route::post('/master/biaya', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storeBiaya']);
+        Route::put('/master/biaya/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updateBiaya']);
+        Route::delete('/master/biaya/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyBiaya']);
+
+        Route::get('/master/green-beans', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getGreenBeans']);
+        Route::put('/master/green-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updateGreenBean']);
+        Route::delete('/master/green-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyGreenBean']);
+        Route::get('/master/roasted-beans', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getRoastedBeans']);
+        Route::put('/master/roasted-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updateRoastedBean']);
+        Route::delete('/master/roasted-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyRoastedBean']);
     });
 
     // ------------------------------------------

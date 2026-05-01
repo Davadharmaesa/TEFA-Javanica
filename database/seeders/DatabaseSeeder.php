@@ -46,5 +46,25 @@ class DatabaseSeeder extends Seeder
             'bentuk_akhir' => 'Biji Utuh',
             'total_stok' => 5000, // 5 Kg
         ]);
+
+        // --- BIAYA (Seeder) ---
+        \App\Models\Biaya::create([
+            'nama' => 'Gas Elpiji 3Kg',
+            'kategori' => 'Overhead',
+            'satuan' => 'Tabung',
+            'harga' => 20000,
+        ]);
+        \App\Models\Biaya::create([
+            'nama' => 'Listrik Mesin',
+            'kategori' => 'Overhead',
+            'satuan' => 'Kwh',
+            'harga' => 1500,
+        ]);
+        \App\Models\Biaya::create([
+            'nama' => 'Upah Roaster',
+            'kategori' => 'Tenaga Kerja',
+            'satuan' => 'Batch',
+            'harga' => 15000,
+        ]);
     }
 }

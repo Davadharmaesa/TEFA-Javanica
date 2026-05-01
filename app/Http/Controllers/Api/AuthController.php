@@ -30,7 +30,9 @@ class AuthController extends Controller
 
         // 3. Jika Operator tanpa MFA (VIP), langsung masuk
         // Sesuaikan role-nya di sini
-        if (strtolower($user->role) === 'operator') {
+        if (app()->isLocal() || strtolower($user->role) === 'operator' || strtolower($user->role) === 'pic') {
+
+            $user->update(["two_factor_confirmed_at" => now()]);
             return response()->json([
                 'requires_2fa' => false,
                 'redirect_url' => '/dashboard'
