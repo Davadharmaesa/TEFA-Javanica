@@ -18,6 +18,7 @@
             --card-foreground: 31 100% 15%;
             --primary: 20 52% 56%;      /* Terracotta (Coklat Muda) - Mapping from Javanica2 */
             --secondary: 96 24% 34%;   /* Leafy Green */
+            --success: 105 45% 45%;    /* Brighter Green for Content */
             --accent: 31 38% 53%;      /* Natural Wicker */
             --muted: 31 20% 90%;
             --muted-foreground: 31 40% 40%;
@@ -33,7 +34,8 @@
             --card: 18 18% 18%;       /* #362a26 */
             --card-foreground: 40 40% 83%;
             --primary: 17 48% 60%;    /* #ca8569 */
-            --secondary: 96 24% 34%;  
+            --secondary: 96 24% 34%;  /* Original Leafy Green */
+            --success: 105 45% 55%;   /* Sharper Green for Dark Mode */
             --accent: 17 48% 60%;
             --muted: 18 18% 25%;      /* #4a3a34 */
             --muted-foreground: 17 48% 60%;
@@ -69,6 +71,10 @@
                         },
                         secondary: {
                             DEFAULT: "hsl(var(--secondary))",
+                            foreground: "#ffffff"
+                        },
+                        success: {
+                            DEFAULT: "hsl(var(--success))",
                             foreground: "#ffffff"
                         },
                         accent: "hsl(var(--accent))",

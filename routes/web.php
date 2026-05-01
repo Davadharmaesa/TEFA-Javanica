@@ -50,7 +50,9 @@ Route::middleware(['auth'])->group(function () {
     // ------------------------------------------
     Route::prefix('internal-api')->group(function () {
         Route::get('/roasting/green-beans', [\App\Http\Controllers\Api\RoastingApiController::class, 'getGreenBeans']);
+        Route::get('/roasting/roasted-beans', [\App\Http\Controllers\Api\RoastingApiController::class, 'getRoastedBeans']);
         Route::get('/roasting/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'getBatches']);
+        Route::get('/roasting/stats', [\App\Http\Controllers\Api\RoastingApiController::class, 'getStats']);
         Route::post('/roasting/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'storeBatch']);
     });
 

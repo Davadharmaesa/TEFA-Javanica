@@ -17,9 +17,10 @@ class RoastingBatch extends Model
         'green_bean_id',
         'roasted_bean_id',
         'profil_sangrai',
-        'bentuk_akhir',
-        'berat_mentah',
-        'berat_matang',
+        'durasi_roasting',
+        'berat_sebelum_sort',
+        'berat_matang_kotor',
+        'berat_matang_bersih',
         'persentase_susut',
         'tanggal_roasting',
         'status_batch'

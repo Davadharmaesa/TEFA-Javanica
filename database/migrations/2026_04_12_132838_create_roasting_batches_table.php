@@ -21,9 +21,10 @@ return new class extends Migration
             
             // Atribut Produksi (Sesuai UI Baru)
             $table->string('profil_sangrai');
-            $table->string('bentuk_akhir');
-            $table->decimal('berat_mentah', 8, 2); // Input dalam kilogram
-            $table->decimal('berat_matang', 8, 2); // Input dalam kilogram
+            $table->integer('durasi_roasting'); // dalam menit
+            $table->decimal('berat_sebelum_sort', 8, 2); // Input dalam kilogram
+            $table->decimal('berat_matang_kotor', 8, 2)->nullable(); // Input dalam kilogram (opsional)
+            $table->decimal('berat_matang_bersih', 8, 2); // Input dalam kilogram
             $table->decimal('persentase_susut', 5, 2); // Burnoff %
             
             $table->date('tanggal_roasting');

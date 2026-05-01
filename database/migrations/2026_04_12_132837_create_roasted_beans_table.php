@@ -13,7 +13,6 @@ return new class extends Migration
         Schema::create('roasted_bean', function (Blueprint $table) {
             $table->id();
             $table->string('nama_kopi');
-            $table->string('level_roast'); // e.g. Light Roast, Medium Roast
             $table->string('bentuk_akhir')->default('Biji Utuh'); // e.g. Biji Utuh, Bubuk Kasar
             $table->integer('total_stok')->default(0); // in gram
             $table->string('satuan_dasar')->default('gram');

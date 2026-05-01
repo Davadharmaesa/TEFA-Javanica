@@ -15,8 +15,8 @@ class DashboardController extends Controller
         // 1. Total Stok Biji Mentah (Ambil SUM dari kolom stok_gram)
         $total_stok_biji_mentah = GreenBean::sum('stok_gram') / 1000;
 
-        // 2. Total Kopi Matang (Ambil SUM dari kolom berat_matang di tabel Roasting)
-        $total_kopi_matang = RoastingBatch::sum('berat_matang');
+        // 2. Total Kopi Matang (Ambil SUM dari kolom berat_matang_bersih di tabel Roasting)
+        $total_kopi_matang = RoastingBatch::sum('berat_matang_bersih');
 
         // 3. Penjualan Retail Hari Ini (Hanya transaksi hari ini yang statusnya LUNAS)
         $penjualan_retail = PesananKeluar::whereDate('created_at', Carbon::today())
@@ -46,15 +46,15 @@ class DashboardController extends Controller
             ->map(function ($log) {
                 return [
                     'type' => 'ROASTING',
-                    'description' => "Sangrai {$log->greenBean->nama_biji} (" . $log->profil_sangrai . "). Hasil: " . $log->berat_matang . "kg",
+                    'description' => "Sangrai {$log->greenBean->nama_biji} (" . $log->profil_sangrai . "). Hasil: " . $log->berat_matang_bersih . "kg",
                     'time' => $log->created_at->diffForHumans(),
                     'user' => $log->user->name ?? 'System' // Jika ada relasi user
                 ];
             });
 
         // 6. Rata-Rata Burnoff (Penyusutan)
-        $total_raw_roasted = RoastingBatch::sum('berat_mentah');
-        $total_cooked_roasted = RoastingBatch::sum('berat_matang');
+        $total_raw_roasted = RoastingBatch::sum('berat_sebelum_sort');
+        $total_cooked_roasted = RoastingBatch::sum('berat_matang_bersih');
         $avg_burnoff = $total_raw_roasted > 0
             ? round((($total_raw_roasted - $total_cooked_roasted) / $total_raw_roasted) * 100, 1)
             : 0;

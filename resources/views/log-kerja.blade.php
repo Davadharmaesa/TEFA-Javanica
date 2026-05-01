@@ -9,7 +9,7 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-2xl shadow-sm border border-border/40">
         <div>
             <div class="flex items-center gap-3 mb-2">
-                <div class="bg-secondary/10 text-secondary p-2 rounded-lg">
+                <div class="bg-success/10 text-success p-2 rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
                 <h1 class="text-2xl font-heading font-bold text-primary">
@@ -31,14 +31,14 @@
         <div class="lg:col-span-1 space-y-6">
             <form @submit.prevent="submitLog" class="bg-card p-6 rounded-2xl shadow-sm border border-border/40 space-y-5">
                 <div class="flex items-center gap-2 mb-2">
-                    <div class="w-1.5 h-6 bg-secondary rounded-full"></div>
+                    <div class="w-1.5 h-6 bg-success rounded-full"></div>
                     <h2 class="text-lg font-bold text-primary">Form Input Baru</h2>
                 </div>
 
                 <!-- Select Batch -->
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Pilih ID Batch</label>
-                    <select x-model="form.batch_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
+                    <select x-model="form.batch_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-success/50 focus:border-success transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
                         <option value="">-- Pilih Batch Produksi --</option>
                         <template x-for="batch in activeBatches" :key="batch.id">
                             <option :value="batch.id" x-text="batch.kode + ' (' + batch.produk + ')'"></option>
@@ -50,7 +50,7 @@
                 <!-- Select Pekerja -->
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Nama Pekerja</label>
-                    <select x-model="form.pekerja_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
+                    <select x-model="form.pekerja_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-success/50 focus:border-success transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
                         <option value="">-- Pilih Mahasiswa/Staff --</option>
                         <template x-for="user in pekerjaList" :key="user.id">
                             <option :value="user.id" x-text="user.nama + ' (' + user.role + ')'"></option>
@@ -61,7 +61,7 @@
                 <!-- Select Pekerjaan (Komponen Biaya) -->
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Jenis Pekerjaan</label>
-                    <select x-model="form.komponen_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
+                    <select x-model="form.komponen_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-success/50 focus:border-success transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
                         <option value="">-- Pilih Tugas --</option>
                         <template x-for="tugas in tugasList" :key="tugas.id">
                             <option :value="tugas.id" x-text="tugas.nama + ' (Rp ' + formatRupiah(tugas.tarif) + '/' + tugas.satuan + ')'"></option>
@@ -73,9 +73,9 @@
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm flex justify-between">
                         Jumlah Kerja
-                        <span class="text-secondary bg-secondary/10 px-1.5 py-0.5 rounded text-[9px]" x-text="selectedSatuan"></span>
+                        <span class="text-success bg-success/10 px-1.5 py-0.5 rounded text-[9px]" x-text="selectedSatuan"></span>
                     </label>
-                    <input type="number" step="0.1" x-model.number="form.jumlah" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-xl font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" placeholder="0" required />
+                    <input type="number" min="0.1" step="0.1" x-model="form.jumlah" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-xl font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-success/50 focus:border-success transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" placeholder="0" required />
                 </div>
 
                 <div class="pt-4">
@@ -95,7 +95,7 @@
                         <div class="w-1.5 h-6 bg-primary rounded-full"></div>
                         <h2 class="text-lg font-bold text-primary">Riwayat Log Hari Ini</h2>
                     </div>
-                    <span class="bg-secondary/10 text-secondary text-xs font-bold px-3 py-1 rounded-full">
+                    <span class="bg-success/10 text-success text-xs font-bold px-3 py-1 rounded-full">
                         <span x-text="history.length"></span> Entri
                     </span>
                 </div>
@@ -131,12 +131,12 @@
                                         <p class="font-bold text-primary text-sm" x-text="log.pekerja"></p>
                                     </td>
                                     <td class="p-4">
-                                        <span class="px-2.5 py-1 bg-secondary/10 text-secondary text-[10px] font-black rounded-full uppercase tracking-widest" x-text="log.tugas"></span>
+                                        <span class="px-2.5 py-1 bg-success/10 text-success text-[10px] font-black rounded-full uppercase tracking-widest" x-text="log.tugas"></span>
                                     </td>
                                     <td class="p-4 text-right font-mono font-bold text-primary text-sm">
                                         <span x-text="log.jumlah"></span> <span class="text-xs text-muted-foreground" x-text="log.satuan"></span>
                                     </td>
-                                    <td class="p-4 text-right font-mono font-bold text-secondary text-sm">
+                                    <td class="p-4 text-right font-mono font-bold text-success text-sm">
                                         Rp <span x-text="formatRupiah(log.total_upah)"></span>
                                     </td>
                                 </tr>

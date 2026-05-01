@@ -33,24 +33,18 @@ class DatabaseSeeder extends Seeder
 
         // --- STOK GUDANG MENTAH (Seeder) ---
         \App\Models\GreenBean::create([
-            'nama_biji' => 'GB Arabika Kintamani',
+            'nama_biji' => 'GB Arabika Belawan',
             'stok_gram' => 50000, // 50 Kg
             'asal_kopi' => 'Bali',
             'harga_jual' => 120000
         ]);
 
-        \App\Models\GreenBean::create([
-            'nama_biji' => 'GB Robusta Dampit',
-            'stok_gram' => 100000, // 100 Kg
-            'asal_kopi' => 'Malang',
-            'harga_jual' => 45000
-        ]);
-        
-        \App\Models\GreenBean::create([
-            'nama_biji' => 'GB Arabika Gayo',
-            'stok_gram' => 25000, // 25 Kg
-            'asal_kopi' => 'Aceh',
-            'harga_jual' => 150000
+        // --- PRODUK JADI ROASTED BEAN (Seeder) ---
+    
+        \App\Models\RoastedBean::create([
+            'nama_kopi' => 'GB Arabika Belawan',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 5000, // 5 Kg
         ]);
     }
 }

@@ -13,7 +13,6 @@ class RoastedBean extends Model
 
     protected $fillable = [
         'nama_kopi',
-        'level_roast',
         'bentuk_akhir',
         'total_stok',
         'satuan_dasar'
