@@ -55,6 +55,24 @@ class MasterDataApiController extends Controller
         return response()->json($beans);
     }
 
+    public function storeGreenBean(Request $request)
+    {
+        $validated = $request->validate([
+            'nama_biji' => 'required|string|max:255',
+            'asal_kopi' => 'nullable|string|max:255',
+            'harga_jual' => 'required|numeric|min:0',
+        ]);
+
+        $bean = GreenBean::create([
+            'nama_biji' => $validated['nama_biji'],
+            'asal_kopi' => $validated['asal_kopi'],
+            'harga_jual' => $validated['harga_jual'],
+            'stok_gram' => 0, // Default 0 for new beans
+        ]);
+
+        return response()->json(['message' => 'Data Green Bean berhasil ditambahkan', 'data' => $bean]);
+    }
+
     public function updateGreenBean(Request $request, $id)
     {
         $validated = $request->validate([
@@ -85,6 +103,22 @@ class MasterDataApiController extends Controller
     {
         $beans = RoastedBean::all();
         return response()->json($beans);
+    }
+
+    public function storeRoastedBean(Request $request)
+    {
+        $validated = $request->validate([
+            'nama_kopi' => 'required|string|max:255',
+            'bentuk_akhir' => 'required|string|max:255',
+        ]);
+
+        $bean = RoastedBean::create([
+            'nama_kopi' => $validated['nama_kopi'],
+            'bentuk_akhir' => $validated['bentuk_akhir'],
+            'total_stok' => 0, // Default 0 for new roasted beans
+        ]);
+
+        return response()->json(['message' => 'Data Roasted Bean berhasil ditambahkan', 'data' => $bean]);
     }
 
     public function updateRoastedBean(Request $request, $id)

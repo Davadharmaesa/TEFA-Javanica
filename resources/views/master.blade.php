@@ -359,18 +359,20 @@
 
             async saveData() {
                 if(this.activeTab === 'greenbean') {
-                    if (!this.formGreenBean.id) return alert('Fitur tambah baru blm aktif.');
-                    const res = await fetch(`/internal-api/master/green-beans/${this.formGreenBean.id}`, {
-                        method: 'PUT',
+                    const method = this.formGreenBean.id ? 'PUT' : 'POST';
+                    const url = this.formGreenBean.id ? `/internal-api/master/green-beans/${this.formGreenBean.id}` : `/internal-api/master/green-beans`;
+                    const res = await fetch(url, {
+                        method: method,
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json',
                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
                         body: JSON.stringify(this.formGreenBean)
                     });
                     if(res.ok) this.fetchData();
                 } else if(this.activeTab === 'roastedbean') {
-                    if (!this.formRoastedBean.id) return alert('Fitur tambah baru blm aktif.');
-                    const res = await fetch(`/internal-api/master/roasted-beans/${this.formRoastedBean.id}`, {
-                        method: 'PUT',
+                    const method = this.formRoastedBean.id ? 'PUT' : 'POST';
+                    const url = this.formRoastedBean.id ? `/internal-api/master/roasted-beans/${this.formRoastedBean.id}` : `/internal-api/master/roasted-beans`;
+                    const res = await fetch(url, {
+                        method: method,
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json',
                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
                         body: JSON.stringify(this.formRoastedBean)
