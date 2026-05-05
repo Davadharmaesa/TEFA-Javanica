@@ -56,6 +56,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/roasting/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'storeBatch']);
 
         // Master Data API
+        Route::get('/master/packagings', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getPackagings']);
+        Route::post('/master/packagings', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storePackaging']);
+        Route::put('/master/packagings/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updatePackaging']);
+        Route::delete('/master/packagings/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyPackaging']);
+
         Route::get('/master/biaya', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getBiaya']);
         Route::post('/master/biaya', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storeBiaya']);
         Route::put('/master/biaya/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updateBiaya']);

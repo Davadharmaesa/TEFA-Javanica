@@ -7,9 +7,49 @@ use Illuminate\Http\Request;
 use App\Models\GreenBean;
 use App\Models\RoastedBean;
 use App\Models\Biaya;
+use App\Models\Packaging;
 
 class MasterDataApiController extends Controller
 {
+    // --- PACKAGING / KEMASAN ---
+    public function getPackagings()
+    {
+        return response()->json(Packaging::all());
+    }
+
+    public function storePackaging(Request $request)
+    {
+        $validated = $request->validate([
+            'tipe' => 'required|string|max:255',
+            'nama_kemasan' => 'required|string|max:255',
+            'harga_satuan' => 'required|integer|min:0',
+        ]);
+        // Stok default 0 untuk master data baru
+        $validated['stok_pcs'] = 0;
+
+        $packaging = Packaging::create($validated);
+        return response()->json(['message' => 'Kemasan berhasil ditambahkan', 'data' => $packaging]);
+    }
+
+    public function updatePackaging(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'tipe' => 'required|string|max:255',
+            'nama_kemasan' => 'required|string|max:255',
+            'harga_satuan' => 'required|integer|min:0',
+        ]);
+        $packaging = Packaging::findOrFail($id);
+        $packaging->update($validated);
+        return response()->json(['message' => 'Kemasan berhasil diperbarui', 'data' => $packaging]);
+    }
+
+    public function destroyPackaging($id)
+    {
+        $packaging = Packaging::findOrFail($id);
+        $packaging->delete();
+        return response()->json(['message' => 'Kemasan berhasil dihapus']);
+    }
+
     // --- BIAYA ---
     public function getBiaya()
     {

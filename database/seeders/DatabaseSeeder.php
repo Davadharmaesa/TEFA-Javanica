@@ -66,5 +66,19 @@ class DatabaseSeeder extends Seeder
             'satuan' => 'Batch',
             'harga' => 15000,
         ]);
+
+        // --- KEMASAN / PACKAGING (Seeder) ---
+        \App\Models\Packaging::create([
+            'tipe' => 'Pouch Alumunium',
+            'nama_kemasan' => 'Pouch Hitam Doff 200g',
+            'harga_satuan' => 1500,
+            'stok_pcs' => 100,
+        ]);
+        \App\Models\Packaging::create([
+            'tipe' => 'Stiker',
+            'nama_kemasan' => 'Stiker Label Arabika Ijen',
+            'harga_satuan' => 500,
+            'stok_pcs' => 100,
+        ]);
     }
 }
