@@ -58,7 +58,7 @@ class LogPekerjaApiController extends Controller
     public function getHistory()
     {
         $today = Carbon::today();
-        $logs = LogPekerja::with(['batch', 'batch.greenBean', 'pekerja', 'komponenBiaya'])
+        $logs = LogPekerja::with(['batch', 'batch.greenBean', 'komponenBiaya'])
             ->whereDate('created_at', $today)
             ->orderBy('id', 'desc')
             ->get();
@@ -66,10 +66,12 @@ class LogPekerjaApiController extends Controller
         $formatted = $logs->map(function($log) {
             return [
                 'id' => $log->id,
+                'batch_id' => $log->roasting_batch_id,
+                'nama_pekerja' => $log->nama_pekerja,
+                'komponen_id' => $log->biaya_id,
                 'kode_batch' => $log->batch->kode_batch ?? 'DELETED',
                 'produk' => $log->batch->greenBean->nama_biji ?? '',
-                'nama_pekerja' => $log->pekerja->name ?? 'Unknown',
-                'role_pekerja' => $log->pekerja->role ?? '',
+                'role_pekerja' => 'Pekerja Manual',
                 'tugas' => $log->komponenBiaya->nama ?? 'Unknown',
                 'jumlah' => $log->jumlah_kerja,
                 'satuan' => $log->komponenBiaya->satuan ?? '',
@@ -85,7 +87,7 @@ class LogPekerjaApiController extends Controller
     {
         $validated = $request->validate([
             'batch_id' => 'required|exists:roasting_batch,id',
-            'pekerja_id' => 'required|exists:users,id',
+            'nama_pekerja' => 'required|string|max:255',
             'komponen_id' => 'required|exists:biaya,id',
             'jumlah' => 'required|numeric|min:0',
         ]);
@@ -95,13 +97,37 @@ class LogPekerjaApiController extends Controller
 
         $log = LogPekerja::create([
             'roasting_batch_id' => $validated['batch_id'],
-            'pekerja_id' => $validated['pekerja_id'],
+            'nama_pekerja' => $validated['nama_pekerja'],
             'biaya_id' => $validated['komponen_id'],
             'jumlah_kerja' => $validated['jumlah'],
             'total_upah' => $total_upah,
         ]);
 
         return response()->json(['message' => 'Log pekerja berhasil dicatat', 'data' => $log]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'batch_id' => 'required|exists:roasting_batch,id',
+            'nama_pekerja' => 'required|string|max:255',
+            'komponen_id' => 'required|exists:biaya,id',
+            'jumlah' => 'required|numeric|min:0',
+        ]);
+
+        $log = LogPekerja::findOrFail($id);
+        $tugas = Biaya::findOrFail($validated['komponen_id']);
+        $total_upah = $tugas->harga * $validated['jumlah'];
+
+        $log->update([
+            'roasting_batch_id' => $validated['batch_id'],
+            'nama_pekerja' => $validated['nama_pekerja'],
+            'biaya_id' => $validated['komponen_id'],
+            'jumlah_kerja' => $validated['jumlah'],
+            'total_upah' => $total_upah,
+        ]);
+
+        return response()->json(['message' => 'Log pekerja berhasil diperbarui', 'data' => $log]);
     }
 
     public function destroy($id)

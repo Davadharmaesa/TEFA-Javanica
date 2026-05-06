@@ -13,7 +13,7 @@ class LogPekerja extends Model
 
     protected $fillable = [
         'roasting_batch_id',
-        'pekerja_id',
+        'nama_pekerja',
         'biaya_id',
         'jumlah_kerja',
         'total_upah',
@@ -22,11 +22,6 @@ class LogPekerja extends Model
     public function batch()
     {
         return $this->belongsTo(RoastingBatch::class, 'roasting_batch_id');
-    }
-
-    public function pekerja()
-    {
-        return $this->belongsTo(User::class, 'pekerja_id');
     }
 
     public function komponenBiaya()

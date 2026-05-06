@@ -5,151 +5,153 @@
 @section('content')
 <div x-data="logKerja()" class="space-y-6">
 
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-2xl shadow-sm border border-border/40">
+    <!-- Header Title -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-4">
         <div>
-            <div class="flex items-center gap-3 mb-2">
-                <div class="bg-success/10 text-success p-2 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                </div>
-                <h1 class="text-2xl font-heading font-bold text-primary">
-                    Terminal Log Pekerja
-                </h1>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="flex h-3 w-3 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
+                </span>
+                <span class="text-xs font-mono font-bold text-secondary uppercase tracking-widest">Sistem Online</span>
             </div>
-            <p class="text-sm text-muted-foreground">Catat siapa saja yang terlibat dalam batch produksi hari ini untuk keperluan HPP & Honor.</p>
+            <h1 class="text-3xl font-heading font-black text-primary tracking-tight">Terminal Log Pekerja</h1>
+            <p class="text-muted-foreground font-sans text-sm mt-1">
+                Catat siapa saja yang terlibat dalam batch produksi hari ini untuk keperluan HPP & Honor.
+            </p>
         </div>
-        <div class="text-right bg-muted/30 px-4 py-2 rounded-xl border border-border/50">
-            <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Tanggal Hari Ini</p>
-            <p class="text-lg font-mono font-black text-primary" x-text="todayDate"></p>
+        <div class="text-right">
+            <p class="text-2xl font-mono font-black text-primary" x-text="currentTime"></p>
+            <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest" x-text="currentDate"></p>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Workspace -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <!-- Left Column: Form Input -->
-        <div class="lg:col-span-1 space-y-6">
-            <form @submit.prevent="submitLog" class="bg-card p-6 rounded-2xl shadow-sm border border-border/40 space-y-5">
-                <div class="flex items-center gap-2 mb-2">
-                    <div class="w-1.5 h-6 bg-success rounded-full"></div>
-                    <h2 class="text-lg font-bold text-primary">Form Input Baru</h2>
+        <!-- LEFT: Control Panel Form (Spans 7 cols) -->
+        <div class="lg:col-span-7 bg-card border border-border shadow-lg shadow-black/5 rounded-2xl overflow-hidden flex flex-col">
+            <div class="bg-primary px-6 py-4 flex items-center justify-between">
+                <h2 class="font-heading font-black text-lg text-primary-foreground tracking-wide flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span x-text="editMode ? 'UPDATE PEKERJAAN BATCH' : 'INPUT PEKERJAAN BATCH'"></span>
+                </h2>
+                <div class="bg-white/20 text-white text-[10px] uppercase font-bold px-2 py-1 rounded tracking-widest shadow-inner">Terminal UI</div>
+            </div>
+
+            <form @submit.prevent="submitLog" class="p-6 flex-1 flex flex-col gap-6">
+                <!-- Data Pokok -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Pilih ID Batch</label>
+                        <select x-model="form.batch_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
+                            <option value="">-- PILIH BATCH --</option>
+                            <template x-for="batch in activeBatches" :key="batch.id">
+                                <option :value="batch.id" x-text="batch.kode + ' (' + batch.produk + ')'"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Nama Pekerja</label>
+                        <input type="text" x-model="form.nama_pekerja" placeholder="Ketik nama (misal: Budi, Siti)" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required />
+                    </div>
                 </div>
 
-                <!-- Select Batch -->
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Pilih ID Batch</label>
-                    <select x-model="form.batch_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-success/50 focus:border-success transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
-                        <option value="">-- Pilih Batch Produksi --</option>
-                        <template x-for="batch in activeBatches" :key="batch.id">
-                            <option :value="batch.id" x-text="batch.kode + ' (' + batch.produk + ')'"></option>
-                        </template>
-                    </select>
-                    <p class="text-[10px] text-muted-foreground">*Hanya batch yang diproses hari ini yang muncul.</p>
+                <!-- Custom Selectors -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-muted/30 p-4 rounded-xl border border-border/80 shadow-inner mt-2">
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest flex items-center justify-between">
+                            Jenis Pekerjaan
+                            <span class="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-black normal-case">Wajib Pilih</span>
+                        </label>
+                        <select x-model="form.komponen_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer" required>
+                            <option value="">-- PILIH TUGAS --</option>
+                            <template x-for="tugas in tugasList" :key="tugas.id">
+                                <option :value="tugas.id" x-text="tugas.nama + ' (Rp ' + formatRupiah(tugas.harga || tugas.tarif || 0) + '/' + tugas.satuan + ')'"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest flex items-center justify-between">
+                            Jumlah Kerja
+                            <span class="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-black normal-case" x-text="'Satuan: ' + selectedSatuan"></span>
+                        </label>
+                        <input type="number" min="0.1" step="0.1" x-model="form.jumlah" @wheel="$event.target.blur()" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="0" required />
+                    </div>
                 </div>
 
-                <!-- Select Pekerja -->
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Nama Pekerja</label>
-                    <select x-model="form.pekerja_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-success/50 focus:border-success transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
-                        <option value="">-- Pilih Mahasiswa/Staff --</option>
-                        <template x-for="user in pekerjaList" :key="user.id">
-                            <option :value="user.id" x-text="user.nama + ' (' + user.role + ')'"></option>
-                        </template>
-                    </select>
-                </div>
-
-                <!-- Select Pekerjaan (Komponen Biaya) -->
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Jenis Pekerjaan</label>
-                    <select x-model="form.komponen_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-success/50 focus:border-success transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
-                        <option value="">-- Pilih Tugas --</option>
-                        <template x-for="tugas in tugasList" :key="tugas.id">
-                            <option :value="tugas.id" x-text="tugas.nama + ' (Rp ' + formatRupiah(tugas.tarif) + '/' + tugas.satuan + ')'"></option>
-                        </template>
-                    </select>
-                </div>
-
-                <!-- Input Kuantitas -->
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm flex justify-between">
-                        Jumlah Kerja
-                        <span class="text-success bg-success/10 px-1.5 py-0.5 rounded text-[9px]" x-text="selectedSatuan"></span>
-                    </label>
-                    <input type="number" min="0.1" step="0.1" x-model="form.jumlah" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-xl font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-success/50 focus:border-success transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" placeholder="0" required />
-                </div>
-
-                <div class="pt-4">
-                    <button type="submit" :disabled="loading || !isFormValid" class="w-full h-14 bg-primary text-primary-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md flex justify-center items-center gap-3 group relative overflow-hidden">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                        <span x-text="loading ? 'Menyimpan...' : 'Catat Log Kerja'"></span>
+                <div class="pt-2 mt-auto flex gap-3">
+                    <button type="submit" :disabled="loading || !isFormValid" class="flex-1 h-14 bg-primary text-primary-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_10px_30px_rgb(0,0,0,0.15)] flex justify-center items-center gap-3 relative overflow-hidden transform hover:-translate-y-0.5 active:translate-y-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="relative z-10"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        <span x-show="!loading" class="relative z-10" x-text="editMode ? 'Update Data Pekerja' : 'Tembakkan Data Pekerja'"></span>
+                        <span x-show="loading" class="relative z-10 animate-pulse">Menyimpan...</span>
                     </button>
+                    <button type="button" x-show="editMode" @click="cancelEdit" class="h-14 px-6 bg-muted/50 border border-border text-muted-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-muted transition-all">Batal</button>
                 </div>
             </form>
         </div>
 
-        <!-- Right Column: Riwayat Hari Ini -->
-        <div class="lg:col-span-2">
-            <div class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden h-full flex flex-col">
-                <div class="p-6 border-b border-border/40 bg-muted/10 flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <div class="w-1.5 h-6 bg-primary rounded-full"></div>
-                        <h2 class="text-lg font-bold text-primary">Riwayat Log Hari Ini</h2>
+        <!-- RIGHT: History Panel (Spans 5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+            <div class="bg-card border border-border rounded-2xl p-4 shadow-sm flex justify-between items-center z-10 relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+                <div>
+                    <h2 class="text-lg font-heading font-black text-primary tracking-tight">Log Pekerja Terkini</h2>
+                    <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Histori Operasional Hari Ini</p>
+                </div>
+                <div class="bg-primary/10 text-primary p-2 rounded-xl shadow-inner border border-primary/20 relative z-10 flex flex-col items-center justify-center">
+                    <span class="text-lg font-black leading-none" x-text="history.length"></span>
+                    <span class="text-[8px] font-bold uppercase">Entri</span>
+                </div>
+            </div>
+
+            <!-- List container -->
+            <div class="flex-1 bg-muted/20 border border-border/80 rounded-2xl overflow-y-auto min-h-[400px] max-h-[600px] p-4 space-y-3 relative shadow-inner">
+                <template x-for="log in history" :key="log.id">
+                    <div class="bg-card border-l-4 border-l-secondary border border-border rounded-xl p-4 shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
+                        <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button @click="editLog(log)" class="p-1.5 text-muted-foreground hover:text-primary bg-transparent hover:bg-primary/10 rounded-md transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                            </button>
+                            <button @click="deleteLog(log.id)" class="p-1.5 text-muted-foreground hover:text-red-500 bg-transparent hover:bg-red-500/10 rounded-md transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                            </button>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start mb-1.5">
+                                <span class="font-mono font-black text-primary text-sm uppercase truncate pr-2 group-hover:text-secondary transition-colors" x-text="log.kode_batch"></span>
+                                <span class="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded border border-border/50 bg-muted/30 text-muted-foreground flex-shrink-0" x-text="log.waktu"></span>
+                            </div>
+                            
+                            <p class="font-sans font-bold text-primary/70 text-xs mb-3 truncate" x-text="log.nama_pekerja + ' (' + (log.role_pekerja || 'Pekerja') + ')'"></p>
+                            
+                            <div class="grid grid-cols-2 gap-2 mb-3">
+                                <div class="bg-muted/40 border border-border/60 rounded-lg p-2 text-center group-hover:bg-muted/60 transition-colors">
+                                    <p class="text-[9px] text-primary/60 font-black uppercase mb-0.5">Tugas</p>
+                                    <p class="text-xs font-black text-primary truncate uppercase" x-text="log.tugas"></p>
+                                </div>
+                                <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-2 text-center group-hover:bg-secondary/20 transition-colors">
+                                    <p class="text-[9px] text-secondary/80 font-black uppercase mb-0.5">Upah Estimasi</p>
+                                    <p class="text-xs font-black text-secondary font-mono" x-text="'Rp ' + formatRupiah(log.total_upah)"></p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-1.5 text-[10px] font-mono font-bold text-primary">
+                                <span class="bg-background px-1.5 py-0.5 border border-border/80 rounded" x-text="'JML: ' + log.jumlah + ' ' + log.satuan"></span>
+                            </div>
+                        </div>
                     </div>
-                    <span class="bg-success/10 text-success text-xs font-bold px-3 py-1 rounded-full">
-                        <span x-text="history.length"></span> Entri
-                    </span>
-                </div>
-                
-                <div class="flex-1 overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-muted/30 border-b border-border/50 text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
-                                <th class="p-4">Waktu</th>
-                                <th class="p-4">ID Batch</th>
-                                <th class="p-4">Pekerja</th>
-                                <th class="p-4">Tugas</th>
-                                <th class="p-4 text-right">Kuantitas</th>
-                                <th class="p-4 text-right">Est. Upah</th>
-                                <th class="p-4 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-border/30">
-                            <template x-if="history.length === 0">
-                                <tr>
-                                    <td colspan="7" class="p-8 text-center text-muted-foreground">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3 opacity-40"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-                                        <p class="font-medium">Belum ada pekerja yang dicatat hari ini.</p>
-                                    </td>
-                                </tr>
-                            </template>
-                            <template x-for="log in history" :key="log.id">
-                                <tr class="hover:bg-muted/10 transition-colors group">
-                                    <td class="p-4 text-xs font-mono text-muted-foreground" x-text="log.waktu"></td>
-                                    <td class="p-4">
-                                        <span class="font-mono font-bold text-primary text-xs bg-muted/50 px-2 py-1 rounded" x-text="log.kode_batch"></span>
-                                    </td>
-                                    <td class="p-4">
-                                        <p class="font-bold text-primary text-sm" x-text="log.nama_pekerja"></p>
-                                    </td>
-                                    <td class="p-4">
-                                        <span class="px-2.5 py-1 bg-success/10 text-success text-[10px] font-black rounded-full uppercase tracking-widest" x-text="log.tugas"></span>
-                                    </td>
-                                    <td class="p-4 text-right font-mono font-bold text-primary text-sm">
-                                        <span x-text="log.jumlah"></span> <span class="text-xs text-muted-foreground" x-text="log.satuan"></span>
-                                    </td>
-                                    <td class="p-4 text-right font-mono font-bold text-success text-sm">
-                                        Rp <span x-text="formatRupiah(log.total_upah)"></span>
-                                    </td>
-                                    <td class="p-4 text-center">
-                                        <button @click="deleteLog(log.id)" class="p-1.5 text-muted-foreground hover:text-red-500 bg-transparent hover:bg-red-500/10 rounded-md transition-colors">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
+                </template>
+
+                <template x-if="history.length === 0">
+                    <div class="h-full min-h-[300px] flex flex-col items-center justify-center text-muted py-12 text-center px-4">
+                        <div class="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center mb-4 ring-4 ring-muted/10">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="opacity-40"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <p class="font-sans text-xs uppercase font-black tracking-widest text-muted-foreground">Log Kosong</p>
+                        <p class="text-[10px] text-muted-foreground/70 mt-2 max-w-[200px] leading-relaxed font-medium">Belum ada aktivitas pekerja yang terekam hari ini.</p>
+                    </div>
+                </template>
             </div>
         </div>
     </div>
@@ -160,28 +162,30 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('logKerja', () => ({
             loading: false,
-            form: { batch_id: '', pekerja_id: '', komponen_id: '', jumlah: '' },
+            form: { batch_id: '', nama_pekerja: '', komponen_id: '', jumlah: '' },
             history: [],
+            editMode: false,
+            editId: null,
 
             activeBatches: [],
-            pekerjaList: [],
+            // pekerjaList removed
             tugasList: [],
+            timeObj: new Date(),
 
             async init() {
                 await this.fetchData();
+                setInterval(() => { this.timeObj = new Date(); }, 1000);
             },
 
             async fetchData() {
                 try {
-                    const [batchesRes, pekerjaRes, tugasRes, historyRes] = await Promise.all([
+                    const [batchesRes, tugasRes, historyRes] = await Promise.all([
                         fetch('/internal-api/log-kerja/batches'),
-                        fetch('/internal-api/log-kerja/pekerja'),
                         fetch('/internal-api/log-kerja/tugas'),
                         fetch('/internal-api/log-kerja/history')
                     ]);
 
                     if (batchesRes.ok) this.activeBatches = await batchesRes.json();
-                    if (pekerjaRes.ok) this.pekerjaList = await pekerjaRes.json();
                     if (tugasRes.ok) this.tugasList = await tugasRes.json();
                     if (historyRes.ok) this.history = await historyRes.json();
                 } catch (e) {
@@ -189,8 +193,12 @@
                 }
             },
 
-            get todayDate() {
-                return new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            get currentTime() {
+                return this.timeObj.toLocaleTimeString('id-ID', { hour12: false });
+            },
+
+            get currentDate() {
+                return this.timeObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             },
 
             get selectedSatuan() {
@@ -200,7 +208,24 @@
             },
 
             get isFormValid() {
-                return this.form.batch_id && this.form.pekerja_id && this.form.komponen_id && this.form.jumlah > 0;
+                return this.form.batch_id && this.form.nama_pekerja && this.form.komponen_id && this.form.jumlah > 0;
+            },
+
+            editLog(log) {
+                this.editMode = true;
+                this.editId = log.id;
+                this.form = {
+                    batch_id: log.batch_id,
+                    nama_pekerja: log.nama_pekerja,
+                    komponen_id: log.komponen_id,
+                    jumlah: log.jumlah
+                };
+            },
+
+            cancelEdit() {
+                this.editMode = false;
+                this.editId = null;
+                this.form = { batch_id: '', nama_pekerja: '', komponen_id: '', jumlah: '' };
             },
 
             async submitLog() {
@@ -208,8 +233,11 @@
                 this.loading = true;
                 
                 try {
-                    const res = await fetch('/internal-api/log-kerja', {
-                        method: 'POST',
+                    const url = this.editMode ? `/internal-api/log-kerja/${this.editId}` : '/internal-api/log-kerja';
+                    const method = this.editMode ? 'PUT' : 'POST';
+
+                    const res = await fetch(url, {
+                        method: method,
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
@@ -220,11 +248,9 @@
 
                     if (res.ok) {
                         await this.fetchData();
-                        this.form.pekerja_id = '';
-                        this.form.komponen_id = '';
-                        this.form.jumlah = '';
+                        this.cancelEdit();
                     } else {
-                        alert('Gagal mencatat log pekerja.');
+                        alert(this.editMode ? 'Gagal memperbarui log pekerja.' : 'Gagal mencatat log pekerja.');
                     }
                 } catch (e) {
                     alert('Terjadi kesalahan.');

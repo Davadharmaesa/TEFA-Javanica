@@ -61,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/log-kerja/tugas', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getTugas']);
         Route::get('/log-kerja/history', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getHistory']);
         Route::post('/log-kerja', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'store']);
+        Route::put('/log-kerja/{id}', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'update']);
         Route::delete('/log-kerja/{id}', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'destroy']);
 
         // Master Data API
