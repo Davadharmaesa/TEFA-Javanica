@@ -90,6 +90,18 @@ Route::middleware(['auth'])->group(function () {
     // ------------------------------------------
     Route::prefix('inventory')->name('inventory.')->group(function () {
         Route::get('/', [\App\Http\Controllers\InventoryController::class, 'index'])->name('index');
+        
+        Route::post('/green-bean', [\App\Http\Controllers\InventoryController::class, 'storeGreenBean'])->name('store-green-bean');
+        Route::put('/green-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'updateGreenBean'])->name('update-green-bean');
+        Route::delete('/green-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyGreenBean'])->name('destroy-green-bean');
+
+        Route::post('/roasted-bean', [\App\Http\Controllers\InventoryController::class, 'storeRoastedBean'])->name('store-roasted-bean');
+        Route::put('/roasted-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'updateRoastedBean'])->name('update-roasted-bean');
+        Route::delete('/roasted-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyRoastedBean'])->name('destroy-roasted-bean');
+
+        Route::post('/packaging', [\App\Http\Controllers\InventoryController::class, 'storePackaging'])->name('store-packaging');
+        Route::put('/packaging/{id}', [\App\Http\Controllers\InventoryController::class, 'updatePackaging'])->name('update-packaging');
+        Route::delete('/packaging/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyPackaging'])->name('destroy-packaging');
     });
 
     // ------------------------------------------
