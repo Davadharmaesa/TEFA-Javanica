@@ -40,7 +40,7 @@
             $navItems = [
                 ['name' => 'Beranda', 'path' => 'dashboard', 'href' => route('dashboard'), 'icon' => 'home'],
                 ['name' => 'Roasting', 'path' => 'production', 'href' => '/production', 'icon' => 'coffee'],
-                ['name' => 'Log Pekerja', 'path' => 'production/log-kerja', 'href' => '/production/log-kerja', 'icon' => 'users'],
+                ['name' => 'Log Pekerja', 'path' => 'log-kerja', 'href' => '/log-kerja', 'icon' => 'users'],
                 ['name' => 'Gudang', 'path' => 'inventory', 'href' => '/inventory', 'icon' => 'package'],
             ];
 

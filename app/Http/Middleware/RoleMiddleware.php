@@ -7,13 +7,16 @@ use Illuminate\Http\Request;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, $role)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
         if (!auth()->check()) {
             return redirect('/');
         }
 
-        if (strtolower(auth()->user()->role) !== strtolower($role)) {
+        $userRole = strtolower(auth()->user()->role);
+        $roles = array_map('strtolower', $roles);
+
+        if (!in_array($userRole, $roles)) {
             abort(403, 'Akses ditolak');
         }
 

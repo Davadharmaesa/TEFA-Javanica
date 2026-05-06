@@ -33,42 +33,42 @@ Route::middleware(['auth'])->group(function () {
 
 
     // ==========================================
-    // 🧑‍🏭 OPERATOR AREA
+    // 🧑‍🏭 SHARING AREA (Operator & PIC)
     // ==========================================
-    Route::middleware(['role:Operator'])->group(function () {
+    Route::middleware(['role:Operator,PIC'])->group(function () {
 
         // Production / Roasting
         Route::prefix('production')->name('production.')->group(function () {
             Route::get('/', [ProductionController::class, 'index'])->name('index');
-
-            Route::get('/log-kerja', function () {
-                return view('log-kerja');
-            })->name('log_kerja');
-
         });
 
-        // Inventory (operator boleh akses)
+        // Log Pekerja
+        Route::get('/log-kerja', function () {
+            return view('log-kerja');
+        })->name('log_kerja.index');
+
+        // Inventory (Operator cuma bisa lihat, PIC bisa edit)
         Route::prefix('inventory')->name('inventory.')->group(function () {
             Route::get('/', [\App\Http\Controllers\InventoryController::class, 'index'])->name('index');
         });
 
-        // INTERNAL API KHUSUS OPERATOR
-        Route::prefix('internal-api/roasting')->group(function () {
-            Route::get('/green-beans', [\App\Http\Controllers\Api\RoastingApiController::class, 'getGreenBeans']);
-            Route::get('/roasted-beans', [\App\Http\Controllers\Api\RoastingApiController::class, 'getRoastedBeans']);
-            Route::get('/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'getBatches']);
-            Route::get('/stats', [\App\Http\Controllers\Api\RoastingApiController::class, 'getStats']);
-            Route::post('/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'storeBatch']);
-        });
+        // INTERNAL API KHUSUS PRODUKSI (ROASTING & LOG PEKERJA)
+        Route::prefix('internal-api')->group(function () {
+            Route::get('/roasting/green-beans', [\App\Http\Controllers\Api\RoastingApiController::class, 'getGreenBeans']);
+            Route::get('/roasting/roasted-beans', [\App\Http\Controllers\Api\RoastingApiController::class, 'getRoastedBeans']);
+            Route::get('/roasting/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'getBatches']);
+            Route::get('/roasting/stats', [\App\Http\Controllers\Api\RoastingApiController::class, 'getStats']);
+            Route::post('/roasting/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'storeBatch']);
 
-        // Log Pekerja API
-        Route::get('/log-kerja/batches', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getActiveBatches']);
-        Route::get('/log-kerja/pekerja', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getPekerja']);
-        Route::get('/log-kerja/tugas', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getTugas']);
-        Route::get('/log-kerja/history', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getHistory']);
-        Route::post('/log-kerja', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'store']);
-        Route::put('/log-kerja/{id}', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'update']);
-        Route::delete('/log-kerja/{id}', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'destroy']);
+            // Log Pekerja API
+            Route::get('/log-kerja/batches', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getActiveBatches']);
+            Route::get('/log-kerja/pekerja', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getPekerja']);
+            Route::get('/log-kerja/tugas', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getTugas']);
+            Route::get('/log-kerja/history', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getHistory']);
+            Route::post('/log-kerja', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'store']);
+            Route::put('/log-kerja/{id}', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'update']);
+            Route::delete('/log-kerja/{id}', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'destroy']);
+        });
     });
 
     // ==========================================
@@ -83,19 +83,13 @@ Route::middleware(['auth'])->group(function () {
             })->name('index');
         });
 
-        Route::prefix('production')->name('production.')->group(function () {
-            Route::get('/', [ProductionController::class, 'index'])->name('index');
-
-            Route::get('/log-kerja', function () {
-                return view('log-kerja');
-            })->name('log_kerja');
-        });
+        // Route production sudah dipindah ke shared area di atas
 
             // ------------------------------------------
             // MODUL GUDANG (INVENTORY)
             // ------------------------------------------
             Route::prefix('inventory')->name('inventory.')->group(function () {
-                Route::get('/', [\App\Http\Controllers\InventoryController::class, 'index'])->name('index');
+                // Route GET / dipindah ke shared area agar Operator bisa lihat
 
                 Route::post('/green-bean', [\App\Http\Controllers\InventoryController::class, 'storeGreenBean'])->name('store-green-bean');
                 Route::put('/green-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'updateGreenBean'])->name('update-green-bean');
