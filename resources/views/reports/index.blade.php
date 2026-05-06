@@ -14,29 +14,45 @@
             </h1>
             <p class="text-sm text-muted-foreground mt-1">Pantau kinerja finansial, profitabilitas, dan arus kas roastery.</p>
         </div>
-        <div class="flex gap-2">
+        <!-- Actions Panel -->
+        <div class="flex flex-col sm:flex-row gap-4 mt-4 md:mt-0 items-center bg-muted/20 p-2 sm:pr-2 sm:pl-4 rounded-2xl border border-border/50 shadow-sm">
             <!-- Filter Tanggal -->
-            <div class="bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
-                <select class="bg-transparent border-none focus:ring-0 outline-none cursor-pointer">
-                    <option value="this_month">Bulan Ini (Mei 2026)</option>
-                    <option value="last_month">Bulan Lalu (Apr 2026)</option>
-                    <option value="this_year">Tahun Ini</option>
-                </select>
+            <div class="flex flex-col w-full sm:w-auto">
+                <label class="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1 ml-1">Periode Laporan</label>
+                <div class="bg-background border border-border/60 rounded-xl px-3 py-2 text-sm font-bold text-primary flex items-center gap-2 shadow-sm transition-colors hover:border-primary/50">
+                    <svg class="text-primary/70" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+                    <select class="bg-transparent border-none focus:ring-0 outline-none cursor-pointer w-full">
+                        <option value="this_month">Bulan Ini (Mei 2026)</option>
+                        <option value="last_month">Bulan Lalu (Apr 2026)</option>
+                        <option value="this_year">Tahun Ini</option>
+                    </select>
+                </div>
             </div>
-            <button @click="printReport()" class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
-                Cetak PDF
-            </button>
-            <button @click="isImportModalOpen = true" class="bg-green-600 text-white hover:bg-green-700 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Import Excel 2025
-            </button>
+            
+            <div class="hidden sm:block w-px h-12 bg-border/60 rounded-full"></div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col gap-1.5 w-full sm:w-[150px]">
+                <button @click="printReport()" class="w-full bg-secondary/10 text-secondary hover:bg-secondary hover:text-secondary-foreground border border-secondary/20 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-between group shadow-sm">
+                    <span class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                        Cetak PDF
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-0 group-hover:opacity-100 transition-transform transform translate-x-[-5px] group-hover:translate-x-0"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+                <button @click="isImportModalOpen = true" class="w-full bg-green-500/10 text-green-600 hover:bg-green-600 hover:text-white border border-green-500/20 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-between group shadow-sm">
+                    <span class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Import Excel
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-0 group-hover:opacity-100 transition-transform transform translate-x-[-5px] group-hover:translate-x-0"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- Summary Cards -->
-    <div class="print:hidden grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="print:hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Pendapatan -->
         <div class="bg-card border border-border/40 rounded-2xl p-5 shadow-sm flex items-center gap-3 relative overflow-hidden group">
             <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-green-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -66,8 +82,8 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
             </div>
             <div>
-                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Biaya Operasional</p>
-                <p class="text-xl font-heading font-black text-foreground">Rp 2.100.000</p>
+                <p class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Biaya Operasional</p>
+                <p class="text-[15px] font-heading font-black text-foreground whitespace-nowrap">Rp 2.100.000</p>
             </div>
         </div>
         <!-- Laba Bersih -->
@@ -78,7 +94,7 @@
             </div>
             <div>
                 <p class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Laba Bersih</p>
-                <p class="text-[15px] font-heading font-black text-primary whitespace-nowrap">Rp 6.200.000</p>
+                <p class="text-[15px] font-heading font-black text-foreground whitespace-nowrap">Rp 6.200.000</p>
             </div>
         </div>
     </div>
