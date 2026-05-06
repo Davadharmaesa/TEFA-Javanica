@@ -167,7 +167,7 @@
                 </div>
             </div>
             
-            <div class="flex-1 space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-border before:to-transparent">
+            <div class="flex-1 ">
                 @foreach($recent_logs as $log)
                     <div class="relative flex items-start gap-4">
                         <div class="w-10 h-10 bg-card border border-border rounded-full flex items-center justify-center text-primary shrink-0 z-10 shadow-sm relative left-0.5 shadow-sm">
