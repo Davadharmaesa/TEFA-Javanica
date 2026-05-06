@@ -28,6 +28,10 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
                 Cetak PDF
             </button>
+            <button @click="isImportModalOpen = true" class="bg-green-600 text-white hover:bg-green-700 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Import Excel 2025
+            </button>
         </div>
     </div>
 
@@ -185,6 +189,10 @@
             <div>
                 <h2 class="text-xl font-heading font-bold text-primary">Riwayat Arus Kas (Buku Kas)</h2>
                 <p class="text-sm text-muted-foreground">Mencatat seluruh uang masuk dan keluar.</p>
+                <button @click="isModalAwalOpen = true" class="mt-3 bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Set Modal Awal
+                </button>
             </div>
             <div class="text-right">
                 <p class="text-sm font-bold text-muted-foreground uppercase tracking-wider">Saldo Akhir Kas</p>
@@ -265,6 +273,58 @@
         </div>
     </div>
 
+    <!-- Modal Import Excel -->
+    <div x-show="isImportModalOpen" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity" @click="isImportModalOpen = false"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+            <div class="inline-block align-bottom bg-card border border-border/50 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
+                <div class="px-6 py-5 border-b border-border/50 flex justify-between items-center bg-muted/30">
+                    <h3 class="text-xl font-heading font-black text-primary">Import Laporan 2025</h3>
+                    <button @click="isImportModalOpen = false" class="text-muted-foreground hover:text-foreground transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="px-6 py-6 space-y-4">
+                    <div class="border-2 border-dashed border-border rounded-xl p-8 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-green-500 mb-3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></svg>
+                        <p class="text-sm font-bold text-foreground mb-1">Upload File Excel (.xlsx)</p>
+                        <p class="text-xs text-muted-foreground mb-4">Sistem akan otomatis membaca Pemasukan & Pengeluaran dari file ini.</p>
+                        <button class="bg-secondary/20 text-secondary font-bold px-4 py-2 rounded-lg text-xs">Pilih File</button>
+                    </div>
+                </div>
+                <div class="px-6 py-4 border-t border-border/50 bg-muted/10 flex justify-end gap-3">
+                    <button type="button" @click="isImportModalOpen = false" class="px-4 py-2 text-sm font-bold text-muted-foreground hover:text-foreground">Tutup (Mockup)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Input Modal Awal -->
+    <div x-show="isModalAwalOpen" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity" @click="isModalAwalOpen = false"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+            <div class="inline-block align-bottom bg-card border border-border/50 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm w-full">
+                <div class="px-6 py-5 border-b border-border/50 flex justify-between items-center bg-muted/30">
+                    <h3 class="text-xl font-heading font-black text-primary">Set Modal Awal</h3>
+                    <button @click="isModalAwalOpen = false" class="text-muted-foreground hover:text-foreground transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="px-6 py-6">
+                    <label class="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Nominal Modal (Rp)</label>
+                    <input type="text" value="10.000.000" class="w-full bg-background border border-border rounded-xl px-4 py-3 text-lg font-mono font-bold focus:ring-2 focus:ring-primary focus:border-primary">
+                    <p class="text-[10px] text-muted-foreground mt-2">Dana ini akan masuk ke Saldo Kas Utama.</p>
+                </div>
+                <div class="px-6 py-4 border-t border-border/50 bg-muted/10 flex justify-end gap-3">
+                    <button type="button" @click="isModalAwalOpen = false" class="px-4 py-2 text-sm font-bold text-muted-foreground hover:text-foreground">Batal</button>
+                    <button type="button" @click="isModalAwalOpen = false" class="px-6 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-bold">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @push('scripts')
@@ -272,6 +332,8 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('reportData', () => ({
             activeTab: 'labarugi',
+            isImportModalOpen: false,
+            isModalAwalOpen: false,
             
             printReport() {
                 window.print();

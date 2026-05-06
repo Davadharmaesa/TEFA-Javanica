@@ -24,6 +24,20 @@ class DatabaseSeeder extends Seeder
             'role' =>  'Operator',
         ]);
 
+        User::factory()->create([
+            'name' => 'Habib',
+            'email' => 'habib@mahasiswa.com',
+            'password' => bcrypt('password'),
+            'role' =>  'Mahasiswa Magang',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Nain',
+            'email' => 'nain@mahasiswa.com',
+            'password' => bcrypt('password'),
+            'role' =>  'Mahasiswa Magang',
+        ]);
+
         \App\Models\User::factory()->create([
             'name' => 'Bu Astri',
             'email' => 'buastri@tefa.com',

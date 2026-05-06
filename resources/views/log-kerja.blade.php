@@ -110,12 +110,13 @@
                                 <th class="p-4">Tugas</th>
                                 <th class="p-4 text-right">Kuantitas</th>
                                 <th class="p-4 text-right">Est. Upah</th>
+                                <th class="p-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-border/30">
                             <template x-if="history.length === 0">
                                 <tr>
-                                    <td colspan="6" class="p-8 text-center text-muted-foreground">
+                                    <td colspan="7" class="p-8 text-center text-muted-foreground">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3 opacity-40"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
                                         <p class="font-medium">Belum ada pekerja yang dicatat hari ini.</p>
                                     </td>
@@ -125,10 +126,10 @@
                                 <tr class="hover:bg-muted/10 transition-colors group">
                                     <td class="p-4 text-xs font-mono text-muted-foreground" x-text="log.waktu"></td>
                                     <td class="p-4">
-                                        <span class="font-mono font-bold text-primary text-xs bg-muted/50 px-2 py-1 rounded" x-text="log.batch"></span>
+                                        <span class="font-mono font-bold text-primary text-xs bg-muted/50 px-2 py-1 rounded" x-text="log.kode_batch"></span>
                                     </td>
                                     <td class="p-4">
-                                        <p class="font-bold text-primary text-sm" x-text="log.pekerja"></p>
+                                        <p class="font-bold text-primary text-sm" x-text="log.nama_pekerja"></p>
                                     </td>
                                     <td class="p-4">
                                         <span class="px-2.5 py-1 bg-success/10 text-success text-[10px] font-black rounded-full uppercase tracking-widest" x-text="log.tugas"></span>
@@ -138,6 +139,11 @@
                                     </td>
                                     <td class="p-4 text-right font-mono font-bold text-success text-sm">
                                         Rp <span x-text="formatRupiah(log.total_upah)"></span>
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <button @click="deleteLog(log.id)" class="p-1.5 text-muted-foreground hover:text-red-500 bg-transparent hover:bg-red-500/10 rounded-md transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        </button>
                                     </td>
                                 </tr>
                             </template>
@@ -157,21 +163,31 @@
             form: { batch_id: '', pekerja_id: '', komponen_id: '', jumlah: '' },
             history: [],
 
-            // --- DUMMY DATA UNTUK MOCKUP ---
-            activeBatches: [
-                { id: 'B-001', kode: 'BATCH-001', produk: 'Arabika Ijen' },
-                { id: 'B-002', kode: 'BATCH-002', produk: 'Robusta Dampit' },
-            ],
-            pekerjaList: [
-                { id: 'U-01', nama: 'Habib', role: 'Mahasiswa Magang' },
-                { id: 'U-02', nama: 'Nain', role: 'Mahasiswa Magang' },
-                { id: 'U-03', nama: 'Deka', role: 'Operator Roasting' },
-            ],
-            tugasList: [
-                { id: 'T-01', nama: 'Sortasi Green Bean', satuan: 'Kg', tarif: 5000 },
-                { id: 'T-02', nama: 'Sortasi Roasted', satuan: 'Kg', tarif: 6000 },
-                { id: 'T-03', nama: 'Roasting', satuan: 'Batch', tarif: 15000 },
-            ],
+            activeBatches: [],
+            pekerjaList: [],
+            tugasList: [],
+
+            async init() {
+                await this.fetchData();
+            },
+
+            async fetchData() {
+                try {
+                    const [batchesRes, pekerjaRes, tugasRes, historyRes] = await Promise.all([
+                        fetch('/internal-api/log-kerja/batches'),
+                        fetch('/internal-api/log-kerja/pekerja'),
+                        fetch('/internal-api/log-kerja/tugas'),
+                        fetch('/internal-api/log-kerja/history')
+                    ]);
+
+                    if (batchesRes.ok) this.activeBatches = await batchesRes.json();
+                    if (pekerjaRes.ok) this.pekerjaList = await pekerjaRes.json();
+                    if (tugasRes.ok) this.tugasList = await tugasRes.json();
+                    if (historyRes.ok) this.history = await historyRes.json();
+                } catch (e) {
+                    console.error('Error fetching log pekerja data:', e);
+                }
+            },
 
             get todayDate() {
                 return new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -179,7 +195,7 @@
 
             get selectedSatuan() {
                 if(!this.form.komponen_id) return 'Satuan';
-                let t = this.tugasList.find(x => x.id === this.form.komponen_id);
+                let t = this.tugasList.find(x => x.id === parseInt(this.form.komponen_id));
                 return t ? t.satuan : 'Satuan';
             },
 
@@ -187,37 +203,52 @@
                 return this.form.batch_id && this.form.pekerja_id && this.form.komponen_id && this.form.jumlah > 0;
             },
 
-            submitLog() {
+            async submitLog() {
+                if (!this.isFormValid) return;
                 this.loading = true;
                 
-                // Simulasi network delay
-                setTimeout(() => {
-                    // Cari data label
-                    let batch = this.activeBatches.find(b => b.id === this.form.batch_id);
-                    let pekerja = this.pekerjaList.find(p => p.id === this.form.pekerja_id);
-                    let tugas = this.tugasList.find(t => t.id === this.form.komponen_id);
-                    
-                    let total = this.form.jumlah * tugas.tarif;
-
-                    // Push to history
-                    this.history.unshift({
-                        id: Date.now(),
-                        waktu: new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}),
-                        batch: batch.kode,
-                        pekerja: pekerja.nama,
-                        tugas: tugas.nama,
-                        jumlah: this.form.jumlah,
-                        satuan: tugas.satuan,
-                        total_upah: total
+                try {
+                    const res = await fetch('/internal-api/log-kerja', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(this.form)
                     });
 
-                    // Reset form partially (keep batch_id in case logging multiple people for same batch)
-                    this.form.pekerja_id = '';
-                    this.form.komponen_id = '';
-                    this.form.jumlah = '';
-                    
+                    if (res.ok) {
+                        await this.fetchData();
+                        this.form.pekerja_id = '';
+                        this.form.komponen_id = '';
+                        this.form.jumlah = '';
+                    } else {
+                        alert('Gagal mencatat log pekerja.');
+                    }
+                } catch (e) {
+                    alert('Terjadi kesalahan.');
+                } finally {
                     this.loading = false;
-                }, 600);
+                }
+            },
+
+            async deleteLog(id) {
+                if (!confirm('Apakah anda yakin ingin menghapus log ini?')) return;
+                try {
+                    const res = await fetch(`/internal-api/log-kerja/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    });
+                    if (res.ok) {
+                        await this.fetchData();
+                    }
+                } catch (e) {
+                    alert('Gagal menghapus data.');
+                }
             },
 
             formatRupiah(number) {
