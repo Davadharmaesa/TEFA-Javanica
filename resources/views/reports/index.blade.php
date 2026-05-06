@@ -6,7 +6,7 @@
 <div x-data="reportData()" class="space-y-6">
 
     <!-- Header Section -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-2xl shadow-sm border border-border/40">
+    <div class="print:hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-2xl shadow-sm border border-border/40">
         <div>
             <h1 class="text-2xl font-heading font-bold text-primary flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
@@ -36,55 +36,55 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="print:hidden grid grid-cols-1 md:grid-cols-4 gap-6">
         <!-- Pendapatan -->
-        <div class="bg-card border border-border/40 rounded-2xl p-6 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+        <div class="bg-card border border-border/40 rounded-2xl p-5 shadow-sm flex items-center gap-3 relative overflow-hidden group">
             <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-green-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="w-14 h-14 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+            <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
             </div>
             <div>
-                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Pendapatan</p>
-                <p class="text-xl font-heading font-black text-foreground">Rp 12.500.000</p>
+                <p class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Total Pendapatan</p>
+                <p class="text-[15px] font-heading font-black text-foreground whitespace-nowrap">Rp 12.500.000</p>
             </div>
         </div>
         <!-- HPP -->
-        <div class="bg-card border border-border/40 rounded-2xl p-6 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+        <div class="bg-card border border-border/40 rounded-2xl p-5 shadow-sm flex items-center gap-3 relative overflow-hidden group">
             <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="w-14 h-14 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
+            <div class="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
             </div>
             <div>
-                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Harga Pokok (HPP)</p>
-                <p class="text-xl font-heading font-black text-foreground">Rp 4.200.000</p>
+                <p class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Harga Pokok (HPP)</p>
+                <p class="text-[15px] font-heading font-black text-foreground whitespace-nowrap">Rp 4.200.000</p>
             </div>
         </div>
         <!-- Operasional -->
-        <div class="bg-card border border-border/40 rounded-2xl p-6 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+        <div class="bg-card border border-border/40 rounded-2xl p-5 shadow-sm flex items-center gap-3 relative overflow-hidden group">
             <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="w-14 h-14 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
+            <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
             </div>
             <div>
-                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Biaya Upah Log Pekerja</p>
-                <p class="text-xl font-heading font-black text-foreground">Rp {{ number_format($totalUpahPekerja ?? 0, 0, ',', '.') }}</p>
+                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Biaya Operasional</p>
+                <p class="text-xl font-heading font-black text-foreground">Rp 2.100.000</p>
             </div>
         </div>
         <!-- Laba Bersih -->
-        <div class="bg-card border border-border/40 rounded-2xl p-6 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+        <div class="bg-card border border-border/40 rounded-2xl p-5 shadow-sm flex items-center gap-3 relative overflow-hidden group">
             <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.3 7H6a2 2 0 0 1 2 2v5"/><path d="M7.9 15.2c.4 1 1.4 1.8 2.5 1.8h7.1c1.5 0 2.7-1.4 2.4-2.9-.2-.8-.8-1.4-1.6-1.6-.5-.1-1.1-.1-1.6.2-1.4.7-3.1.2-3.8-1.2s-.2-3.1 1.2-3.8c.5-.3 1.1-.3 1.6-.2.8.2 1.4.8 1.6 1.6.3 1.5-.9 2.9-2.4 2.9H8.6c-1.1 0-2.1.8-2.5 1.8"/></svg>
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.3 7H6a2 2 0 0 1 2 2v5"/><path d="M7.9 15.2c.4 1 1.4 1.8 2.5 1.8h7.1c1.5 0 2.7-1.4 2.4-2.9-.2-.8-.8-1.4-1.6-1.6-.5-.1-1.1-.1-1.6.2-1.4.7-3.1.2-3.8-1.2s-.2-3.1 1.2-3.8c.5-.3 1.1-.3 1.6-.2.8.2 1.4.8 1.6 1.6.3 1.5-.9 2.9-2.4 2.9H8.6c-1.1 0-2.1.8-2.5 1.8"/></svg>
             </div>
             <div>
-                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Laba Bersih</p>
-                <p class="text-xl font-heading font-black text-primary">Rp 6.200.000</p>
+                <p class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Laba Bersih</p>
+                <p class="text-[15px] font-heading font-black text-primary whitespace-nowrap">Rp 6.200.000</p>
             </div>
         </div>
     </div>
 
     <!-- Tabs Navigation -->
-    <div class="flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50">
+    <div class="print:hidden flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50">
         <button @click="activeTab = 'labarugi'" 
             class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
             :class="activeTab === 'labarugi' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
@@ -99,11 +99,18 @@
         </button>
     </div>
 
+    <!-- Print Header -->
+    <div class="hidden print:block text-center mb-8 pb-4 border-b-2 border-primary">
+        <h1 class="text-3xl font-heading font-black text-primary">TEFA Javanica</h1>
+        <p class="text-lg font-bold text-foreground mt-1">Laporan Keuangan Roastery</p>
+        <p class="text-sm text-muted-foreground mt-1" x-text="activeTab === 'labarugi' ? 'Laporan Laba Rugi - Periode: Mei 2026' : 'Riwayat Arus Kas - Periode: Mei 2026'"></p>
+    </div>
+
     <!-- Tab Content: Laba Rugi -->
-    <div x-show="activeTab === 'labarugi'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-border/40 bg-muted/10">
-            <h2 class="text-xl font-heading font-bold text-primary">Laporan Laba Rugi</h2>
-            <p class="text-sm text-muted-foreground">Periode: 1 Mei 2026 - 31 Mei 2026</p>
+    <div x-show="activeTab === 'labarugi'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden print:border-none print:shadow-none print:rounded-none">
+        <div class="p-6 border-b border-primary/40 bg-primary text-primary-foreground">
+            <h2 class="text-xl font-heading font-bold text-white">Laporan Laba Rugi</h2>
+            <p class="text-sm text-white/80">Periode: 1 Mei 2026 - 31 Mei 2026</p>
         </div>
         <div class="p-6">
             <table class="w-full text-left">
@@ -147,9 +154,9 @@
                     </tr>
 
                     <!-- Laba Kotor -->
-                    <tr class="bg-primary/5 border-b border-border/50">
-                        <td class="py-4 pl-6 font-bold text-primary text-lg uppercase tracking-wider">Laba Kotor</td>
-                        <td class="py-4 text-right font-mono font-black text-primary text-lg">Rp 8.300.000</td>
+                    <tr class="bg-muted/30 border-y-2 border-border/60 shadow-sm">
+                        <td class="py-3 pl-6 font-bold text-foreground text-[15px] uppercase tracking-wider">Laba Kotor</td>
+                        <td class="py-3 px-6 text-right font-mono font-black text-foreground text-lg">Rp 8.300.000</td>
                     </tr>
 
                     <!-- Biaya Operasional -->
@@ -174,9 +181,9 @@
                     </tr>
 
                     <!-- Laba Bersih -->
-                    <tr class="bg-primary border-b border-border/50">
-                        <td class="py-5 px-6 font-black text-primary-foreground text-xl uppercase tracking-wider rounded-l-lg">Laba Bersih Operasional</td>
-                        <td class="py-5 px-6 text-right font-mono font-black text-primary-foreground text-2xl rounded-r-lg">Rp 6.200.000</td>
+                    <tr class="bg-primary">
+                        <td class="py-3 px-6 font-black text-primary-foreground text-[15px] uppercase tracking-wider rounded-bl-lg">Laba Bersih Operasional</td>
+                        <td class="py-3 px-6 text-right font-mono font-black text-primary-foreground text-xl rounded-br-lg">Rp 6.200.000</td>
                     </tr>
                 </tbody>
             </table>
@@ -184,19 +191,15 @@
     </div>
 
     <!-- Tab Content: Arus Kas -->
-    <div x-show="activeTab === 'aruskas'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
-        <div class="p-6 border-b border-border/40 bg-muted/10 flex justify-between items-center">
+    <div x-show="activeTab === 'aruskas'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden print:border-none print:shadow-none print:rounded-none" style="display: none;">
+        <div class="p-6 border-b border-primary/40 bg-primary flex justify-between items-center text-primary-foreground">
             <div>
                 <h2 class="text-xl font-heading font-bold text-primary">Riwayat Arus Kas (Buku Kas)</h2>
                 <p class="text-sm text-muted-foreground">Mencatat seluruh uang masuk dan keluar.</p>
-                <button @click="isModalAwalOpen = true" class="mt-3 bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    Set Modal Awal
-                </button>
             </div>
             <div class="text-right">
-                <p class="text-sm font-bold text-muted-foreground uppercase tracking-wider">Saldo Akhir Kas</p>
-                <p class="text-2xl font-mono font-black text-foreground">Rp 24.550.000</p>
+                <p class="text-sm font-bold text-white/80 uppercase tracking-wider">Saldo Akhir Kas</p>
+                <p class="text-2xl font-mono font-black text-white">Rp 24.550.000</p>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -328,6 +331,22 @@
 </div>
 
 @push('scripts')
+<style>
+@media print {
+    @page { margin: 1.5cm; }
+    body { background-color: white !important; }
+    
+    /* Menyembunyikan elemen layout (Sidebar & Header global) tanpa merusak anak-anak main */
+    aside, header { display: none !important; }
+    
+    /* Me-reset ukuran container utama agar full lebar kertas dan konten tidak terpotong */
+    .flex.h-screen, .flex-1, main { display: block !important; height: auto !important; overflow: visible !important; }
+    main { padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
+    
+    /* Memaksa warna tercetak */
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
+</style>
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('reportData', () => ({

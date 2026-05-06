@@ -89,6 +89,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/log-kerja', function () {
                 return view('log-kerja');
             })->name('log_kerja');
+        });
 
             // ------------------------------------------
             // MODUL GUDANG (INVENTORY)
@@ -156,4 +157,3 @@ Route::middleware(['auth'])->group(function () {
             });
         });
     });
-});
