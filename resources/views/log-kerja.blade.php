@@ -30,7 +30,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         <!-- LEFT: Control Panel Form (Spans 7 cols) -->
-        <div class="lg:col-span-7 bg-card border border-border shadow-lg shadow-black/5 rounded-2xl overflow-hidden flex flex-col">
+        <div class="lg:col-span-7 bg-card border border-border shadow-lg shadow-black/5 rounded-2xl overflow-hidden flex flex-col h-fit">
             <div class="bg-primary px-6 py-4 flex items-center justify-between">
                 <h2 class="font-heading font-black text-lg text-primary-foreground tracking-wide flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
