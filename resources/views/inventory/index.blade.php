@@ -16,7 +16,7 @@
         </div>
         <div class="flex gap-2">
             <!-- Add Button Dynamic based on Tab -->
-            <button @click="openModal()" class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105">
+            <button @click="openModal('add', activeTab)" class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 <span x-text="'Tambah Stok ' + getTabName()"></span>
             </button>
@@ -33,7 +33,7 @@
             </div>
             <div>
                 <p class="text-sm font-bold text-muted-foreground uppercase tracking-wider">Green Bean</p>
-                <p class="text-3xl font-heading font-black text-primary">1,245 <span class="text-sm font-medium text-muted-foreground">Kg</span></p>
+                <p class="text-3xl font-heading font-black text-primary">{{ number_format($greenBeans->sum('stok'), 1, ',', '.') }} <span class="text-sm font-medium text-muted-foreground">Kg</span></p>
             </div>
         </div>
         <!-- Stat Card 2 -->
@@ -44,7 +44,7 @@
             </div>
             <div>
                 <p class="text-sm font-bold text-muted-foreground uppercase tracking-wider">Roasted Bean</p>
-                <p class="text-3xl font-heading font-black text-foreground">342 <span class="text-sm font-medium text-muted-foreground">Kg</span></p>
+                <p class="text-3xl font-heading font-black text-foreground">{{ number_format($roastedBeans->sum('stok'), 1, ',', '.') }} <span class="text-sm font-medium text-muted-foreground">Kg</span></p>
             </div>
         </div>
         <!-- Stat Card 3 -->
@@ -55,7 +55,7 @@
             </div>
             <div>
                 <p class="text-sm font-bold text-muted-foreground uppercase tracking-wider">Produk Kemasan</p>
-                <p class="text-3xl font-heading font-black text-foreground">850 <span class="text-sm font-medium text-muted-foreground">Pcs</span></p>
+                <p class="text-3xl font-heading font-black text-foreground">{{ number_format($packagings->sum('stok'), 0, ',', '.') }} <span class="text-sm font-medium text-muted-foreground">Pcs</span></p>
             </div>
         </div>
     </div>
@@ -112,26 +112,35 @@
                                 <span x-text="item.stok"></span> Kg
                             </td>
                             <td class="p-4 text-center">
-                                <template x-if="item.stok >= 50">
+                                <template x-if="item.stok > 5">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-600">
                                         <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Aman
                                     </span>
                                 </template>
-                                <template x-if="item.stok > 10 && item.stok < 50">
+                                <template x-if="item.stok > 1 && item.stok <= 5">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-500/10 text-yellow-600">
                                         <span class="w-1.5 h-1.5 rounded-full bg-yellow-600"></span> Menipis
                                     </span>
                                 </template>
-                                <template x-if="item.stok <= 10">
+                                <template x-if="item.stok <= 1">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-600">
                                         <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Kritis
                                     </span>
                                 </template>
                             </td>
                             <td class="p-4 text-center">
-                                <button class="p-1.5 text-muted-foreground hover:text-secondary bg-transparent hover:bg-secondary/10 rounded-md transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-                                </button>
+                                <div class="flex items-center justify-center gap-2">
+                                    <button @click="openModal('edit', 'greenbean', item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    </button>
+                                    <form :action="'/inventory/green-bean/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     </template>
@@ -170,21 +179,30 @@
                                 <span x-text="item.stok"></span> Kg
                             </td>
                             <td class="p-4 text-center">
-                                <template x-if="item.stok >= 20">
+                                <template x-if="item.stok > 5">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-600">
                                         <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Aman
                                     </span>
                                 </template>
-                                <template x-if="item.stok < 20">
+                                <template x-if="item.stok <= 5">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-500/10 text-yellow-600">
                                         <span class="w-1.5 h-1.5 rounded-full bg-yellow-600"></span> Menipis
                                     </span>
                                 </template>
                             </td>
                             <td class="p-4 text-center">
-                                <button class="p-1.5 text-muted-foreground hover:text-secondary bg-transparent hover:bg-secondary/10 rounded-md transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-                                </button>
+                                <div class="flex items-center justify-center gap-2">
+                                    <button @click="openModal('edit', 'roastedbean', item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    </button>
+                                    <form :action="'/inventory/roasted-bean/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     </template>
@@ -226,9 +244,18 @@
                                 Rp <span x-text="formatRupiah(item.harga)"></span>
                             </td>
                             <td class="p-4 text-center">
-                                <button class="p-1.5 text-muted-foreground hover:text-secondary bg-transparent hover:bg-secondary/10 rounded-md transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-                                </button>
+                                <div class="flex items-center justify-center gap-2">
+                                    <button @click="openModal('edit', 'produk', item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    </button>
+                                    <form :action="'/inventory/packaging/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     </template>
@@ -280,6 +307,131 @@
         </div>
     </div>
 
+    <!-- Modal Tambah/Edit Green Bean -->
+    <div x-show="isModalOpen && activeTab === 'greenbean'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+        <div @click.away="isModalOpen = false" class="bg-card w-full max-w-lg rounded-2xl shadow-xl border border-border/40 p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-heading font-bold text-primary" x-text="isEditMode ? 'Edit Green Bean' : 'Tambah Green Bean'"></h2>
+                <button @click="isModalOpen = false" class="text-muted-foreground hover:text-foreground transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <form :action="getFormAction()" method="POST">
+                @csrf
+                <template x-if="isEditMode"><input type="hidden" name="_method" value="PUT"></template>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-foreground mb-1">Nama Biji Kopi Mentah</label>
+                        <input type="text" name="nama_biji" x-model="formData.nama" placeholder="Contoh: Arabica Gayo Premium" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-foreground mb-1">Kategori / Asal Kopi</label>
+                        <input type="text" name="asal_kopi" x-model="formData.kategori" placeholder="Contoh: Aceh Gayo" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-foreground mb-1">Stok (Gram)</label>
+                            <input type="number" name="stok_gram" x-model="formData.stok_raw" placeholder="Contoh: 50000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-foreground mb-1">Harga Jual / HPP (Rp)</label>
+                            <input type="number" name="harga_jual" x-model="formData.harga" placeholder="Contoh: 150000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end gap-3">
+                    <button type="button" @click="isModalOpen = false" class="px-5 py-2.5 rounded-xl font-bold text-muted-foreground hover:bg-muted/50 transition-colors">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-[#526B42] text-white rounded-xl font-bold hover:bg-[#3f5232] shadow-md transition-all hover:scale-105" x-text="isEditMode ? 'Simpan Perubahan' : 'Simpan Data'"></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tambah/Edit Roasted Bean -->
+    <div x-show="isModalOpen && activeTab === 'roastedbean'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+        <div @click.away="isModalOpen = false" class="bg-card w-full max-w-lg rounded-2xl shadow-xl border border-border/40 p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-heading font-bold text-primary" x-text="isEditMode ? 'Edit Roasted Bean' : 'Tambah Roasted Bean'"></h2>
+                <button @click="isModalOpen = false" class="text-muted-foreground hover:text-foreground transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <form :action="getFormAction()" method="POST">
+                @csrf
+                <template x-if="isEditMode"><input type="hidden" name="_method" value="PUT"></template>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-foreground mb-1">Nama Produk Kopi Matang</label>
+                        <input type="text" name="nama_kopi" x-model="formData.nama" placeholder="Contoh: Gayo Espresso Blend" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-foreground mb-1">Bentuk / Level Roast</label>
+                        <select name="bentuk_akhir" x-model="formData.bentuk" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                            <option value="Light Roast">Light Roast</option>
+                            <option value="Medium Roast">Medium Roast</option>
+                            <option value="Medium-Dark Roast">Medium-Dark Roast</option>
+                            <option value="Dark Roast">Dark Roast</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-foreground mb-1">Stok (Gram)</label>
+                            <input type="number" name="total_stok" x-model="formData.stok_raw" placeholder="Contoh: 15000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-foreground mb-1">Satuan Dasar</label>
+                            <input type="text" name="satuan_dasar" x-model="formData.satuan_dasar" value="gram" readonly class="w-full bg-muted border border-border rounded-lg px-4 py-2.5 focus:outline-none text-muted-foreground transition-all">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end gap-3">
+                    <button type="button" @click="isModalOpen = false" class="px-5 py-2.5 rounded-xl font-bold text-muted-foreground hover:bg-muted/50 transition-colors">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-[#526B42] text-white rounded-xl font-bold hover:bg-[#3f5232] shadow-md transition-all hover:scale-105" x-text="isEditMode ? 'Simpan Perubahan' : 'Simpan Data'"></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tambah/Edit Produk Kemasan -->
+    <div x-show="isModalOpen && activeTab === 'produk'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+        <div @click.away="isModalOpen = false" class="bg-card w-full max-w-lg rounded-2xl shadow-xl border border-border/40 p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-heading font-bold text-primary" x-text="isEditMode ? 'Edit Produk Kemasan' : 'Tambah Produk Kemasan'"></h2>
+                <button @click="isModalOpen = false" class="text-muted-foreground hover:text-foreground transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <form :action="getFormAction()" method="POST">
+                @csrf
+                <template x-if="isEditMode"><input type="hidden" name="_method" value="PUT"></template>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-foreground mb-1">Nama Produk Kemasan</label>
+                        <input type="text" name="nama_kemasan" x-model="formData.nama" placeholder="Contoh: Pouch Kopi Gayo 250g" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-foreground mb-1">Tipe / Kategori</label>
+                        <input type="text" name="tipe" x-model="formData.tipe" placeholder="Contoh: Pouch Flat Bottom" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-foreground mb-1">Stok (Pcs)</label>
+                            <input type="number" name="stok_pcs" x-model="formData.stok" placeholder="Contoh: 100" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-foreground mb-1">HPP / Harga Beli (Rp)</label>
+                            <input type="number" name="harga_satuan" x-model="formData.hpp" placeholder="Contoh: 5000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end gap-3">
+                    <button type="button" @click="isModalOpen = false" class="px-5 py-2.5 rounded-xl font-bold text-muted-foreground hover:bg-muted/50 transition-colors">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-[#526B42] text-white rounded-xl font-bold hover:bg-[#3f5232] shadow-md transition-all hover:scale-105" x-text="isEditMode ? 'Simpan Perubahan' : 'Simpan Data'"></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 
 @push('scripts')
@@ -287,23 +439,15 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('gudangData', () => ({
             activeTab: 'greenbean',
+            isModalOpen: false,
+            isEditMode: false,
+            editId: null,
+            formData: {},
             
-            // Mock Data
-            dataGreenBean: [
-                { id: 1, kode: 'GB-001', nama: 'Arabica Gayo Washed', kategori: 'Arabica', stok: 450.0 },
-                { id: 2, kode: 'GB-002', nama: 'Robusta Dampit Natural', kategori: 'Robusta', stok: 620.0 },
-                { id: 3, kode: 'GB-003', nama: 'Arabica Mandheling Semi-Washed', kategori: 'Arabica', stok: 8.5 },
-            ],
-            dataRoastedBean: [
-                { id: 1, kode: 'RB-001', nama: 'Arabica Gayo - Light Roast', bentuk: 'Light Roast', stok: 45.5 },
-                { id: 2, kode: 'RB-002', nama: 'Robusta Dampit - Dark Roast', bentuk: 'Dark Roast', stok: 82.0 },
-                { id: 3, kode: 'RB-003', nama: 'House Blend - Medium Roast', bentuk: 'Medium Roast', stok: 12.5 },
-            ],
-            dataProduk: [
-                { id: 1, kode: 'PK-001', nama: 'Arabica Gayo Premium', berat: 250, stok: 120, hpp: 35000, harga: 65000 },
-                { id: 2, kode: 'PK-002', nama: 'Robusta Dampit Blend', berat: 500, stok: 45, hpp: 40000, harga: 80000 },
-                { id: 3, kode: 'PK-003', nama: 'House Blend Espresso', berat: 1000, stok: 5, hpp: 110000, harga: 180000 },
-            ],
+            // Backend Data
+            dataGreenBean: @json($greenBeans),
+            dataRoastedBean: @json($roastedBeans),
+            dataProduk: @json($packagings),
 
             getTabName() {
                 if(this.activeTab === 'greenbean') return 'Green Bean';
@@ -315,8 +459,27 @@
                 return new Intl.NumberFormat('id-ID').format(number);
             },
             
-            openModal() {
-                alert('Tampilkan form aksi / tambah untuk tab ' + this.getTabName());
+            openModal(mode, tab, item = null) {
+                this.activeTab = tab || this.activeTab;
+                this.isEditMode = (mode === 'edit');
+                if (this.isEditMode && item) {
+                    this.editId = item.id;
+                    this.formData = { ...item };
+                } else {
+                    this.editId = null;
+                    this.formData = {};
+                }
+                this.isModalOpen = true;
+            },
+
+            getFormAction() {
+                let base = '';
+                if(this.activeTab === 'greenbean') base = '/inventory/green-bean';
+                if(this.activeTab === 'roastedbean') base = '/inventory/roasted-bean';
+                if(this.activeTab === 'produk') base = '/inventory/packaging';
+                
+                if(this.isEditMode && this.editId) return base + '/' + this.editId;
+                return base;
             }
         }));
     });

@@ -82,57 +82,70 @@ Route::middleware(['auth'])->group(function () {
                 return view('log-kerja');
             })->name('log_kerja');
 
-        });
+            // ------------------------------------------
+            // MODUL GUDANG (INVENTORY)
+            // ------------------------------------------
+            Route::prefix('inventory')->name('inventory.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\InventoryController::class, 'index'])->name('index');
 
-        Route::prefix('inventory')->name('inventory.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\InventoryController::class, 'index'])->name('index');
-        });
+                Route::post('/green-bean', [\App\Http\Controllers\InventoryController::class, 'storeGreenBean'])->name('store-green-bean');
+                Route::put('/green-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'updateGreenBean'])->name('update-green-bean');
+                Route::delete('/green-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyGreenBean'])->name('destroy-green-bean');
 
-        // Sales
-        Route::prefix('sales')->name('sales.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\SalesController::class, 'index'])->name('index');
-            Route::get('/create', [\App\Http\Controllers\SalesController::class, 'create'])->name('create');
-        });
+                Route::post('/roasted-bean', [\App\Http\Controllers\InventoryController::class, 'storeRoastedBean'])->name('store-roasted-bean');
+                Route::put('/roasted-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'updateRoastedBean'])->name('update-roasted-bean');
+                Route::delete('/roasted-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyRoastedBean'])->name('destroy-roasted-bean');
 
-        // Reports
-        Route::prefix('reports')->name('reports.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\ReportController::class, 'index'])->name('index');
-        });
+                Route::post('/packaging', [\App\Http\Controllers\InventoryController::class, 'storePackaging'])->name('store-packaging');
+                Route::put('/packaging/{id}', [\App\Http\Controllers\InventoryController::class, 'updatePackaging'])->name('update-packaging');
+                Route::delete('/packaging/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyPackaging'])->name('destroy-packaging');
+            });
 
-        // Settings
-        Route::prefix('settings')->name('settings.')->group(function () {
-            Route::get('/', function () {
-                return "<div style='padding:50px; text-align:center;'>
+            // Sales
+            Route::prefix('sales')->name('sales.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\SalesController::class, 'index'])->name('index');
+                Route::get('/create', [\App\Http\Controllers\SalesController::class, 'create'])->name('create');
+            });
+
+            // Reports
+            Route::prefix('reports')->name('reports.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\ReportController::class, 'index'])->name('index');
+            });
+
+            // Settings
+            Route::prefix('settings')->name('settings.')->group(function () {
+                Route::get('/', function () {
+                    return "<div style='padding:50px; text-align:center;'>
                             <h2> Modul Pengaturan Karyawan </h2>
                             <p>Halaman sedang dirakit...</p>
                             <a href='/dashboard'>Kembali</a>
                         </div>";
-            })->name('index');
-        });
+                })->name('index');
+            });
 
-        // INTERNAL API KHUSUS ADMIN
-        Route::prefix('internal-api/master')->group(function () {
+            // INTERNAL API KHUSUS ADMIN
+            Route::prefix('internal-api/master')->group(function () {
 
-            Route::get('/packagings', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getPackagings']);
-            Route::post('/packagings', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storePackaging']);
-            Route::put('/packagings/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updatePackaging']);
-            Route::delete('/packagings/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyPackaging']);
+                Route::get('/packagings', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getPackagings']);
+                Route::post('/packagings', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storePackaging']);
+                Route::put('/packagings/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updatePackaging']);
+                Route::delete('/packagings/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyPackaging']);
 
-            Route::get('/biaya', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getBiaya']);
-            Route::post('/biaya', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storeBiaya']);
-            Route::put('/biaya/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updateBiaya']);
-            Route::delete('/biaya/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyBiaya']);
+                Route::get('/biaya', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getBiaya']);
+                Route::post('/biaya', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storeBiaya']);
+                Route::put('/biaya/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updateBiaya']);
+                Route::delete('/biaya/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyBiaya']);
 
-            Route::get('/green-beans', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getGreenBeans']);
-            Route::post('/green-beans', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storeGreenBean']);
-            Route::put('/green-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updateGreenBean']);
-            Route::delete('/green-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyGreenBean']);
+                Route::get('/green-beans', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getGreenBeans']);
+                Route::post('/green-beans', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storeGreenBean']);
+                Route::put('/green-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updateGreenBean']);
+                Route::delete('/green-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyGreenBean']);
 
-            Route::get('/roasted-beans', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getRoastedBeans']);
-            Route::post('/roasted-beans', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storeRoastedBean']);
-            Route::put('/roasted-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updateRoastedBean']);
-            Route::delete('/roasted-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyRoastedBean']);
+                Route::get('/roasted-beans', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getRoastedBeans']);
+                Route::post('/roasted-beans', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storeRoastedBean']);
+                Route::put('/roasted-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updateRoastedBean']);
+                Route::delete('/roasted-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyRoastedBean']);
+            });
         });
     });
-
 });
