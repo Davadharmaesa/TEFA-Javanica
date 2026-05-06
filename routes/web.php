@@ -60,7 +60,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/stats', [\App\Http\Controllers\Api\RoastingApiController::class, 'getStats']);
             Route::post('/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'storeBatch']);
         });
-    });
 
         // Log Pekerja API
         Route::get('/log-kerja/batches', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getActiveBatches']);
@@ -70,12 +69,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/log-kerja', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'store']);
         Route::put('/log-kerja/{id}', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'update']);
         Route::delete('/log-kerja/{id}', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'destroy']);
+    });
 
-        // Master Data API
-        Route::get('/master/packagings', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getPackagings']);
-        Route::post('/master/packagings', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storePackaging']);
-        Route::put('/master/packagings/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updatePackaging']);
-        Route::delete('/master/packagings/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyPackaging']);
     // ==========================================
     // 🧑‍💼 ADMIN / PIC AREA
     // ==========================================
