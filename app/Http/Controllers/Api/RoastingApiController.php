@@ -41,7 +41,7 @@ class RoastingApiController extends Controller
     {
         $total_kopi_matang = RoastingBatch::sum('berat_matang_bersih');
         
-        $total_raw = RoastingBatch::sum('berat_sebelum_sort');
+        $total_raw = RoastingBatch::sum('berat_mentah_gudang');
         $total_cooked = RoastingBatch::sum('berat_matang_bersih');
         $avg_burnoff = $total_raw > 0 ? round((($total_raw - $total_cooked) / $total_raw) * 100, 1) : 0;
 
@@ -65,9 +65,10 @@ class RoastingApiController extends Controller
             'kode_batch' => 'required|string|unique:roasting_batch,kode_batch',
             'profil_sangrai' => 'required|string',
             'durasi_roasting' => 'required|integer|min:1',
-            'berat_sebelum_sort' => 'required|numeric|min:0.1',
-            'berat_sesudah_roast_sort' => 'required|numeric|min:0.1',
-            'berat_matang_sort' => 'required|numeric|min:0.1',
+            'berat_mentah_gudang' => 'required|numeric|min:0.1',
+            'berat_mentah_sortasi' => 'required|numeric|min:0.1',
+            'berat_matang_kotor' => 'required|numeric|min:0.1',
+            'berat_matang_bersih' => 'required|numeric|min:0.1',
         ]);
 
         try {
@@ -76,7 +77,7 @@ class RoastingApiController extends Controller
             $greenBean = GreenBean::findOrFail($validated['green_bean_id']);
 
             // 1. Validasi Stok Mentah (konversi Kg -> Gram)
-            $beratMentahGram = $validated['berat_sebelum_sort'] * 1000;
+            $beratMentahGram = $validated['berat_mentah_gudang'] * 1000;
             if ($greenBean->stok_gram < $beratMentahGram) {
                 return response()->json(['message' => 'Stok Green Bean di gudang tidak mencukupi.'], 400);
             }
@@ -89,16 +90,16 @@ class RoastingApiController extends Controller
             $roastedBean = RoastedBean::findOrFail($validated['roasted_bean_id']);
 
             // 4. Tambah Stok Matang (konversi Kg -> Gram) dan Update Tanggal
-            $beratMatangGram = $validated['berat_matang_sort'] * 1000;
+            $beratMatangGram = $validated['berat_matang_bersih'] * 1000;
             $roastedBean->total_stok += $beratMatangGram;
             $roastedBean->tanggal_roasting = now()->toDateString();
             $roastedBean->tanggal_expire = now()->addDays(30)->toDateString();
             $roastedBean->save();
 
-            // 5. Hitung Persentase Susut (Burnoff)
-            $beratKgIn = $validated['berat_sebelum_sort'];
-            $beratKgOutKotor = $validated['berat_sesudah_roast_sort'];
-            $susut = (($beratKgIn - $beratKgOutKotor) / $beratKgIn) * 100;
+            // 5. Hitung Persentase Susut Total (Bahan)
+            $beratKgIn = $validated['berat_mentah_gudang'];
+            $beratKgOutBersih = $validated['berat_matang_bersih'];
+            $susut = (($beratKgIn - $beratKgOutBersih) / $beratKgIn) * 100;
             if ($susut < 0) $susut = 0;
 
             // 6. Simpan Log Roasting (Audit Trail)
@@ -109,9 +110,10 @@ class RoastingApiController extends Controller
                 'roasted_bean_id' => $roastedBean->id,
                 'profil_sangrai' => $validated['profil_sangrai'],
                 'durasi_roasting' => $validated['durasi_roasting'],
-                'berat_sebelum_sort' => $beratKgIn,
-                'berat_matang_kotor' => $beratKgOutKotor,
-                'berat_matang_bersih' => $validated['berat_matang_sort'],
+                'berat_mentah_gudang' => $beratKgIn,
+                'berat_mentah_sortasi' => $validated['berat_mentah_sortasi'],
+                'berat_matang_kotor' => $validated['berat_matang_kotor'],
+                'berat_matang_bersih' => $validated['berat_matang_bersih'],
                 'persentase_susut' => round($susut, 2),
                 'tanggal_roasting' => date('Y-m-d'),
                 'status_batch' => 'completed'

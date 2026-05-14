@@ -29,8 +29,8 @@ class HppController extends Controller
                     'kode_batch' => $batch->kode_batch,
                     'green_bean_nama' => $gb ? $gb->nama_biji : 'Unknown',
                     'durasi_roasting' => $batch->durasi_roasting,
-                    'berat_sebelum_sort' => $batch->berat_sebelum_sort, // kg
-                    'harga_bahan_baku' => $batch->berat_sebelum_sort * 1000 * $hargaPerGram, // Total harga bahan baku
+                    'berat_mentah_gudang' => $batch->berat_mentah_gudang, // kg
+                    'harga_bahan_baku' => $batch->berat_mentah_gudang * 1000 * $hargaPerGram, // Total harga bahan baku
                     'sudah_dihitung' => $batch->hppCalculation ? true : false,
                     'hpp' => $batch->hppCalculation
                 ];

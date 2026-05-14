@@ -53,7 +53,7 @@ class DashboardController extends Controller
             });
 
         // 6. Rata-Rata Burnoff (Penyusutan)
-        $total_raw_roasted = RoastingBatch::sum('berat_sebelum_sort');
+        $total_raw_roasted = RoastingBatch::sum('berat_mentah_gudang');
         $total_cooked_roasted = RoastingBatch::sum('berat_matang_bersih');
         $avg_burnoff = $total_raw_roasted > 0
             ? round((($total_raw_roasted - $total_cooked_roasted) / $total_raw_roasted) * 100, 1)

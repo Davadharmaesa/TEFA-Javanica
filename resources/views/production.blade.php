@@ -164,18 +164,22 @@
                     <div class="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 16px 16px;"></div>
                     
                     <div class="relative z-10 flex flex-col gap-4">
-                        <div class="grid grid-cols-3 gap-4">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div class="space-y-2">
-                                <label class="text-[10px] font-black text-primary uppercase tracking-widest bg-muted px-2 py-1 rounded inline-block">1. Mentah Masuk (Kg)</label>
-                                <input type="number" min="0.01" step="0.01" x-model="form.berat_sebelum_sort" class="w-full bg-white rounded-lg border-2 border-border/80 px-3 py-2 text-2xl text-primary font-black font-mono focus:outline-none focus:border-primary transition-all placeholder:text-muted/50" placeholder="0.00" required />
+                                <label class="text-[9px] font-black text-primary uppercase tracking-widest bg-muted px-2 py-1 rounded inline-block">1. Gudang (Kg)</label>
+                                <input type="number" min="0.01" step="0.01" x-model="form.berat_mentah_gudang" class="w-full bg-white rounded-lg border-2 border-border/80 px-3 py-2 text-xl md:text-2xl text-primary font-black font-mono focus:outline-none focus:border-primary transition-all placeholder:text-muted/50" placeholder="0.00" required />
                             </div>
                             <div class="space-y-2">
-                                <label class="text-[10px] font-black text-accent uppercase tracking-widest bg-accent/10 px-2 py-1 rounded inline-block">2. Keluar Mesin (Kotor) (Kg)</label>
-                                <input type="number" min="0.01" step="0.01" x-model="form.berat_matang_kotor" class="w-full bg-white rounded-lg border-2 border-accent/40 px-3 py-2 text-2xl text-accent font-black font-mono focus:outline-none focus:border-accent transition-all placeholder:text-muted/50" placeholder="0.00" required />
+                                <label class="text-[9px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2 py-1 rounded inline-block">2. Sortasi (Kg)</label>
+                                <input type="number" min="0.01" step="0.01" :max="form.berat_mentah_gudang" x-model="form.berat_mentah_sortasi" class="w-full bg-white rounded-lg border-2 border-primary/40 px-3 py-2 text-xl md:text-2xl text-primary font-black font-mono focus:outline-none focus:border-primary transition-all placeholder:text-muted/50" placeholder="0.00" required />
                             </div>
                             <div class="space-y-2">
-                                <label class="text-[10px] font-black text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded inline-block">3. Matang Bersih (Kg)</label>
-                                <input type="number" min="0.01" step="0.01" x-model="form.berat_matang_bersih" class="w-full bg-white rounded-lg border-2 border-secondary/40 px-3 py-2 text-2xl text-secondary font-black font-mono focus:outline-none focus:border-secondary transition-all placeholder:text-muted/50" placeholder="0.00" required />
+                                <label class="text-[9px] font-black text-accent uppercase tracking-widest bg-accent/10 px-2 py-1 rounded inline-block">3. Kotor (Kg)</label>
+                                <input type="number" min="0.01" step="0.01" :max="form.berat_mentah_sortasi" x-model="form.berat_matang_kotor" class="w-full bg-white rounded-lg border-2 border-accent/40 px-3 py-2 text-xl md:text-2xl text-accent font-black font-mono focus:outline-none focus:border-accent transition-all placeholder:text-muted/50" placeholder="0.00" required />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded inline-block">4. Bersih (Kg)</label>
+                                <input type="number" min="0.01" step="0.01" :max="form.berat_matang_kotor" x-model="form.berat_matang_bersih" class="w-full bg-white rounded-lg border-2 border-secondary/40 px-3 py-2 text-xl md:text-2xl text-secondary font-black font-mono focus:outline-none focus:border-secondary transition-all placeholder:text-muted/50" placeholder="0.00" required />
                             </div>
                         </div>
 
@@ -186,27 +190,46 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" :class="isOptimal ? 'text-secondary' : 'text-accent'"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
                                     MONITOR PENYUSUTAN
                                 </label>
-                                <div class="text-right flex items-center gap-3">
-                                    <span x-show="form.berat_sebelum_sort > 0" class="text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-sm" :class="isOptimal ? 'bg-secondary text-white' : 'bg-accent text-white'" x-text="isOptimal ? 'Mulus' : 'Peringatan'"></span>
-                                    <span class="text-4xl font-black font-mono tracking-tighter" :class="isOptimal ? 'text-secondary drop-shadow-[0_2px_10px_rgba(20,80,30,0.3)]' : 'text-accent drop-shadow-[0_2px_10px_rgba(200,30,30,0.3)]'">
-                                        <span x-text="shrinkagePercent"></span><span class="text-xl opacity-60">%</span>
-                                    </span>
+                                <div class="text-right flex flex-col items-end">
+                                    <div class="flex items-center gap-2">
+                                        <span x-show="form.berat_mentah_sortasi > 0" class="text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-sm self-center mr-1" :class="isOptimal ? 'bg-secondary text-white' : 'bg-accent text-white'" x-text="isOptimal ? 'Mulus' : 'Peringatan'" title="Status berdasarkan Susut Mesin"></span>
+                                        
+                                        <!-- Angka Total Saja -->
+                                        <div class="flex flex-col items-end">
+                                            <span class="text-4xl font-black font-mono tracking-tighter" :class="isOptimal ? 'text-secondary drop-shadow-[0_2px_10px_rgba(20,80,30,0.3)]' : 'text-accent drop-shadow-[0_2px_10px_rgba(200,30,30,0.3)]'">
+                                                <span x-text="shrinkageTotal"></span><span class="text-xl opacity-60">%</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-muted-foreground mt-1" x-show="form.berat_mentah_gudang > 0">Susut Keseluruhan (Total)</span>
                                 </div>
                             </div>
                             
-                            <!-- Progress Bar Container -->
-                            <div class="h-6 w-full bg-muted/80 rounded-full overflow-hidden relative shadow-[inset_0_2px_8px_rgba(0,0,0,0.08)]">
-                                <!-- Optimal Zone Marker -->
+                            <!-- Progress Bar Container (True Stacked Flex) -->
+                            <div class="h-8 w-full bg-muted/80 rounded-full overflow-hidden relative shadow-[inset_0_2px_8px_rgba(0,0,0,0.08)] cursor-help flex">
+                                <!-- Optimal Zone Marker (Hanya visual background) -->
                                 <div class="absolute top-0 bottom-0 left-[12%] right-[80%] bg-secondary/10 z-0 border-x-2 border-secondary/30 pointer-events-none">
-                                    <!-- Hatched background pattern -->
                                     <div class="absolute inset-0" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.03) 10px, rgba(0,0,0,0.03) 20px);"></div>
                                 </div>
                                 
-                                <!-- Filled Bar -->
-                                <div class="h-full transition-all duration-[800ms] ease-[cubic-bezier(0.2,1,0.2,1)] z-10 relative flex justify-end items-center px-2"
-                                     :style="`width: ${Math.min(shrinkagePercent, 100)}%`"
-                                     :class="isOptimal ? 'bg-gradient-to-r from-secondary/80 to-secondary' : 'bg-gradient-to-r from-accent/80 to-accent'">
-                                     <div class="w-3 h-3 rounded-full bg-white opacity-90 shadow-[0_0_10px_rgba(255,255,255,1)] animate-pulse"></div>
+                                <!-- Segmen 1: Susut Awal (Biru) -->
+                                <div class="h-full transition-all duration-[800ms] ease-[cubic-bezier(0.2,1,0.2,1)] z-10 bg-blue-500 hover:brightness-110 border-r border-white/20"
+                                     :style="`width: ${barPctAwal}%`"
+                                     :title="`Susut Sortasi Mentah: ${shrinkageAwal}%`">
+                                </div>
+
+                                <!-- Segmen 2: Susut Mesin (Hijau/Merah) -->
+                                <div class="h-full transition-all duration-[800ms] ease-[cubic-bezier(0.2,1,0.2,1)] z-10 border-r border-white/20 hover:brightness-110"
+                                     :style="`width: ${barPctMesin}%`"
+                                     :class="isOptimal ? 'bg-gradient-to-r from-secondary/90 to-secondary' : 'bg-gradient-to-r from-accent/90 to-accent'"
+                                     :title="`Susut Sangrai (Mesin): ${shrinkageRoasting}%`">
+                                </div>
+
+                                <!-- Segmen 3: Susut Sortasi Akhir (Kuning/Orange) -->
+                                <div class="h-full transition-all duration-[800ms] ease-[cubic-bezier(0.2,1,0.2,1)] z-10 bg-amber-400 hover:brightness-110 flex justify-end items-center px-1"
+                                     :style="`width: ${barPctAkhir}%`"
+                                     :title="`Susut Sortasi Akhir: ${((form.berat_matang_kotor - form.berat_matang_bersih)/form.berat_matang_kotor*100).toFixed(1)}%`">
+                                     <div class="w-2 h-2 rounded-full bg-white opacity-90 shadow-[0_0_10px_rgba(255,255,255,1)] animate-pulse" x-show="form.berat_mentah_gudang > 0"></div>
                                 </div>
                             </div>
                             <div class="flex justify-between mt-2 px-1 text-[9px] font-mono font-bold text-muted-foreground uppercase opacity-70">
@@ -215,12 +238,27 @@
                                 <span class="text-secondary opacity-100 drop-shadow">20% (Batas Atas)</span>
                                 <span class="text-accent opacity-100 drop-shadow">> 25% (Bahaya)</span>
                             </div>
+                            <!-- Legend -->
+                            <div class="flex gap-4 mt-3 px-1">
+                                <div class="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                    <div class="w-3 h-3 rounded-sm bg-blue-500"></div>
+                                    Awal (Mentah)
+                                </div>
+                                <div class="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                    <div class="w-3 h-3 rounded-sm" :class="isOptimal ? 'bg-secondary' : 'bg-accent'"></div>
+                                    Mesin (Sangrai)
+                                </div>
+                                <div class="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                    <div class="w-3 h-3 rounded-sm bg-amber-400"></div>
+                                    Akhir (Matang)
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="pt-2 mt-auto">
-                    <button type="submit" :disabled="loading || !form.green_bean_id || !form.roasted_bean_id || !form.berat_matang_bersih || !form.profil_sangrai || !form.durasi_roasting" class="w-full h-14 bg-primary text-primary-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_10px_30px_rgb(0,0,0,0.15)] hover:shadow-[0_10px_40px_rgba(200,80,50,0.35)] flex justify-center items-center gap-3 group relative overflow-hidden transform hover:-translate-y-0.5 active:translate-y-0">
+                    <button type="submit" :disabled="loading || !form.green_bean_id || !form.roasted_bean_id || !form.berat_matang_bersih || !form.berat_mentah_sortasi || !form.profil_sangrai || !form.durasi_roasting" class="w-full h-14 bg-primary text-primary-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_10px_30px_rgb(0,0,0,0.15)] hover:shadow-[0_10px_40px_rgba(200,80,50,0.35)] flex justify-center items-center gap-3 group relative overflow-hidden transform hover:-translate-y-0.5 active:translate-y-0">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent w-full transition-opacity duration-300"></div>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="relative z-10 group-disabled:opacity-50"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                         <span x-show="!loading" class="relative z-10">Tembakkan Data Batch ke Server</span>
@@ -261,14 +299,16 @@
                                     <p class="text-xs font-black text-primary truncate" x-text="batch.roasted_bean_nama || 'Produk'"></p>
                                 </div>
                                 <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-2 text-center group-hover:bg-secondary/20 transition-colors">
-                                    <p class="text-[9px] text-secondary/80 font-black uppercase mb-0.5">Susut</p>
+                                    <p class="text-[9px] text-secondary/80 font-black uppercase mb-0.5">Total Susut</p>
                                     <p class="text-xs font-black text-secondary font-mono" x-text="batch.persentase_susut + '%'"></p>
                                 </div>
                             </div>
                             
-                            <div class="flex items-center gap-1.5 text-[10px] font-mono font-bold text-primary">
-                                <span class="bg-background px-1.5 py-0.5 border border-border/80 rounded" x-text="'IN: ' + batch.berat_sebelum_sort + 'kg'"></span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted-foreground opacity-50"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <div class="flex flex-wrap items-center gap-1.5 text-[9px] font-mono font-bold text-primary mt-1">
+                                <span class="bg-background px-1.5 py-0.5 border border-border/80 rounded" x-text="'IN: ' + batch.berat_mentah_gudang + 'kg'"></span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted-foreground opacity-50"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <span class="bg-primary/10 px-1.5 py-0.5 border border-primary/20 rounded" x-text="'SORT: ' + batch.berat_mentah_sortasi + 'kg'"></span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted-foreground opacity-50"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                                 <span class="bg-secondary/10 px-1.5 py-0.5 border border-secondary/20 text-secondary rounded" x-text="'OUT: ' + batch.berat_matang_bersih + 'kg'"></span>
                             </div>
                         </div>
@@ -309,7 +349,7 @@
             history: [],
             stats: { target_tercapai: 0, rata_susut: 0, total_batch: 0 },
             loading: false,
-            form: { green_bean_id: '', roasted_bean_id: '', kode_batch: '', profil_sangrai: '', durasi_roasting: '', berat_sebelum_sort: '', berat_matang_kotor: '', berat_matang_bersih: '' },
+            form: { green_bean_id: '', roasted_bean_id: '', kode_batch: '', profil_sangrai: '', durasi_roasting: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' },
             toast: { show: false, msg: '' },
             timeObj: new Date(),
 
@@ -323,6 +363,20 @@
                     if (value < 12) this.form.profil_sangrai = 'Light Roast';
                     else if (value >= 12 && value <= 15) this.form.profil_sangrai = 'Medium Roast';
                     else this.form.profil_sangrai = 'Dark Roast';
+                });
+
+                // Validasi Input Cepat
+                this.$watch('form.berat_matang_kotor', value => {
+                    if(value && this.form.berat_mentah_sortasi && parseFloat(value) > parseFloat(this.form.berat_mentah_sortasi)) {
+                        this.form.berat_matang_kotor = this.form.berat_mentah_sortasi;
+                        this.showToast("Berat Kotor tidak boleh lebih dari Sortasi!");
+                    }
+                });
+                this.$watch('form.berat_matang_bersih', value => {
+                    if(value && this.form.berat_matang_kotor && parseFloat(value) > parseFloat(this.form.berat_matang_kotor)) {
+                        this.form.berat_matang_bersih = this.form.berat_matang_kotor;
+                        this.showToast("Berat Bersih tidak boleh lebih dari Kotor!");
+                    }
                 });
             },
 
@@ -343,15 +397,46 @@
                 return this.timeObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             },
 
-            get shrinkagePercent() {
-                if (!this.form.berat_sebelum_sort || !this.form.berat_matang_bersih || this.form.berat_sebelum_sort <= 0) return '0.0';
-                let p = (((this.form.berat_sebelum_sort - this.form.berat_matang_bersih) / this.form.berat_sebelum_sort) * 100);
-                if (p < 0) p = 0; // Guard against negative
+            get shrinkageAwal() {
+                if (!this.form.berat_mentah_gudang || !this.form.berat_mentah_sortasi || this.form.berat_mentah_gudang <= 0) return '0.0';
+                let p = (((this.form.berat_mentah_gudang - this.form.berat_mentah_sortasi) / this.form.berat_mentah_gudang) * 100);
+                if (p < 0) p = 0;
                 return p.toFixed(1);
             },
 
+            get shrinkageTotal() {
+                if (!this.form.berat_mentah_gudang || !this.form.berat_matang_bersih || this.form.berat_mentah_gudang <= 0) return '0.0';
+                let p = (((this.form.berat_mentah_gudang - this.form.berat_matang_bersih) / this.form.berat_mentah_gudang) * 100);
+                if (p < 0) p = 0;
+                return p.toFixed(1);
+            },
+
+            get shrinkageRoasting() {
+                if (!this.form.berat_mentah_sortasi || !this.form.berat_matang_kotor || this.form.berat_mentah_sortasi <= 0) return '0.0';
+                let p = (((this.form.berat_mentah_sortasi - this.form.berat_matang_kotor) / this.form.berat_mentah_sortasi) * 100);
+                if (p < 0) p = 0;
+                return p.toFixed(1);
+            },
+
+            // Kalkulasi Bar Proporsional (Relatif terhadap Gudang) agar stacked bar sejajar sempurna
+            get barPctAwal() {
+                if (!this.form.berat_mentah_gudang || this.form.berat_mentah_gudang <= 0) return 0;
+                let val = ((this.form.berat_mentah_gudang - this.form.berat_mentah_sortasi) / this.form.berat_mentah_gudang) * 100;
+                return Math.max(0, Math.min(val, 100));
+            },
+            get barPctMesin() {
+                if (!this.form.berat_mentah_gudang || this.form.berat_mentah_gudang <= 0) return 0;
+                let val = ((this.form.berat_mentah_sortasi - this.form.berat_matang_kotor) / this.form.berat_mentah_gudang) * 100;
+                return Math.max(0, Math.min(val, 100));
+            },
+            get barPctAkhir() {
+                if (!this.form.berat_mentah_gudang || this.form.berat_mentah_gudang <= 0) return 0;
+                let val = ((this.form.berat_matang_kotor - this.form.berat_matang_bersih) / this.form.berat_mentah_gudang) * 100;
+                return Math.max(0, Math.min(val, 100));
+            },
+
             get isOptimal() {
-                const s = parseFloat(this.shrinkagePercent);
+                const s = parseFloat(this.shrinkageRoasting);
                 return s >= 12 && s <= 20;
             },
 
@@ -394,7 +479,8 @@
                         kode_batch: this.form.kode_batch,
                         durasi_roasting: this.form.durasi_roasting,
                         profil_sangrai: this.form.profil_sangrai,
-                        berat_sebelum_sort: this.form.berat_sebelum_sort,
+                        berat_mentah_gudang: this.form.berat_mentah_gudang,
+                        berat_mentah_sortasi: this.form.berat_mentah_sortasi,
                         berat_matang_kotor: this.form.berat_matang_kotor,
                         berat_matang_bersih: this.form.berat_matang_bersih
                     };
@@ -402,36 +488,28 @@
                     // Simulate API network delay
                     await new Promise(r => setTimeout(r, 600));
                     
-                    // Jika /api/ belum ada, fallback simulasi sukses lokal
-                    try {
-                        const res = await fetch('/internal-api/roasting/batches', {
-                            method: 'POST',
-                            headers: { 
-                                'Content-Type': 'application/json', 
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            },
-                            body: JSON.stringify(payload)
-                        });
-                        if (res.ok) { this.fetchData(); }
-                    } catch (e) {
-                        // Simulasi tambah history (Push to array)
-                        this.history.unshift({
-                            id: Math.floor(Math.random() * 1000),
-                            kode_batch: this.form.kode_batch,
-                            green_bean: this.greenBeans.find(g => g.id == this.form.green_bean_id) || { nama_biji: "Custom Bean" },
-                            roasted_bean_nama: (this.roastedBeans.find(r => r.id == this.form.roasted_bean_id) || {}).nama || "Produk Custom",
-                            profil_sangrai: this.form.profil_sangrai,
-                            berat_sebelum_sort: this.form.berat_sebelum_sort,
-                            berat_matang_bersih: this.form.berat_matang_bersih,
-                            persentase_susut: this.shrinkagePercent,
-                            created_at: new Date().toISOString()
-                        });
+                    const res = await fetch('/internal-api/roasting/batches', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json', 
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const data = await res.json();
+                    
+                    if (!res.ok) {
+                        throw new Error(data.message || 'Terjadi kesalahan pada server');
                     }
-
-                    this.showToast(`Log ${this.form.kode_batch} berhasil direkam ke Jaringan.`);
-                    this.form = { green_bean_id: '', roasted_bean_id: '', kode_batch: '', profil_sangrai: '', durasi_roasting: '', berat_sebelum_sort: '', berat_matang_kotor: '', berat_matang_bersih: '' };
+                    
+                    this.fetchData(); // Refresh history dari server
+                    this.showToast(`Log ${this.form.kode_batch} berhasil direkam ke Database.`);
+                    this.form = { green_bean_id: '', roasted_bean_id: '', kode_batch: '', profil_sangrai: '', durasi_roasting: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' };
                     this.generateBatchCode();
+                } catch (e) {
+                    this.showToast(e.message || "Gagal melakukan post");
                 } finally { 
 
                     this.loading = false; 
