@@ -18,6 +18,7 @@ class GreenBean extends Model
         'nama_biji',
         'stok_gram',
         'asal_kopi',
-        'harga_jual',
+        'tanggal_beli',
+        'harga_beli',
     ];
 }

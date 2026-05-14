@@ -50,7 +50,8 @@ class DatabaseSeeder extends Seeder
             'nama_biji' => 'GB Arabika Belawan',
             'stok_gram' => 50000, // 50 Kg
             'asal_kopi' => 'Bali',
-            'harga_jual' => 120000
+            'harga_beli' => 120000,
+            'tanggal_beli' => now()->toDateString()
         ]);
 
         // --- PRODUK JADI ROASTED BEAN (Seeder) ---

@@ -264,48 +264,7 @@
         </div>
     </div>
 
-    <!-- Riwayat Pengadaan / Log Modul (Mini) -->
-    <div class="mt-8">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-heading font-bold text-primary">Riwayat Pengadaan Terbaru</h2>
-            <button class="text-sm font-bold text-secondary hover:text-secondary/80 transition-colors">Lihat Semua</button>
-        </div>
-        <div class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
-                            <th class="p-4">No. Pengadaan</th>
-                            <th class="p-4">Item (Green Bean)</th>
-                            <th class="p-4">Supplier</th>
-                            <th class="p-4 text-right">Jumlah</th>
-                            <th class="p-4 text-center">Status Bayar</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-border/30">
-                        <tr class="hover:bg-muted/10 transition-colors">
-                            <td class="p-4 text-sm font-mono text-muted-foreground">PGD-0010</td>
-                            <td class="p-4 font-bold text-foreground">Arabica Gayo Washed</td>
-                            <td class="p-4 text-sm text-muted-foreground">PT Kopi Nusantara</td>
-                            <td class="p-4 text-right font-mono font-bold text-primary">100 Kg</td>
-                            <td class="p-4 text-center">
-                                <span class="px-2.5 py-1 bg-green-500/10 text-green-600 text-[10px] font-black rounded-full uppercase tracking-widest border border-green-500/20">Lunas</span>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-muted/10 transition-colors">
-                            <td class="p-4 text-sm font-mono text-muted-foreground">PGD-0009</td>
-                            <td class="p-4 font-bold text-foreground">Robusta Dampit Natural</td>
-                            <td class="p-4 text-sm text-muted-foreground">CV Sumber Tani</td>
-                            <td class="p-4 text-right font-mono font-bold text-primary">200 Kg</td>
-                            <td class="p-4 text-center">
-                                <span class="px-2.5 py-1 bg-yellow-500/10 text-yellow-600 text-[10px] font-black rounded-full uppercase tracking-widest border border-yellow-500/20">Belum Lunas</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    <!-- Riwayat Pengadaan dihapus sesuai permintaan evaluasi -->
 
     <!-- Modal Tambah/Edit Green Bean -->
     <div x-show="isModalOpen && activeTab === 'greenbean'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
@@ -328,14 +287,18 @@
                         <label class="block text-sm font-bold text-foreground mb-1">Kategori / Asal Kopi</label>
                         <input type="text" name="asal_kopi" x-model="formData.kategori" placeholder="Contoh: Aceh Gayo" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1">Stok (Gram)</label>
                             <input type="number" name="stok_gram" x-model="formData.stok_raw" placeholder="Contoh: 50000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-foreground mb-1">Harga Jual / HPP (Rp)</label>
-                            <input type="number" name="harga_jual" x-model="formData.harga" placeholder="Contoh: 150000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                            <label class="block text-sm font-bold text-foreground mb-1">Harga Beli Paket (Rp)</label>
+                            <input type="number" name="harga_beli" x-model="formData.harga_beli" placeholder="Contoh: 150000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-foreground mb-1">Tanggal Beli</label>
+                            <input type="date" name="tanggal_beli" x-model="formData.tanggal_beli" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         </div>
                     </div>
                 </div>

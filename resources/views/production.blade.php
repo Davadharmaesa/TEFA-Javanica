@@ -96,11 +96,11 @@
                     </div>
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Kode Batch</label>
-                        <input type="text" x-model="form.kode_batch" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] uppercase placeholder:font-sans placeholder:font-medium placeholder:uppercase" placeholder="Cth: BATCH-001" required />
+                        <input type="text" x-model="form.kode_batch" readonly class="w-full bg-muted border border-border/60 rounded-xl px-4 py-3 text-sm font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] uppercase placeholder:font-sans placeholder:font-medium placeholder:uppercase" placeholder="Otomatis" required />
                     </div>
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Durasi (Menit)</label>
-                        <input type="number" min="1" x-model="form.durasi_roasting" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] uppercase placeholder:font-sans placeholder:font-medium placeholder:uppercase" placeholder="0" required />
+                        <input type="number" min="1" x-model="form.durasi_roasting" class="w-full bg-white border border-border/60 rounded-xl px-4 py-3 text-sm font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] uppercase placeholder:font-sans placeholder:font-medium placeholder:uppercase" placeholder="0" required />
                     </div>
                 </div>
 
@@ -109,13 +109,13 @@
                     <!-- Profil Sangrai -->
                     <div class="space-y-3">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest flex items-center justify-between">
-                            Profil Mesin
-                            <span class="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-black normal-case">Wajib Pilih</span>
+                            Profil Roasting
+                            <span class="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-black normal-case">Otomatis dari Durasi</span>
                         </label>
                         <div class="grid grid-cols-3 gap-2">
                             <!-- Light -->
                             <label class="relative cursor-pointer group">
-                                <input type="radio" x-model="form.profil_sangrai" value="Light Roast" class="peer sr-only" required>
+                                <input type="radio" x-model="form.profil_sangrai" value="Light Roast" class="peer sr-only" disabled required>
                                 <div class="h-20 bg-background border px-1 border-border rounded-lg flex flex-col items-center justify-center gap-1 group-hover:border-primary/40 group-hover:shadow-[0_0_15px_rgba(200,80,50,0.1)] peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:shadow-[0_0_15px_rgba(200,80,50,0.2)] transition-all">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="text-muted-foreground peer-checked:text-primary transition-colors duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                                     <span class="text-[10px] font-bold text-primary/80 peer-checked:text-primary text-center leading-tight transition-colors">Light<br>Roast</span>
@@ -124,7 +124,7 @@
                             </label>
                             <!-- Medium -->
                             <label class="relative cursor-pointer group">
-                                <input type="radio" x-model="form.profil_sangrai" value="Medium Roast" class="peer sr-only" required>
+                                <input type="radio" x-model="form.profil_sangrai" value="Medium Roast" class="peer sr-only" disabled required>
                                 <div class="h-20 bg-background border px-1 border-border rounded-lg flex flex-col items-center justify-center gap-1 group-hover:border-primary/40 group-hover:shadow-[0_0_15px_rgba(200,80,50,0.1)] peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:shadow-[0_0_15px_rgba(200,80,50,0.2)] transition-all">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="text-muted-foreground peer-checked:text-primary transition-colors duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
                                     <span class="text-[10px] font-bold text-primary/80 peer-checked:text-primary text-center leading-tight transition-colors">Medium<br>Roast</span>
@@ -133,7 +133,7 @@
                             </label>
                             <!-- Dark -->
                             <label class="relative cursor-pointer group">
-                                <input type="radio" x-model="form.profil_sangrai" value="Dark Roast" class="peer sr-only" required>
+                                <input type="radio" x-model="form.profil_sangrai" value="Dark Roast" class="peer sr-only" disabled required>
                                 <div class="h-20 bg-background border px-1 border-border rounded-lg flex flex-col items-center justify-center gap-1 group-hover:border-primary/40 group-hover:shadow-[0_0_15px_rgba(200,80,50,0.1)] peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:shadow-[0_0_15px_rgba(200,80,50,0.2)] transition-all">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="text-muted-foreground peer-checked:text-primary transition-colors duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
                                     <span class="text-[10px] font-bold text-primary/80 peer-checked:text-primary text-center leading-tight transition-colors">Dark<br>Roast</span>
@@ -167,15 +167,15 @@
                         <div class="grid grid-cols-3 gap-4">
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black text-primary uppercase tracking-widest bg-muted px-2 py-1 rounded inline-block">1. Mentah Masuk (Kg)</label>
-                                <input type="number" min="0.01" step="0.01" x-model="form.berat_sebelum_sort" class="w-full bg-transparent border-b-2 border-border/80 py-2 text-2xl text-primary font-black font-mono focus:outline-none focus:border-primary transition-all placeholder:text-muted/50" placeholder="0.00" required />
+                                <input type="number" min="0.01" step="0.01" x-model="form.berat_sebelum_sort" class="w-full bg-white rounded-lg border-2 border-border/80 px-3 py-2 text-2xl text-primary font-black font-mono focus:outline-none focus:border-primary transition-all placeholder:text-muted/50" placeholder="0.00" required />
                             </div>
                             <div class="space-y-2">
-                                <label class="text-[10px] font-black text-accent uppercase tracking-widest bg-accent/10 px-2 py-1 rounded inline-block">2. Total Keluar Mesin (Kg)</label>
-                                <input type="number" min="0.01" step="0.01" x-model="form.berat_sesudah_roast_sort" class="w-full bg-transparent border-b-2 border-accent/40 py-2 text-2xl text-accent font-black font-mono focus:outline-none focus:border-accent transition-all placeholder:text-muted/50" placeholder="0.00" required />
+                                <label class="text-[10px] font-black text-accent uppercase tracking-widest bg-accent/10 px-2 py-1 rounded inline-block">2. Keluar Mesin (Kotor) (Kg)</label>
+                                <input type="number" min="0.01" step="0.01" x-model="form.berat_matang_kotor" class="w-full bg-white rounded-lg border-2 border-accent/40 px-3 py-2 text-2xl text-accent font-black font-mono focus:outline-none focus:border-accent transition-all placeholder:text-muted/50" placeholder="0.00" required />
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded inline-block">3. Matang Bersih (Kg)</label>
-                                <input type="number" min="0.01" step="0.01" x-model="form.berat_matang_sort" class="w-full bg-transparent border-b-2 border-secondary/40 py-2 text-2xl text-secondary font-black font-mono focus:outline-none focus:border-secondary transition-all placeholder:text-muted/50" placeholder="0.00" required />
+                                <input type="number" min="0.01" step="0.01" x-model="form.berat_matang_bersih" class="w-full bg-white rounded-lg border-2 border-secondary/40 px-3 py-2 text-2xl text-secondary font-black font-mono focus:outline-none focus:border-secondary transition-all placeholder:text-muted/50" placeholder="0.00" required />
                             </div>
                         </div>
 
@@ -220,7 +220,7 @@
                 </div>
 
                 <div class="pt-2 mt-auto">
-                    <button type="submit" :disabled="loading || !form.green_bean_id || !form.roasted_bean_id || !form.berat_matang_sort || !form.profil_sangrai || !form.durasi_roasting" class="w-full h-14 bg-primary text-primary-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_10px_30px_rgb(0,0,0,0.15)] hover:shadow-[0_10px_40px_rgba(200,80,50,0.35)] flex justify-center items-center gap-3 group relative overflow-hidden transform hover:-translate-y-0.5 active:translate-y-0">
+                    <button type="submit" :disabled="loading || !form.green_bean_id || !form.roasted_bean_id || !form.berat_matang_bersih || !form.profil_sangrai || !form.durasi_roasting" class="w-full h-14 bg-primary text-primary-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_10px_30px_rgb(0,0,0,0.15)] hover:shadow-[0_10px_40px_rgba(200,80,50,0.35)] flex justify-center items-center gap-3 group relative overflow-hidden transform hover:-translate-y-0.5 active:translate-y-0">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent w-full transition-opacity duration-300"></div>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="relative z-10 group-disabled:opacity-50"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                         <span x-show="!loading" class="relative z-10">Tembakkan Data Batch ke Server</span>
@@ -309,13 +309,30 @@
             history: [],
             stats: { target_tercapai: 0, rata_susut: 0, total_batch: 0 },
             loading: false,
-            form: { green_bean_id: '', roasted_bean_id: '', kode_batch: '', profil_sangrai: '', durasi_roasting: '', berat_sebelum_sort: '', berat_sesudah_roast_sort: '', berat_matang_sort: '' },
+            form: { green_bean_id: '', roasted_bean_id: '', kode_batch: '', profil_sangrai: '', durasi_roasting: '', berat_sebelum_sort: '', berat_matang_kotor: '', berat_matang_bersih: '' },
             toast: { show: false, msg: '' },
             timeObj: new Date(),
 
             init() { 
                 this.fetchData(); 
+                this.generateBatchCode();
                 setInterval(() => { this.timeObj = new Date(); }, 1000);
+
+                this.$watch('form.durasi_roasting', value => {
+                    if (!value) return;
+                    if (value < 12) this.form.profil_sangrai = 'Light Roast';
+                    else if (value >= 12 && value <= 15) this.form.profil_sangrai = 'Medium Roast';
+                    else this.form.profil_sangrai = 'Dark Roast';
+                });
+            },
+
+            generateBatchCode() {
+                const date = new Date();
+                const yymmdd = String(date.getFullYear()).slice(-2) + 
+                               String(date.getMonth() + 1).padStart(2, '0') + 
+                               String(date.getDate()).padStart(2, '0');
+                const seq = Math.floor(Math.random() * 9) + 1; // dummy seq
+                this.form.kode_batch = `${yymmdd}-${seq}`;
             },
 
             get currentTime() {
@@ -327,8 +344,8 @@
             },
 
             get shrinkagePercent() {
-                if (!this.form.berat_sebelum_sort || !this.form.berat_sesudah_roast_sort || this.form.berat_sebelum_sort <= 0) return '0.0';
-                let p = (((this.form.berat_sebelum_sort - this.form.berat_sesudah_roast_sort) / this.form.berat_sebelum_sort) * 100);
+                if (!this.form.berat_sebelum_sort || !this.form.berat_matang_bersih || this.form.berat_sebelum_sort <= 0) return '0.0';
+                let p = (((this.form.berat_sebelum_sort - this.form.berat_matang_bersih) / this.form.berat_sebelum_sort) * 100);
                 if (p < 0) p = 0; // Guard against negative
                 return p.toFixed(1);
             },
@@ -378,8 +395,8 @@
                         durasi_roasting: this.form.durasi_roasting,
                         profil_sangrai: this.form.profil_sangrai,
                         berat_sebelum_sort: this.form.berat_sebelum_sort,
-                        berat_sesudah_roast_sort: this.form.berat_sesudah_roast_sort,
-                        berat_matang_sort: this.form.berat_matang_sort
+                        berat_matang_kotor: this.form.berat_matang_kotor,
+                        berat_matang_bersih: this.form.berat_matang_bersih
                     };
                     
                     // Simulate API network delay
@@ -406,15 +423,17 @@
                             roasted_bean_nama: (this.roastedBeans.find(r => r.id == this.form.roasted_bean_id) || {}).nama || "Produk Custom",
                             profil_sangrai: this.form.profil_sangrai,
                             berat_sebelum_sort: this.form.berat_sebelum_sort,
-                            berat_matang_bersih: this.form.berat_matang_sort,
+                            berat_matang_bersih: this.form.berat_matang_bersih,
                             persentase_susut: this.shrinkagePercent,
                             created_at: new Date().toISOString()
                         });
                     }
 
                     this.showToast(`Log ${this.form.kode_batch} berhasil direkam ke Jaringan.`);
-                    this.form = { green_bean_id: '', roasted_bean_id: '', kode_batch: '', profil_sangrai: '', durasi_roasting: '', berat_sebelum_sort: '', berat_sesudah_roast_sort: '', berat_matang_sort: '' };
+                    this.form = { green_bean_id: '', roasted_bean_id: '', kode_batch: '', profil_sangrai: '', durasi_roasting: '', berat_sebelum_sort: '', berat_matang_kotor: '', berat_matang_bersih: '' };
+                    this.generateBatchCode();
                 } finally { 
+
                     this.loading = false; 
                 }
             },

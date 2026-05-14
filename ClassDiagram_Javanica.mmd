@@ -1,0 +1,205 @@
+classDiagram
+    %% ==========================================
+    %% NAMESPACE: MODELS (Database Entities)
+    %% ==========================================
+    namespace App_Models {
+        class User {
+            -id: int
+            -name: string
+            -email: string
+            -password: string
+            -role: string
+            -two_factor_confirmed_at: timestamp
+            #casts(): array
+        }
+        
+        class GreenBean {
+            -id: int
+            -nama_biji: string
+            -stok_gram: double
+            -asal_kopi: string
+            -harga_jual: double
+        }
+        
+        class RoastedBean {
+            -id: int
+            -nama_kopi: string
+            -bentuk_akhir: string
+            -total_stok: double
+            -satuan_dasar: string
+        }
+        
+        class Biaya {
+            -id: int
+            -nama: string
+            -kategori: string
+            -satuan: string
+            -harga: double
+        }
+        
+        class RoastingBatch {
+            -id: int
+            -kode_batch: string
+            -user_id: int
+            -green_bean_id: int
+            -roasted_bean_id: int
+            -profil_sangrai: string
+            -durasi_roasting: int
+            -berat_sebelum_sort: double
+            -berat_matang_kotor: double
+            -berat_matang_bersih: double
+            -persentase_susut: double
+            -tanggal_roasting: date
+            -status_batch: string
+            +user()
+            +greenBean()
+            +roastedBean()
+        }
+        
+        class LogPekerja {
+            -id: int
+            -roasting_batch_id: int
+            -nama_pekerja: string
+            -biaya_id: int
+            -jumlah_kerja: double
+            -total_upah: double
+            +batch()
+            +komponenBiaya()
+        }
+        
+        class Packaging {
+            -id: int
+            -tipe: string
+            -nama_kemasan: string
+            -harga_satuan: double
+            -stok_pcs: int
+        }
+        
+        class PesananKeluar {
+            -id: int
+            -user_id: int
+            -roasted_bean_id: int
+            -nama_pesanan: string
+            -jumlah_gram_pesanan: double
+            -harga_jual_pesanan: double
+            -tanggal_pesanan: date
+            -total_pembayaran: double
+            -status_pembayaran: string
+            -status_pengiriman: string
+        }
+    }
+
+    %% ==========================================
+    %% NAMESPACE: CONTROLLERS (Web Views)
+    %% ==========================================
+    namespace App_Http_Controllers {
+        class DashboardController {
+            +index()
+        }
+        class InventoryController {
+            +index()
+            +storeGreenBean(Request)
+            +updateGreenBean(Request, id)
+            +destroyGreenBean(id)
+            +storeRoastedBean(Request)
+            +updateRoastedBean(Request, id)
+            +destroyRoastedBean(id)
+            +storePackaging(Request)
+            +updatePackaging(Request, id)
+            +destroyPackaging(id)
+        }
+        class ProductionController {
+            +index()
+        }
+        class ReportController {
+            +index()
+        }
+        class SalesController {
+            +index()
+            +create()
+        }
+    }
+
+    %% ==========================================
+    %% NAMESPACE: API CONTROLLERS (JSON Endpoints)
+    %% ==========================================
+    namespace App_Http_Controllers_Api {
+        class AuthController {
+            +login(Request)
+            +verify2fa(Request)
+            +logout(Request)
+        }
+        class GreenBeanController {
+            +index()
+            +store(Request)
+            +show(id)
+            +update(Request, id)
+            +destroy(id)
+        }
+        class RoastedBeanController {
+            +index()
+            +store(Request)
+            +show(id)
+            +update(Request, id)
+            +destroy(id)
+        }
+        class RoastingBatchController {
+            +index()
+            +store(Request)
+            +show(id)
+            +update(Request, id)
+            +destroy(id)
+        }
+        class LogPekerjaApiController {
+            +getActiveBatches()
+            +getPekerja()
+            +getTugas()
+            +getHistory()
+            +store(Request)
+            +update(Request, id)
+            +destroy(id)
+        }
+        class MasterDataApiController {
+            +getPackagings()
+            +storePackaging(Request)
+            +updatePackaging(Request, id)
+            +destroyPackaging(id)
+        }
+        class RoasteryController {
+            +CekSistem()
+        }
+        class PesananKeluarController {
+            +index()
+            +store()
+            +update()
+            +destroy()
+        }
+        class RoastingApiController {
+            +index()
+            +store()
+            +update()
+            +destroy()
+        }
+    }
+
+    %% ==========================================
+    %% NAMESPACE: MIDDLEWARE (Security)
+    %% ==========================================
+    namespace App_Http_Middleware {
+        class RoleMiddleware {
+            +handle(Request, Closure, roles)
+        }
+    }
+
+    %% ==========================================
+    %% RELATIONSHIPS
+    %% ==========================================
+    RoastingBatch "1" --> "1" User : user_id
+    RoastingBatch "1" --> "1" GreenBean : green_bean_id
+    RoastingBatch "1" --> "1" RoastedBean : roasted_bean_id
+    LogPekerja "*" --> "1" RoastingBatch : roasting_batch_id
+    LogPekerja "*" --> "1" Biaya : biaya_id
+    PesananKeluar "*" --> "1" User : user_id
+    PesananKeluar "*" --> "1" RoastedBean : roasted_bean_id
+
+

@@ -20,7 +20,8 @@ class InventoryController extends Controller
                 'kategori' => $item->asal_kopi ?? 'Unknown',
                 'stok' => $item->stok_gram / 1000,
                 'stok_raw' => $item->stok_gram,
-                'harga' => $item->harga_jual,
+                'harga_beli' => $item->harga_beli,
+                'tanggal_beli' => $item->tanggal_beli,
             ];
         });
 
@@ -55,13 +56,13 @@ class InventoryController extends Controller
     // --- GREEN BEAN ---
     public function storeGreenBean(Request $request)
     {
-        $validated = $request->validate(['nama_biji' => 'required|string|max:255', 'asal_kopi' => 'required|string|max:255', 'stok_gram' => 'required|numeric|min:0', 'harga_jual' => 'required|numeric|min:0']);
+        $validated = $request->validate(['nama_biji' => 'required|string|max:255', 'asal_kopi' => 'required|string|max:255', 'stok_gram' => 'required|numeric|min:0', 'harga_beli' => 'required|numeric|min:0', 'tanggal_beli' => 'required|date']);
         GreenBean::create($validated);
         return redirect()->route('inventory.index')->with('success', 'Green Bean berhasil ditambahkan!');
     }
     public function updateGreenBean(Request $request, $id)
     {
-        $validated = $request->validate(['nama_biji' => 'required|string|max:255', 'asal_kopi' => 'required|string|max:255', 'stok_gram' => 'required|numeric|min:0', 'harga_jual' => 'required|numeric|min:0']);
+        $validated = $request->validate(['nama_biji' => 'required|string|max:255', 'asal_kopi' => 'required|string|max:255', 'stok_gram' => 'required|numeric|min:0', 'harga_beli' => 'required|numeric|min:0', 'tanggal_beli' => 'required|date']);
         GreenBean::findOrFail($id)->update($validated);
         return redirect()->route('inventory.index')->with('success', 'Green Bean berhasil diperbarui!');
     }
