@@ -15,6 +15,9 @@ class RoastedBean extends Model
         'nama_kopi',
         'bentuk_akhir',
         'total_stok',
-        'satuan_dasar'
+        'satuan_dasar',
+        'tanggal_roasting',
+        'tanggal_expire',
+        'sisa_stok'
     ];
 }

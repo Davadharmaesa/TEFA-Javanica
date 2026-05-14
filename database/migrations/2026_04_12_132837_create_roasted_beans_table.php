@@ -16,6 +16,9 @@ return new class extends Migration
             $table->string('bentuk_akhir')->default('Biji Utuh'); // e.g. Biji Utuh, Bubuk Kasar
             $table->integer('total_stok')->default(0); // in gram
             $table->string('satuan_dasar')->default('gram');
+            $table->date('tanggal_roasting')->nullable();
+            $table->date('tanggal_expire')->nullable();
+            $table->integer('sisa_stok')->default(0); // untuk menampung sisa dari pengemasan
             $table->timestamps();
         });
     }

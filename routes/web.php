@@ -60,6 +60,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/roasting/stats', [\App\Http\Controllers\Api\RoastingApiController::class, 'getStats']);
             Route::post('/roasting/batches', [\App\Http\Controllers\Api\RoastingApiController::class, 'storeBatch']);
 
+            // Proses Pengemasan
+            Route::post('/pengemasan/process', [\App\Http\Controllers\Api\PackagingApiController::class, 'storePackagingProcess']);
+
             // Log Pekerja API
             Route::get('/log-kerja/batches', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getActiveBatches']);
             Route::get('/log-kerja/pekerja', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getPekerja']);

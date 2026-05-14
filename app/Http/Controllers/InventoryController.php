@@ -34,6 +34,9 @@ class InventoryController extends Controller
                 'stok' => $item->total_stok / 1000,
                 'stok_raw' => $item->total_stok,
                 'satuan_dasar' => $item->satuan_dasar,
+                'tanggal_roasting' => $item->tanggal_roasting,
+                'tanggal_expire' => $item->tanggal_expire,
+                'sisa_stok' => $item->sisa_stok,
             ];
         });
 

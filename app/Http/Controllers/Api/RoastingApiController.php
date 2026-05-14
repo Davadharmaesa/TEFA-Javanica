@@ -88,9 +88,11 @@ class RoastingApiController extends Controller
             // 3. Ambil Roasted Bean
             $roastedBean = RoastedBean::findOrFail($validated['roasted_bean_id']);
 
-            // 4. Tambah Stok Matang (konversi Kg -> Gram)
+            // 4. Tambah Stok Matang (konversi Kg -> Gram) dan Update Tanggal
             $beratMatangGram = $validated['berat_matang_sort'] * 1000;
             $roastedBean->total_stok += $beratMatangGram;
+            $roastedBean->tanggal_roasting = now()->toDateString();
+            $roastedBean->tanggal_expire = now()->addDays(30)->toDateString();
             $roastedBean->save();
 
             // 5. Hitung Persentase Susut (Burnoff)
