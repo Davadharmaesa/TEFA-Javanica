@@ -118,6 +118,12 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/', [\App\Http\Controllers\ReportController::class, 'index'])->name('index');
             });
 
+            // Kalkulator HPP
+            Route::prefix('hpp-calculator')->name('hpp.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\HppController::class, 'index'])->name('index');
+                Route::post('/store', [\App\Http\Controllers\HppController::class, 'store'])->name('store');
+            });
+
             // Settings
             Route::prefix('settings')->name('settings.')->group(function () {
                 Route::get('/', function () {
@@ -130,7 +136,11 @@ Route::middleware(['auth'])->group(function () {
             });
 
             // INTERNAL API KHUSUS ADMIN
-            Route::prefix('internal-api/master')->group(function () {
+            Route::prefix('internal-api')->group(function () {
+                
+                Route::post('/hpp-calculator/preview', [\App\Http\Controllers\HppController::class, 'calculatePreview']);
+
+                Route::prefix('master')->group(function () {
 
                 Route::get('/packagings', [\App\Http\Controllers\Api\MasterDataApiController::class, 'getPackagings']);
                 Route::post('/packagings', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storePackaging']);
@@ -151,6 +161,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/roasted-beans', [\App\Http\Controllers\Api\MasterDataApiController::class, 'storeRoastedBean']);
                 Route::put('/roasted-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'updateRoastedBean']);
                 Route::delete('/roasted-beans/{id}', [\App\Http\Controllers\Api\MasterDataApiController::class, 'destroyRoastedBean']);
+                });
             });
         });
     });
