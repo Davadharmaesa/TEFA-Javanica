@@ -124,17 +124,6 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/store', [\App\Http\Controllers\HppController::class, 'store'])->name('store');
             });
 
-            // Settings
-            Route::prefix('settings')->name('settings.')->group(function () {
-                Route::get('/', function () {
-                    return "<div style='padding:50px; text-align:center;'>
-                            <h2> Modul Pengaturan Karyawan </h2>
-                            <p>Halaman sedang dirakit...</p>
-                            <a href='/dashboard'>Kembali</a>
-                        </div>";
-                })->name('index');
-            });
-
             // INTERNAL API KHUSUS ADMIN
             Route::prefix('internal-api')->group(function () {
                 

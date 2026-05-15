@@ -51,7 +51,6 @@
                     ['name' => 'Master Data', 'path' => 'master', 'href' => '/master', 'icon' => 'database'],
                     ['name' => 'Penjualan', 'path' => 'sales', 'href' => '/sales', 'icon' => 'shopping-cart'],
                     ['name' => 'Laporan', 'path' => 'reports', 'href' => '/reports', 'icon' => 'file-text'],
-                    ['name' => 'Pengaturan', 'path' => 'settings', 'href' => '/settings', 'icon' => 'settings'],
                 ]);
             }
         @endphp
