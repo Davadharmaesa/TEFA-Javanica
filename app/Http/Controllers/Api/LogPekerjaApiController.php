@@ -61,6 +61,7 @@ class LogPekerjaApiController extends Controller
         $logs = LogPekerja::with(['batch', 'batch.greenBean', 'komponenBiaya'])
             ->whereDate('created_at', $today)
             ->orderBy('id', 'desc')
+            ->take(10)
             ->get();
 
         $formatted = $logs->map(function($log) {

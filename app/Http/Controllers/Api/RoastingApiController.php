@@ -33,7 +33,7 @@ class RoastingApiController extends Controller
      */
     public function getBatches()
     {
-        $batches = RoastingBatch::with(['greenBean', 'roastedBean'])->orderBy('id', 'desc')->take(20)->get();
+        $batches = RoastingBatch::with(['greenBean', 'roastedBean'])->orderBy('id', 'desc')->take(10)->get();
         return response()->json($batches);
     }
 

@@ -41,4 +41,9 @@ class RoastingBatch extends Model
     {
         return $this->belongsTo(RoastedBean::class);
     }
+
+    public function hppCalculation()
+    {
+        return $this->hasOne(HppCalculation::class);
+    }
 }
