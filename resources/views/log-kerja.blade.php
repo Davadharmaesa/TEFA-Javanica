@@ -83,7 +83,7 @@
                 <div class="pt-2 mt-auto flex gap-3">
                     <button type="submit" :disabled="loading || !isFormValid" class="flex-1 h-14 bg-primary text-primary-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_10px_30px_rgb(0,0,0,0.15)] flex justify-center items-center gap-3 relative overflow-hidden transform hover:-translate-y-0.5 active:translate-y-0">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="relative z-10"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                        <span x-show="!loading" class="relative z-10" x-text="editMode ? 'Update Data Pekerja' : 'Tembakkan Data Pekerja'"></span>
+                        <span x-show="!loading" class="relative z-10" x-text="editMode ? 'Update Data Pekerja' : 'Tambahkan Data'"></span>
                         <span x-show="loading" class="relative z-10 animate-pulse">Menyimpan...</span>
                     </button>
                     <button type="button" x-show="editMode" @click="cancelEdit" class="h-14 px-6 bg-muted/50 border border-border text-muted-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-muted transition-all">Batal</button>

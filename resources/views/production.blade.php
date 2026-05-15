@@ -261,7 +261,7 @@
                     <button type="submit" :disabled="loading || !form.green_bean_id || !form.roasted_bean_id || !form.berat_matang_bersih || !form.berat_mentah_sortasi || !form.profil_sangrai || !form.durasi_roasting" class="w-full h-14 bg-primary text-primary-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_10px_30px_rgb(0,0,0,0.15)] hover:shadow-[0_10px_40px_rgba(200,80,50,0.35)] flex justify-center items-center gap-3 group relative overflow-hidden transform hover:-translate-y-0.5 active:translate-y-0">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent w-full transition-opacity duration-300"></div>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="relative z-10 group-disabled:opacity-50"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                        <span x-show="!loading" class="relative z-10">Tembakkan Data Batch ke Server</span>
+                        <span x-show="!loading" class="relative z-10">Tambahkan Data</span>
                         <span x-show="loading" class="relative z-10 animate-pulse">Menghubungi Pangkalan Data...</span>
                     </button>
                 </div>

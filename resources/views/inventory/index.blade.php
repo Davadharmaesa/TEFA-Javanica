@@ -14,16 +14,26 @@
             </h1>
             <p class="text-sm text-muted-foreground mt-1">Pantau dan kelola stok bahan baku, barang setengah jadi, dan produk siap jual.</p>
         </div>
-        <div class="flex gap-2">
-            <!-- Add Button Dynamic based on Tab -->
-            <button @click="openPackModal()" class="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105" x-show="activeTab === 'roastedbean' || activeTab === 'produk'">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
-                Proses Kemas
-            </button>
-            <button @click="openModal('add', activeTab)" class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                <span x-text="'Tambah Stok ' + getTabName()"></span>
-            </button>
+        <div class="flex gap-2" x-data="{ openAksi: false }">
+            <!-- Dropdown Action Dynamic based on Tab -->
+            <div class="relative">
+                <button @click="openAksi = !openAksi" @click.away="openAksi = false" class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105">
+                    <span x-text="'Aksi ' + getTabName()"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" :class="{'rotate-180': openAksi}" class="transition-transform"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                
+                <!-- Dropdown Menu -->
+                <div x-show="openAksi" x-transition.opacity.duration.200ms class="absolute right-0 mt-2 w-56 bg-card border border-border/50 rounded-xl shadow-lg overflow-hidden z-50" style="display: none;">
+                    <button @click="openModal('add', activeTab); openAksi = false" class="w-full text-left px-4 py-3 text-sm hover:bg-muted/50 flex items-center gap-3 font-semibold text-foreground transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <span x-text="'Tambah Stok ' + getTabName()"></span>
+                    </button>
+                    <button x-show="activeTab === 'roastedbean' || activeTab === 'produk'" @click="openPackModal(); openAksi = false" class="w-full text-left px-4 py-3 text-sm hover:bg-muted/50 flex items-center gap-3 font-semibold text-primary border-t border-border/50 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                        Proses Kemas
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -94,7 +104,7 @@
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4">ID / Kode</th>
                         <th class="p-4">Nama Biji Mentah</th>
-                        <th class="p-4">Kategori</th>
+                        <th class="p-4">Asal</th>
                         <th class="p-4 text-right">Stok Total</th>
                         <th class="p-4 text-center">Status</th>
                         <th class="p-4 text-center">Aksi</th>
@@ -297,7 +307,7 @@
                         <input type="text" name="nama_biji" x-model="formData.nama" placeholder="Contoh: Arabica Gayo Premium" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-foreground mb-1">Kategori / Asal Kopi</label>
+                        <label class="block text-sm font-bold text-foreground mb-1">Asal Kopi</label>
                         <input type="text" name="asal_kopi" x-model="formData.kategori" placeholder="Contoh: Aceh Gayo" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -464,11 +474,27 @@
                 <div class="mt-8 flex justify-end gap-3">
                     <button type="button" @click="isPackModalOpen = false" class="px-5 py-2.5 rounded-xl font-bold text-muted-foreground hover:bg-muted/50 transition-colors">Batal</button>
                     <button type="submit" class="px-5 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold hover:bg-primary/90 shadow-md transition-all hover:scale-105" :disabled="isPackLoading">
-                        <span x-show="!isPackLoading">Eksekusi Pengemasan</span>
+                        <span x-show="!isPackLoading">Kemas</span>
                         <span x-show="isPackLoading" class="animate-pulse">Memproses...</span>
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div x-show="toast.show" x-cloak 
+         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-8 scale-95" x-transition:enter-end="opacity-100 transform translate-y-0 scale-100" 
+         x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 transform translate-y-0 scale-100" x-transition:leave-end="opacity-0 transform translate-y-8 scale-95" 
+         class="fixed bottom-10 right-10 px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-4 z-[100] border border-white/20"
+         :class="toast.type === 'success' ? 'bg-[#526B42] text-white shadow-[#526B42]/40' : 'bg-red-600 text-white shadow-red-600/40'">
+        <div class="bg-white/20 p-2 rounded-lg">
+            <svg x-show="toast.type === 'success'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white drop-shadow-md"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg x-show="toast.type === 'error'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white drop-shadow-md"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="flex flex-col">
+            <span class="font-black text-sm uppercase tracking-widest leading-none drop-shadow-sm" x-text="toast.type === 'success' ? 'TRANSMISI DATA SUKSES' : 'TRANSMISI DATA GAGAL'"></span>
+            <span class="text-[10px] font-bold opacity-90 mt-1.5 font-mono" x-text="toast.msg"></span>
         </div>
     </div>
 
@@ -487,6 +513,12 @@
             isPackModalOpen: false,
             isPackLoading: false,
             packForm: { roasted_bean_id: '', packaging_id: '', jumlah_stok_digunakan_gram: '', ukuran_kemasan_gram: '' },
+            toast: { show: false, msg: '', type: 'success' },
+            
+            showToast(msg, type = 'success') {
+                this.toast = { show: true, msg, type };
+                setTimeout(() => this.toast.show = false, 4000);
+            },
             
             // Backend Data
             dataGreenBean: @json($greenBeans),
@@ -537,13 +569,15 @@
                     const data = await res.json();
                     
                     if(res.ok) {
-                        alert('Berhasil! ' + Math.floor(this.packForm.jumlah_stok_digunakan_gram / this.packForm.ukuran_kemasan_gram) + ' kemasan ditambahkan. Sisa residu tersimpan: ' + data.data.sisa_gram_dicatat + ' gram.');
-                        window.location.reload();
+                        this.isPackModalOpen = false;
+                        const qty = Math.floor(this.packForm.jumlah_stok_digunakan_gram / this.packForm.ukuran_kemasan_gram);
+                        this.showToast(`Berhasil! ${qty} kemasan ditambahkan. Sisa residu: ${data.data.sisa_gram_dicatat} gram.`, 'success');
+                        setTimeout(() => window.location.reload(), 2500);
                     } else {
-                        alert('Gagal: ' + data.message);
+                        this.showToast('Gagal: ' + data.message, 'error');
                     }
                 } catch(e) {
-                    alert('Terjadi kesalahan jaringan.');
+                    this.showToast('Terjadi kesalahan jaringan.', 'error');
                 } finally {
                     this.isPackLoading = false;
                 }
