@@ -87,7 +87,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Bahan Mentah</label>
-                        <select x-model="form.green_bean_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
+                        <select x-model="form.green_bean_id" class="w-full bg-white border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
                             <option value=""> TARIK DARI GUDANG </option>
                             <template x-for="item in greenBeans" :key="item.id">
                                 <option :value="item.id" x-text="item.nama_biji + ' (' + (item.stok_gram/1000) + ' kg)'"></option>
@@ -96,11 +96,11 @@
                     </div>
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Kode Batch</label>
-                        <input type="text" x-model="form.kode_batch" readonly class="w-full bg-muted border border-border/60 rounded-xl px-4 py-3 text-sm font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] uppercase placeholder:font-sans placeholder:font-medium placeholder:uppercase" placeholder="Otomatis" required />
+                        <input type="text" x-model="form.kode_batch" readonly class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] uppercase placeholder:font-sans placeholder:font-medium placeholder:uppercase" placeholder="Otomatis" required />
                     </div>
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Durasi (Menit)</label>
-                        <input type="number" min="1" x-model="form.durasi_roasting" class="w-full bg-white border border-border/60 rounded-xl px-4 py-3 text-sm font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] uppercase placeholder:font-sans placeholder:font-medium placeholder:uppercase" placeholder="0" required />
+                        <input type="number" min="1" x-model="form.durasi_roasting" @wheel="$event.target.blur()" class="w-full bg-white border border-border/60 rounded-xl px-4 py-3 text-sm font-black font-mono text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] uppercase placeholder:font-sans placeholder:font-medium placeholder:uppercase [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="0" required />
                     </div>
                 </div>
 
@@ -149,7 +149,7 @@
                             Target Produk
                             <span class="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-black normal-case">Wajib Pilih</span>
                         </label>
-                        <select x-model="form.roasted_bean_id" class="w-full h-20 bg-background border border-border/60 rounded-xl px-4 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
+                        <select x-model="form.roasted_bean_id" class="w-full h-20 bg-white border border-border/60 rounded-xl px-4 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
                             <option value="">-- DAFTAR PRODUK JAVANICA --</option>
                             <template x-for="item in roastedBeans" :key="item.id">
                                 <option :value="item.id" x-text="item.nama_kopi"></option>
@@ -167,19 +167,26 @@
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div class="space-y-2">
                                 <label class="text-[9px] font-black text-primary uppercase tracking-widest bg-muted px-2 py-1 rounded inline-block">1. Gudang (Kg)</label>
-                                <input type="number" min="0.01" step="0.01" x-model="form.berat_mentah_gudang" class="w-full bg-white rounded-lg border-2 border-border/80 px-3 py-2 text-xl md:text-2xl text-primary font-black font-mono focus:outline-none focus:border-primary transition-all placeholder:text-muted/50" placeholder="0.00" required />
+                                <input type="number" min="0.01" step="0.01" x-model="form.berat_mentah_gudang" @wheel="$event.target.blur()" class="w-full bg-white rounded-lg border-2 border-border/80 px-3 py-2 text-xl md:text-2xl text-primary font-black font-mono focus:outline-none focus:border-primary transition-all placeholder:text-muted/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="0.00" required />
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[9px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2 py-1 rounded inline-block">2. Sortasi (Kg)</label>
-                                <input type="number" min="0.01" step="0.01" :max="form.berat_mentah_gudang" x-model="form.berat_mentah_sortasi" class="w-full bg-white rounded-lg border-2 border-primary/40 px-3 py-2 text-xl md:text-2xl text-primary font-black font-mono focus:outline-none focus:border-primary transition-all placeholder:text-muted/50" placeholder="0.00" required />
+                                <input type="number" min="0.01" step="0.01" :max="form.berat_mentah_gudang" x-model="form.berat_mentah_sortasi" @wheel="$event.target.blur()" class="w-full bg-white rounded-lg border-2 border-primary/40 px-3 py-2 text-xl md:text-2xl text-primary font-black font-mono focus:outline-none focus:border-primary transition-all placeholder:text-muted/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="0.00" required />
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[9px] font-black text-accent uppercase tracking-widest bg-accent/10 px-2 py-1 rounded inline-block">3. Kotor (Kg)</label>
-                                <input type="number" min="0.01" step="0.01" :max="form.berat_mentah_sortasi" x-model="form.berat_matang_kotor" class="w-full bg-white rounded-lg border-2 border-accent/40 px-3 py-2 text-xl md:text-2xl text-accent font-black font-mono focus:outline-none focus:border-accent transition-all placeholder:text-muted/50" placeholder="0.00" required />
+                                <input type="number" min="0.01" step="0.01" :max="form.berat_mentah_sortasi" x-model="form.berat_matang_kotor" @wheel="$event.target.blur()" class="w-full bg-white rounded-lg border-2 border-accent/40 px-3 py-2 text-xl md:text-2xl text-accent font-black font-mono focus:outline-none focus:border-accent transition-all placeholder:text-muted/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="0.00" required />
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[9px] font-black text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded inline-block">4. Bersih (Kg)</label>
-                                <input type="number" min="0.01" step="0.01" :max="form.berat_matang_kotor" x-model="form.berat_matang_bersih" class="w-full bg-white rounded-lg border-2 border-secondary/40 px-3 py-2 text-xl md:text-2xl text-secondary font-black font-mono focus:outline-none focus:border-secondary transition-all placeholder:text-muted/50" placeholder="0.00" required />
+                                <input type="number" 
+                                       min="0.01" 
+                                       step="0.01" 
+                                       :max="form.berat_matang_kotor" 
+                                       x-model="form.berat_matang_bersih" 
+                                       @wheel="$event.target.blur()" 
+                                       class="w-full bg-white rounded-lg border-2 border-secondary/40 px-3 py-2 text-xl md:text-2xl text-secondary font-black font-mono focus:outline-none focus:border-secondary transition-all placeholder:text-muted/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                                       placeholder="0.00" required />
                             </div>
                         </div>
 
@@ -291,12 +298,13 @@
                                 <span class="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded border border-border/50 bg-muted/30 text-muted-foreground flex-shrink-0" x-text="formatTime(batch.created_at)"></span>
                             </div>
                             
-                            <p class="font-sans font-bold text-primary/70 text-xs mb-3 truncate" x-text="batch.green_bean?.nama_biji || 'Biji Mentah Tidak Diketahui'"></p>
+                            <p class="font-sans font-black text-primary text-xs mb-1 truncate" x-text="batch.roasted_bean_nama || 'Produk'"></p>
+                            <p class="font-sans font-medium text-primary/70 text-[10px] mb-3 truncate" x-text="'Dari: ' + (batch.green_bean?.nama_biji || 'Biji Mentah')"></p>
                             
                             <div class="grid grid-cols-2 gap-2 mb-3">
                                 <div class="bg-muted/40 border border-border/60 rounded-lg p-2 text-center group-hover:bg-muted/60 transition-colors">
-                                    <p class="text-[9px] text-primary/60 font-black uppercase mb-0.5" x-text="batch.profil_sangrai || 'Profil'"></p>
-                                    <p class="text-xs font-black text-primary truncate" x-text="batch.roasted_bean_nama || 'Produk'"></p>
+                                    <p class="text-[9px] text-primary/60 font-black uppercase mb-0.5">Profil Sangrai</p>
+                                    <p class="text-xs font-bold text-primary/80 truncate" x-text="batch.profil_sangrai || 'Profil'"></p>
                                 </div>
                                 <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-2 text-center group-hover:bg-secondary/20 transition-colors">
                                     <p class="text-[9px] text-secondary/80 font-black uppercase mb-0.5">Total Susut</p>
@@ -382,11 +390,27 @@
 
             generateBatchCode() {
                 const date = new Date();
-                const yymmdd = String(date.getFullYear()).slice(-2) + 
+                const ddmmyy = String(date.getDate()).padStart(2, '0') + 
                                String(date.getMonth() + 1).padStart(2, '0') + 
-                               String(date.getDate()).padStart(2, '0');
-                const seq = Math.floor(Math.random() * 9) + 1; // dummy seq
-                this.form.kode_batch = `${yymmdd}-${seq}`;
+                               date.getFullYear().toString().slice(-2);
+                
+                const prefix = `RST-${ddmmyy}-`;
+                let seq = 1;
+                
+                if (this.history && this.history.length > 0) {
+                    // Cari riwayat hari ini
+                    const todayBatches = this.history.filter(b => b.kode_batch && b.kode_batch.startsWith(prefix));
+                    if (todayBatches.length > 0) {
+                        // Ambil angka sequence tertinggi
+                        const maxSeq = Math.max(...todayBatches.map(b => {
+                            const parts = b.kode_batch.split('-');
+                            return parseInt(parts[2]) || 0;
+                        }));
+                        seq = maxSeq + 1;
+                    }
+                }
+
+                this.form.kode_batch = `${prefix}${String(seq).padStart(3, '0')}`;
             },
 
             get currentTime() {
@@ -443,15 +467,18 @@
             async fetchData() {
                 try {
                     const [gbRes, rbRes, batchRes, statsRes] = await Promise.all([
-                        fetch('/internal-api/roasting/green-beans'),
-                        fetch('/internal-api/roasting/roasted-beans'),
-                        fetch('/internal-api/roasting/batches'),
-                        fetch('/internal-api/roasting/stats')
+                        fetch('/internal-api/roasting/green-beans').catch(() => ({ok: false})),
+                        fetch('/internal-api/roasting/roasted-beans').catch(() => ({ok: false})),
+                        fetch('/internal-api/roasting/batches').catch(() => ({ok: false})),
+                        fetch('/internal-api/roasting/stats').catch(() => ({ok: false}))
                     ]);
                     
                     if(gbRes.ok) this.greenBeans = await gbRes.json();
                     if(rbRes.ok) this.roastedBeans = await rbRes.json();
-                    if(batchRes.ok) this.history = await batchRes.json();
+                    if(batchRes.ok) {
+                        this.history = await batchRes.json();
+                        this.generateBatchCode(); // Re-generate urutan setelah history ditarik dari DB
+                    }
                     if(statsRes.ok) this.stats = await statsRes.json();
                 } catch(e) {
                     console.warn("Backend API belum siap. Mode Dummy aktif.");
@@ -521,7 +548,14 @@
                 setTimeout(() => this.toast.show = false, 4000);
             },
 
-            formatTime(dateString) { return new Date(dateString).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); }
+            formatTime(dateString) { 
+                const d = new Date(dateString);
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const year = d.getFullYear();
+                const time = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                return `${day}-${month}-${year} ${time}`;
+            }
         }
     }
 </script>

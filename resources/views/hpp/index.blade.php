@@ -46,7 +46,7 @@
 
                     <div>
                         <label class="block text-sm font-bold text-primary mb-1">Daya Mesin (Kilowatt)</label>
-                        <input type="number" step="0.1" x-model="form.daya_mesin_kw" @input.debounce.500ms="fetchPreview()" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all" placeholder="Contoh: 1.5">
+                        <input type="number" step="0.1" x-model="form.daya_mesin_kw" @wheel="$event.target.blur()" @input.debounce.500ms="fetchPreview()" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="Contoh: 1.5">
                         <p class="text-[10px] text-muted-foreground mt-1">Tarif Listrik: Rp{{ $biayaListrik->harga }} / kWh</p>
                     </div>
 
@@ -62,7 +62,14 @@
 
                     <div>
                         <label class="block text-sm font-bold text-primary mb-1">Total Output (Pcs)</label>
-                        <input type="number" x-model="form.hasil_kemasan_pcs" @input.debounce.500ms="fetchPreview()" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all" placeholder="Contoh: 25">
+                        <input type="number"
+                               min="0.01"
+                               step="0.01"
+                               x-model="form.hasil_kemasan_pcs" 
+                               @wheel="$event.target.blur()" 
+                               @input.debounce.500ms="fetchPreview()" 
+                               class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                               placeholder="Contoh: 25">
                         <p class="text-[10px] text-muted-foreground mt-1">Gaji Operator & Packing: Rp{{ $biayaGaji->harga }} / Pcs</p>
                     </div>
                 </div>

@@ -44,7 +44,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Pilih ID Batch</label>
-                        <select x-model="form.batch_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
+                        <select x-model="form.batch_id" class="w-full bg-white border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
                             <option value="">-- PILIH BATCH --</option>
                             <template x-for="batch in activeBatches" :key="batch.id">
                                 <option :value="batch.id" x-text="batch.kode + ' (' + batch.produk + ')'"></option>
@@ -53,7 +53,7 @@
                     </div>
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Nama Pekerja</label>
-                        <input type="text" x-model="form.nama_pekerja" placeholder="Ketik nama (misal: Budi, Siti)" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required />
+                        <input type="text" x-model="form.nama_pekerja" placeholder="Ketik nama (misal: Budi, Siti)" class="w-full bg-white border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required />
                     </div>
                 </div>
 
@@ -64,7 +64,7 @@
                             Jenis Pekerjaan
                             <span class="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-black normal-case">Wajib Pilih</span>
                         </label>
-                        <select x-model="form.komponen_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer" required>
+                        <select x-model="form.komponen_id" class="w-full bg-white border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer" required>
                             <option value="">-- PILIH TUGAS --</option>
                             <template x-for="tugas in tugasList" :key="tugas.id">
                                 <option :value="tugas.id" x-text="tugas.nama + ' (Rp ' + formatRupiah(tugas.harga || tugas.tarif || 0) + '/' + tugas.satuan + ')'"></option>
@@ -76,7 +76,7 @@
                             Jumlah Kerja
                             <span class="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-black normal-case" x-text="'Satuan: ' + selectedSatuan"></span>
                         </label>
-                        <input type="number" min="0.1" step="0.1" x-model="form.jumlah" @wheel="$event.target.blur()" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="0" required />
+                        <input type="number" min="0.1" step="0.1" x-model="form.jumlah" @wheel="$event.target.blur()" class="w-full bg-white border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="0" required />
                     </div>
                 </div>
 

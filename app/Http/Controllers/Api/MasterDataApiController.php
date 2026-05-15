@@ -100,13 +100,13 @@ class MasterDataApiController extends Controller
         $validated = $request->validate([
             'nama_biji' => 'required|string|max:255',
             'asal_kopi' => 'nullable|string|max:255',
-            'harga_jual' => 'required|numeric|min:0',
+            'harga_beli' => 'required|numeric|min:0',
         ]);
 
         $bean = GreenBean::create([
             'nama_biji' => $validated['nama_biji'],
             'asal_kopi' => $validated['asal_kopi'],
-            'harga_jual' => $validated['harga_jual'],
+            'harga_beli' => $validated['harga_beli'],
             'stok_gram' => 0, // Default 0 for new beans
         ]);
 
@@ -118,14 +118,14 @@ class MasterDataApiController extends Controller
         $validated = $request->validate([
             'nama_biji' => 'required|string|max:255',
             'asal_kopi' => 'nullable|string|max:255',
-            'harga_jual' => 'required|numeric|min:0',
+            'harga_beli' => 'required|numeric|min:0',
         ]);
 
         $bean = GreenBean::findOrFail($id);
         $bean->update([
             'nama_biji' => $validated['nama_biji'],
             'asal_kopi' => $validated['asal_kopi'],
-            'harga_jual' => $validated['harga_jual'],
+            'harga_beli' => $validated['harga_beli'],
         ]);
 
         return response()->json(['message' => 'Data Green Bean berhasil diperbarui', 'data' => $bean]);

@@ -53,26 +53,49 @@ class InventoryController extends Controller
             ];
         });
 
-        return view('inventory.index', compact('greenBeans', 'roastedBeans', 'packagings'));
+        $roastingBatches = \App\Models\RoastingBatch::with('roastedBean')->where('status_batch', 'completed')->orderBy('created_at', 'desc')->get()->map(function ($batch) {
+            return [
+                'id' => $batch->id,
+                'kode' => $batch->kode_batch,
+                'nama' => $batch->roastedBean ? $batch->roastedBean->nama_kopi : 'Produk',
+                'bentuk' => $batch->profil_sangrai,
+                'stok' => $batch->berat_matang_bersih,
+                'tanggal_roasting' => \Carbon\Carbon::parse($batch->created_at)->format('d-m-Y H:i'),
+                'tanggal_expire' => \Carbon\Carbon::parse($batch->created_at)->addDays(30)->format('d-m-Y'),
+                'sisa_stok' => $batch->berat_matang_bersih * 1000, // Simulasi sisa stok sama dengan hasil
+            ];
+        });
+
+        return view('inventory.index', compact('greenBeans', 'roastedBeans', 'packagings', 'roastingBatches'));
     }
 
     // --- GREEN BEAN ---
     public function storeGreenBean(Request $request)
     {
-        $validated = $request->validate(['nama_biji' => 'required|string|max:255', 'asal_kopi' => 'required|string|max:255', 'stok_gram' => 'required|numeric|min:0', 'harga_beli' => 'required|numeric|min:0', 'tanggal_beli' => 'required|date']);
-        GreenBean::create($validated);
-        return redirect()->route('inventory.index')->with('success', 'Green Bean berhasil ditambahkan!');
+        $validated = $request->validate([
+            'green_bean_id' => 'required|exists:green_bean,id',
+            'stok_gram' => 'required|numeric|min:0',
+            'tanggal_beli' => 'required|date'
+        ]);
+
+        $bean = GreenBean::findOrFail($validated['green_bean_id']);
+        $bean->stok_gram += $validated['stok_gram'];
+        $bean->tanggal_beli = $validated['tanggal_beli'];
+        $bean->save();
+
+        return redirect()->route('inventory.index')->with('success', 'Stok Green Bean berhasil ditambahkan!');
     }
+    
     public function updateGreenBean(Request $request, $id)
     {
-        $validated = $request->validate(['nama_biji' => 'required|string|max:255', 'asal_kopi' => 'required|string|max:255', 'stok_gram' => 'required|numeric|min:0', 'harga_beli' => 'required|numeric|min:0', 'tanggal_beli' => 'required|date']);
+        $validated = $request->validate([
+            'stok_gram' => 'required|numeric|min:0',
+            'tanggal_beli' => 'required|date'
+        ]);
+        
         GreenBean::findOrFail($id)->update($validated);
-        return redirect()->route('inventory.index')->with('success', 'Green Bean berhasil diperbarui!');
-    }
-    public function destroyGreenBean($id)
-    {
-        GreenBean::findOrFail($id)->delete();
-        return redirect()->route('inventory.index')->with('success', 'Green Bean berhasil dihapus!');
+        
+        return redirect()->route('inventory.index')->with('success', 'Data Stok Green Bean berhasil diperbarui!');
     }
 
     // --- ROASTED BEAN ---
@@ -84,14 +107,44 @@ class InventoryController extends Controller
     }
     public function updateRoastedBean(Request $request, $id)
     {
-        $validated = $request->validate(['nama_kopi' => 'required|string|max:255', 'bentuk_akhir' => 'required|string|max:255', 'total_stok' => 'required|numeric|min:0', 'satuan_dasar' => 'required|string|max:50']);
-        RoastedBean::findOrFail($id)->update($validated);
-        return redirect()->route('inventory.index')->with('success', 'Roasted Bean berhasil diperbarui!');
+        $validated = $request->validate([
+            'total_stok' => 'required|numeric|min:0',
+        ]);
+        
+        $batch = \App\Models\RoastingBatch::findOrFail($id);
+        
+        $oldStokGram = $batch->berat_matang_bersih * 1000;
+        $newStokGram = $validated['total_stok'];
+        $diffGram = $newStokGram - $oldStokGram;
+
+        $batch->berat_matang_bersih = $newStokGram / 1000;
+        $batch->save();
+
+        if ($batch->roasted_bean_id) {
+            $master = \App\Models\RoastedBean::find($batch->roasted_bean_id);
+            if ($master) {
+                $master->total_stok += $diffGram;
+                $master->save();
+            }
+        }
+
+        return redirect()->route('inventory.index')->with('success', 'Batch Roasting berhasil diperbarui!');
     }
+    
     public function destroyRoastedBean($id)
     {
-        RoastedBean::findOrFail($id)->delete();
-        return redirect()->route('inventory.index')->with('success', 'Roasted Bean berhasil dihapus!');
+        $batch = \App\Models\RoastingBatch::findOrFail($id);
+        
+        if ($batch->roasted_bean_id) {
+            $master = \App\Models\RoastedBean::find($batch->roasted_bean_id);
+            if ($master) {
+                $master->total_stok -= ($batch->berat_matang_bersih * 1000);
+                $master->save();
+            }
+        }
+        $batch->delete();
+        
+        return redirect()->route('inventory.index')->with('success', 'Batch Roasting berhasil dihapus!');
     }
 
     // --- PACKAGING ---
