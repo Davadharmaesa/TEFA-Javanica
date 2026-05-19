@@ -337,12 +337,18 @@
     </div>
 
     <!-- Notification Toast -->
-    <div x-show="toast.show" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-8 scale-95" x-transition:enter-end="opacity-100 transform translate-y-0 scale-100" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 transform translate-y-0 scale-100" x-transition:leave-end="opacity-0 transform translate-y-8 scale-95" class="fixed bottom-10 right-10 bg-secondary text-secondary-foreground px-6 py-4 rounded-xl shadow-[0_20px_50px_rgba(20,80,30,0.4)] flex items-center space-x-4 z-[100] border border-white/20">
+    <div x-show="toast.show" x-cloak 
+         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-8 scale-95" x-transition:enter-end="opacity-100 transform translate-y-0 scale-100" 
+         x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 transform translate-y-0 scale-100" x-transition:leave-end="opacity-0 transform translate-y-8 scale-95" 
+         class="fixed bottom-10 right-10 px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-4 z-[100] border border-white/20"
+         :class="toast.type === 'success' ? 'bg-[#526B42] text-white shadow-[#526B42]/40' : (toast.type === 'warning' ? 'bg-[#D97706] text-white shadow-[#D97706]/40' : 'bg-red-600 text-white shadow-red-600/40')">
         <div class="bg-white/20 p-2 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white drop-shadow-md"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg x-show="toast.type === 'success'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white drop-shadow-md"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg x-show="toast.type === 'warning'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white drop-shadow-md"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <svg x-show="toast.type === 'error'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white drop-shadow-md"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         </div>
         <div class="flex flex-col">
-            <span class="font-black text-sm uppercase tracking-widest leading-none drop-shadow-sm">TRANSMISI DATA SUKSES</span>
+            <span class="font-black text-sm uppercase tracking-widest leading-none drop-shadow-sm" x-text="toast.type === 'success' ? 'TRANSMISI DATA SUKSES' : (toast.type === 'warning' ? 'PERINGATAN' : 'TRANSMISI DATA GAGAL')"></span>
             <span class="text-[10px] font-bold opacity-90 mt-1.5 font-mono" x-text="toast.msg"></span>
         </div>
     </div>
@@ -358,7 +364,7 @@
             stats: { target_tercapai: 0, rata_susut: 0, total_batch: 0 },
             loading: false,
             form: { green_bean_id: '', roasted_bean_id: '', kode_batch: '', profil_sangrai: '', durasi_roasting: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' },
-            toast: { show: false, msg: '' },
+            toast: { show: false, msg: '', type: 'success' },
             timeObj: new Date(),
 
             init() { 
@@ -374,16 +380,22 @@
                 });
 
                 // Validasi Input Cepat
+                this.$watch('form.berat_mentah_sortasi', value => {
+                    if(value && this.form.berat_mentah_gudang && parseFloat(value) > parseFloat(this.form.berat_mentah_gudang)) {
+                        this.form.berat_mentah_sortasi = this.form.berat_mentah_gudang;
+                        this.showToast("Berat Sortasi tidak boleh lebih dari Gudang!", "warning");
+                    }
+                });
                 this.$watch('form.berat_matang_kotor', value => {
                     if(value && this.form.berat_mentah_sortasi && parseFloat(value) > parseFloat(this.form.berat_mentah_sortasi)) {
                         this.form.berat_matang_kotor = this.form.berat_mentah_sortasi;
-                        this.showToast("Berat Kotor tidak boleh lebih dari Sortasi!");
+                        this.showToast("Berat Kotor tidak boleh lebih dari Sortasi!", "warning");
                     }
                 });
                 this.$watch('form.berat_matang_bersih', value => {
                     if(value && this.form.berat_matang_kotor && parseFloat(value) > parseFloat(this.form.berat_matang_kotor)) {
                         this.form.berat_matang_bersih = this.form.berat_matang_kotor;
-                        this.showToast("Berat Bersih tidak boleh lebih dari Kotor!");
+                        this.showToast("Berat Bersih tidak boleh lebih dari Kotor!", "warning");
                     }
                 });
             },
@@ -532,19 +544,19 @@
                     }
                     
                     this.fetchData(); // Refresh history dari server
-                    this.showToast(`Log ${this.form.kode_batch} berhasil direkam ke Database.`);
+                    this.showToast(`Log ${this.form.kode_batch} berhasil direkam ke Database.`, 'success');
                     this.form = { green_bean_id: '', roasted_bean_id: '', kode_batch: '', profil_sangrai: '', durasi_roasting: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' };
                     this.generateBatchCode();
                 } catch (e) {
-                    this.showToast(e.message || "Gagal melakukan post");
+                    this.showToast(e.message || "Gagal melakukan post", 'error');
                 } finally { 
 
                     this.loading = false; 
                 }
             },
 
-            showToast(msg) {
-                this.toast = { show: true, msg };
+            showToast(msg, type = 'success') {
+                this.toast = { show: true, msg, type };
                 setTimeout(() => this.toast.show = false, 4000);
             },
 

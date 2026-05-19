@@ -42,10 +42,13 @@ class PackagingApiController extends Controller
             $sisaGram = fmod($stokDigunakan, $ukuranKemasan); // sisa stok (residu)
 
             // 2. Update Stok Roasted Bean
-            // Kurangi stok yang diambil untuk dikemas
-            $roastedBean->total_stok -= $stokDigunakan;
-            // Tambahkan residu ke dalam sisa_stok untuk batch berikutnya
-            $roastedBean->sisa_stok += $sisaGram;
+            // Kurangi stok utama hanya sebesar yang sukses dikemas ke dalam pouch (tidak termasuk sisa residu)
+            // Sehingga sisa residu secara otomatis tetap berada di total_stok untuk dapat dikemas di proses berikutnya
+            $stokTerkemas = $hasilKemasanPcs * $ukuranKemasan;
+            $roastedBean->total_stok -= $stokTerkemas;
+
+            // Perbarui sisa_stok sesuai dengan sisa residu ril yang dihasilkan dari proses terbaru ini
+            $roastedBean->sisa_stok = $sisaGram;
             $roastedBean->save();
 
             // 3. Tambah Stok Kemasan (Pouch / Stiker)

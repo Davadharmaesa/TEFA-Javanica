@@ -16,7 +16,7 @@
         </div>
         <div class="flex gap-2">
             <!-- Add Button Dynamic based on Tab -->
-            <button @click="openPackModal()" class="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105" x-show="activeTab === 'roastedbean' || activeTab === 'produk'">
+            <button @click="openPackModal()" class="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105" x-show="activeTab === 'produk'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
                 Proses Kemas
             </button>
@@ -166,10 +166,10 @@
                     <template x-for="item in dataRoastingBatches" :key="item.id">
                         <tr class="hover:bg-muted/10 transition-colors group">
                             <td class="p-4">
-                                <span class="text-sm font-mono font-black text-primary" x-text="item.kode"></span>
+                                <span class="text-sm font-mono text-muted-foreground" x-text="item.kode"></span>
                             </td>
                             <td class="p-4">
-                                <p class="font-bold text-foreground" x-text="item.nama"></p>
+                                <p class="font-bold text-primary" x-text="item.nama"></p>
                             </td>
                             <td class="p-4">
                                 <span class="px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-widest" x-text="item.bentuk"></span>
@@ -226,7 +226,7 @@
                     <template x-for="item in dataProduk" :key="item.id">
                         <tr class="hover:bg-muted/10 transition-colors group">
                             <td class="p-4">
-                                <p class="font-bold text-foreground" x-text="item.nama"></p>
+                                <p class="font-bold text-primary" x-text="item.nama"></p>
                             </td>
                             <td class="p-4">
                                 <span class="text-sm font-mono text-muted-foreground" x-text="item.berat + 'g'"></span>
@@ -295,7 +295,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1">Jumlah Stok (Kg)</label>
-                            <input type="number" step="0.01" x-model="formData.stok_kg" placeholder="Contoh: 50" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                            <input type="number" min="0" step="0.01" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" x-model="formData.stok_kg" placeholder="Contoh: 50" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                             <input type="hidden" name="stok_gram" :value="(formData.stok_kg || 0) * 1000">
                         </div>
                         <div>
@@ -305,7 +305,7 @@
                         <template x-if="!isEditMode">
                             <div class="md:col-span-2 space-y-2 mt-2">
                                 <label class="block text-sm font-bold text-foreground mb-1">Total Harga Beli / Nota (Rp)</label>
-                                <input type="number" name="total_harga" x-model="formData.total_harga" placeholder="Contoh: 5000000" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all font-mono">
+                                <input type="number" min="0" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" name="total_harga" x-model="formData.total_harga" placeholder="Contoh: 5000000" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all font-mono">
                                 <div class="p-3 bg-muted/30 rounded-xl mt-2 flex justify-between items-center" x-show="formData.stok_kg > 0 && formData.total_harga > 0">
                                     <span class="text-xs font-bold text-muted-foreground uppercase">Kalkulasi Harga Standar</span>
                                     <span class="text-lg font-black text-primary">Rp <span x-text="formatRupiah(Math.round(formData.total_harga / formData.stok_kg))"></span> <span class="text-xs text-muted-foreground font-medium">/ Kg</span></span>
@@ -342,7 +342,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1">Koreksi Stok (Gram)</label>
-                            <input type="number" name="total_stok" x-model="formData.stok_raw" placeholder="Contoh: 15000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                            <input type="number" min="0" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" name="total_stok" x-model="formData.stok_raw" placeholder="Contoh: 15000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1">Satuan Dasar</label>
@@ -382,11 +382,11 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1">Koreksi Stok (Pcs)</label>
-                            <input type="number" name="stok_pcs" x-model="formData.stok" placeholder="Contoh: 100" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                            <input type="number" min="0" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" name="stok_pcs" x-model="formData.stok" placeholder="Contoh: 100" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1">HPP / Harga Beli (Rp)</label>
-                            <input type="number" name="harga_satuan" x-model="formData.hpp" placeholder="Contoh: 5000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                            <input type="number" min="0" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" name="harga_satuan" x-model="formData.hpp" placeholder="Contoh: 5000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         </div>
                     </div>
                 </div>
@@ -431,11 +431,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-foreground mb-1">Stok Diambil (Gram)</label>
-                        <input type="number" x-model="packForm.jumlah_stok_digunakan_gram" placeholder="Contoh: 2500" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        <input type="number" min="0" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" x-model="packForm.jumlah_stok_digunakan_gram" placeholder="Contoh: 2500" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-foreground mb-1">Ukuran Pouch (Gram)</label>
-                        <input type="number" x-model="packForm.ukuran_kemasan_gram" placeholder="Contoh: 200" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        <input type="number" min="0" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" x-model="packForm.ukuran_kemasan_gram" placeholder="Contoh: 200" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                     </div>
                 </div>
                 
