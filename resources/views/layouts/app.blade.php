@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'TEFA Javanica')</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -95,7 +96,7 @@
         }
     </script>
 </head>
-<body class="antialiased" x-data="{ isCollapsed: false }">
+<body class="antialiased" x-data="{ isCollapsed: localStorage.getItem('sidebarCollapsed') === 'true' }">
 
     <div class="flex h-screen overflow-hidden">
         

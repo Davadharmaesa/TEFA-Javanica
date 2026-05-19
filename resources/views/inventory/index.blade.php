@@ -48,7 +48,7 @@
             </div>
             <div>
                 <p class="text-sm font-bold text-muted-foreground uppercase tracking-wider">Roasted Bean</p>
-                <p class="text-3xl font-black font-mono text-foreground">{{ number_format($roastedBeans->sum('stok'), 1, ',', '.') }} <span class="text-sm font-medium text-muted-foreground">Kg</span></p>
+                <p class="text-3xl font-black font-mono text-primary">{{ number_format($roastedBeans->sum('stok'), 1, ',', '.') }} <span class="text-sm font-medium text-muted-foreground">Kg</span></p>
             </div>
         </div>
         <!-- Stat Card 3 -->
@@ -59,7 +59,7 @@
             </div>
             <div>
                 <p class="text-sm font-bold text-muted-foreground uppercase tracking-wider">Produk Kemasan</p>
-                <p class="text-3xl font-black font-mono text-foreground">{{ number_format($packagings->sum('stok'), 0, ',', '.') }} <span class="text-sm font-medium text-muted-foreground">Pcs</span></p>
+                <p class="text-3xl font-black font-mono text-primary">{{ number_format($packagings->sum('stok'), 0, ',', '.') }} <span class="text-sm font-medium text-muted-foreground">Pcs</span></p>
             </div>
         </div>
     </div>

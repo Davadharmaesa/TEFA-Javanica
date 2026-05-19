@@ -1,10 +1,39 @@
 <aside 
-    class="flex flex-col bg-card shadow-md h-full z-20 relative transition-all duration-300 ease-in-out border-r border-border" 
+    x-init="$nextTick(() => { $el.classList.remove('sidebar-pre-collapsed') })"
+    class="flex flex-col bg-card shadow-md h-full z-20 relative transition-all duration-300 ease-in-out border-r border-border w-64" 
     :class="isCollapsed ? 'w-20' : 'w-64'"
 >
+    <script>
+        // Gunakan class FOUC temporer yang tidak berbenturan dengan class w-64/w-20 milik Alpine
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            document.currentScript.parentElement.classList.add('sidebar-pre-collapsed');
+        }
+    </script>
+
+    <style>
+        /* Mencegah glitch teks meluber saat render pertama kali sebelum Alpine.js aktif */
+        aside.sidebar-pre-collapsed {
+            width: 5rem !important; /* Setara w-20 */
+        }
+        aside.sidebar-pre-collapsed h1,
+        aside.sidebar-pre-collapsed p.text-muted-foreground.font-mono,
+        aside.sidebar-pre-collapsed nav a span,
+        aside.sidebar-pre-collapsed div.flex-1.whitespace-nowrap,
+        aside.sidebar-pre-collapsed form button span {
+            display: none !important;
+        }
+        aside.sidebar-pre-collapsed nav a,
+        aside.sidebar-pre-collapsed div.p-3.space-y-3 > div,
+        aside.sidebar-pre-collapsed form button {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+            justify-content: center !important;
+        }
+    </style>
+
     <!-- Toggle Button -->
     <button 
-        @click="isCollapsed = !isCollapsed"
+        @click="isCollapsed = !isCollapsed; localStorage.setItem('sidebarCollapsed', isCollapsed)"
         class="absolute -right-3 top-8 bg-secondary text-secondary-foreground rounded-full p-1 shadow-md hover:bg-secondary/90 transition-transform hover:scale-110 z-30"
     >
         <template x-if="isCollapsed">
@@ -59,6 +88,7 @@
             @php $isActive = request()->is($item['path'] . '*'); @endphp
             <a 
                 href="{{ $item['href'] }}" 
+                @if($isActive) id="active-nav-item" @endif
                 class="flex items-center gap-3 py-2.5 rounded-md font-sans text-sm font-medium transition-all group {{ $isActive ? 'bg-secondary text-secondary-foreground shadow-sm' : 'text-primary hover:bg-muted hover:text-secondary' }}"
                 :class="isCollapsed ? 'px-2 justify-center' : 'px-3'"
             >
@@ -90,30 +120,42 @@
         @endforeach
     </nav>
 
+    <script>
+        // Mencegah reset scroll ke atas: men-scroll menu aktif secara tangguh setelah layout rendering browser 100% selesai
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const activeEl = document.getElementById('active-nav-item');
+                if (activeEl) {
+                    activeEl.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+                }
+            }, 150); // Jeda kecil untuk menjamin browser sudah selesai men-scale kontainer flexbox sidebar
+        });
+    </script>
+
     <!-- Footer / User Profile -->
     <div class="p-3 space-y-3 overflow-hidden">
-    <div class="flex items-center gap-3 bg-background border border-border rounded-lg transition-all duration-300" :class="isCollapsed ? 'p-2 justify-center' : 'p-3'">
-        <div class="p-1.5 bg-secondary/10 text-secondary rounded-full flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <div class="flex items-center gap-3 bg-background border border-border rounded-lg transition-all duration-300" :class="isCollapsed ? 'p-2 justify-center' : 'p-3'">
+            <div class="p-1.5 bg-secondary/10 text-secondary rounded-full flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="flex-1 overflow-hidden transition-all duration-300 whitespace-nowrap" :class="isCollapsed ? 'w-0 opacity-0 hidden' : 'opacity-100'">
+                <p class="text-sm font-bold text-primary truncate">{{ Auth::user()->name }}</p>
+                <p class="text-xs text-muted-foreground font-mono truncate">{{ ucfirst(Auth::user()->role ?? 'Operator') }}</p>
+            </div>
         </div>
-        <div class="flex-1 overflow-hidden transition-all duration-300 whitespace-nowrap" :class="isCollapsed ? 'w-0 opacity-0 hidden' : 'opacity-100'">
-            <p class="text-sm font-bold text-primary truncate">{{ Auth::user()->name }}</p>
-            <p class="text-xs text-muted-foreground font-mono truncate">{{ ucfirst(Auth::user()->role ?? 'Operator') }}</p>
-        </div>
-    </div>
 
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button
-            type="submit"
-            class="w-full flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold text-red-600 bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white transition-all shadow-sm"
-            :class="isCollapsed ? 'px-2' : 'px-4'"
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-            <span class="transition-all duration-300 whitespace-nowrap overflow-hidden" :class="isCollapsed ? 'w-0 opacity-0' : 'opacity-100'">
-                Keluar
-            </span>
-        </button>
-    </form>
-</div>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button
+                type="submit"
+                class="w-full flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold text-red-600 bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                :class="isCollapsed ? 'px-2' : 'px-4'"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                <span class="transition-all duration-300 whitespace-nowrap overflow-hidden" :class="isCollapsed ? 'w-0 opacity-0' : 'opacity-100'">
+                    Keluar
+                </span>
+            </button>
+        </form>
+    </div>
 </aside>
