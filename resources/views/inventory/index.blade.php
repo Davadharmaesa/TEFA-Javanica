@@ -20,7 +20,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
                 Proses Kemas
             </button>
-            <button @click="openModal('add', activeTab)" class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105">
+            <button x-show="activeTab === 'greenbean'" @click="openModal('add', activeTab)" class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 <span x-text="'Tambah Stok ' + getTabName()"></span>
             </button>
@@ -270,34 +270,29 @@
                 @csrf
                 <template x-if="isEditMode"><input type="hidden" name="_method" value="PUT"></template>
                 <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-foreground mb-1">Nama Biji Kopi Mentah</label>
-                        <input type="text" name="nama_biji" x-model="formData.nama" placeholder="Contoh: Arabica Gayo Premium" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-foreground mb-1">Kategori / Asal Kopi</label>
-                        <input type="text" name="asal_kopi" x-model="formData.kategori" placeholder="Contoh: Aceh Gayo" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-bold text-foreground mb-1">Pilih Biji Kopi Mentah</label>
-                            <select name="green_bean_id" x-model="formData.green_bean_id" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
-                                <option value="" disabled selected>Pilih Kopi dari Master Data...</option>
-                                <template x-for="bean in dataGreenBean" :key="bean.id">
-                                    <option :value="bean.id" x-text="bean.nama_biji + ' - ' + bean.asal_kopi"></option>
-                                </template>
-                            </select>
-                            <p class="text-xs text-muted-foreground mt-1 italic">*Jika kopi tidak ada, daftarkan dulu di menu Master Data.</p>
-                        </div>
-                    </template>
+                    <!-- Jika Edit Mode: Hanya Tampilkan Nama (Read-Only) -->
                     <template x-if="isEditMode">
                         <div class="p-4 bg-primary/5 border border-primary/20 rounded-xl mb-4">
                             <p class="text-xs text-primary font-bold uppercase tracking-widest mb-1">Koreksi Stok Kopi</p>
                             <p class="text-lg font-black text-foreground" x-text="formData.nama + ' - ' + formData.kategori"></p>
                         </div>
                     </template>
+
+                    <!-- Jika Tambah Mode: Tampilkan Dropdown Master Data -->
+                    <template x-if="!isEditMode">
+                        <div>
+                            <label class="block text-sm font-bold text-foreground mb-1">Pilih Biji Kopi Mentah</label>
+                            <select name="green_bean_id" x-model="formData.green_bean_id" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                                <option value="" disabled selected>Pilih Kopi dari Master Data...</option>
+                                <template x-for="bean in dataGreenBean" :key="bean.id">
+                                    <option :value="bean.id" x-text="bean.nama + ' - ' + bean.kategori"></option>
+                                </template>
+                            </select>
+                            <p class="text-xs text-muted-foreground mt-1 italic">*Jika kopi tidak ada, daftarkan dulu di menu Master Data.</p>
+                        </div>
+                    </template>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1">Jumlah Stok (Kg)</label>
                             <input type="number" step="0.01" x-model="formData.stok_kg" placeholder="Contoh: 50" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
@@ -307,6 +302,16 @@
                             <label class="block text-sm font-bold text-foreground mb-1" x-text="isEditMode ? 'Tanggal Pembelian Asli' : 'Tanggal Barang Masuk'"></label>
                             <input type="date" name="tanggal_beli" x-model="formData.tanggal_beli" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         </div>
+                        <template x-if="!isEditMode">
+                            <div class="md:col-span-2 space-y-2 mt-2">
+                                <label class="block text-sm font-bold text-foreground mb-1">Total Harga Beli / Nota (Rp)</label>
+                                <input type="number" name="total_harga" x-model="formData.total_harga" placeholder="Contoh: 5000000" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all font-mono">
+                                <div class="p-3 bg-muted/30 rounded-xl mt-2 flex justify-between items-center" x-show="formData.stok_kg > 0 && formData.total_harga > 0">
+                                    <span class="text-xs font-bold text-muted-foreground uppercase">Kalkulasi Harga Standar</span>
+                                    <span class="text-lg font-black text-primary">Rp <span x-text="formatRupiah(Math.round(formData.total_harga / formData.stok_kg))"></span> <span class="text-xs text-muted-foreground font-medium">/ Kg</span></span>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
                 <div class="mt-8 flex justify-end gap-3">
@@ -328,29 +333,20 @@
             </div>
             <form :action="getFormAction()" method="POST">
                 @csrf
-                <template x-if="isEditMode"><input type="hidden" name="_method" value="PUT"></template>
+                <input type="hidden" name="_method" value="PUT">
                 <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-foreground mb-1">Nama Produk Kopi Matang</label>
-                        <input type="text" name="nama_kopi" x-model="formData.nama" placeholder="Contoh: Gayo Espresso Blend" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-foreground mb-1">Bentuk / Level Roast</label>
-                        <select name="bentuk_akhir" x-model="formData.bentuk" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
-                            <option value="Light Roast">Light Roast</option>
-                            <option value="Medium Roast">Medium Roast</option>
-                            <option value="Medium-Dark Roast">Medium-Dark Roast</option>
-                            <option value="Dark Roast">Dark Roast</option>
-                        </select>
+                    <div class="p-4 bg-primary/5 border border-primary/20 rounded-xl mb-4">
+                        <p class="text-xs text-primary font-bold uppercase tracking-widest mb-1">Detail Batch (Hanya Koreksi Stok)</p>
+                        <p class="text-lg font-black text-foreground" x-text="formData.nama + ' - ' + formData.bentuk"></p>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-bold text-foreground mb-1">Stok (Gram)</label>
+                            <label class="block text-sm font-bold text-foreground mb-1">Koreksi Stok (Gram)</label>
                             <input type="number" name="total_stok" x-model="formData.stok_raw" placeholder="Contoh: 15000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1">Satuan Dasar</label>
-                            <input type="text" name="satuan_dasar" x-model="formData.satuan_dasar" value="gram" readonly class="w-full bg-muted border border-border rounded-lg px-4 py-2.5 focus:outline-none text-muted-foreground transition-all">
+                            <input type="text" value="gram" readonly class="w-full bg-muted border border-border rounded-lg px-4 py-2.5 focus:outline-none text-muted-foreground transition-all">
                         </div>
                     </div>
                 </div>
@@ -373,19 +369,19 @@
             </div>
             <form :action="getFormAction()" method="POST">
                 @csrf
-                <template x-if="isEditMode"><input type="hidden" name="_method" value="PUT"></template>
+                <input type="hidden" name="_method" value="PUT">
                 <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-foreground mb-1">Nama Produk Kemasan</label>
-                        <input type="text" name="nama_kemasan" x-model="formData.nama" placeholder="Contoh: Pouch Kopi Gayo 250g" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                    <div class="p-4 bg-primary/5 border border-primary/20 rounded-xl mb-4">
+                        <p class="text-xs text-primary font-bold uppercase tracking-widest mb-1">Detail Produk (Hanya Koreksi Stok & HPP)</p>
+                        <p class="text-lg font-black text-foreground" x-text="formData.nama + ' - ' + formData.tipe"></p>
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold text-foreground mb-1">Tipe / Kategori</label>
-                        <input type="text" name="tipe" x-model="formData.tipe" placeholder="Contoh: Pouch Flat Bottom" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
-                    </div>
+                    <!-- We still need to submit nama_kemasan and tipe for validation, so use hidden fields -->
+                    <input type="hidden" name="nama_kemasan" x-model="formData.nama">
+                    <input type="hidden" name="tipe" x-model="formData.tipe">
+                    
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-bold text-foreground mb-1">Stok (Pcs)</label>
+                            <label class="block text-sm font-bold text-foreground mb-1">Koreksi Stok (Pcs)</label>
                             <input type="number" name="stok_pcs" x-model="formData.stok" placeholder="Contoh: 100" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         </div>
                         <div>
@@ -413,10 +409,10 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
-            <form @submit.prevent="submitPackaging" class="space-y-4">
+            <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-bold text-foreground mb-1">Pilih Roasted Bean</label>
-                    <select x-model="packForm.roasted_bean_id" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                    <select x-model="packForm.roasted_bean_id" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         <option value="">-- Pilih Kopi Matang --</option>
                         <template x-for="item in dataRoastedBean" :key="item.id">
                             <option :value="item.id" x-text="item.nama + ' (Stok: ' + item.stok_raw + 'g)'"></option>
@@ -425,7 +421,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-foreground mb-1">Pilih Kemasan Target</label>
-                    <select x-model="packForm.packaging_id" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                    <select x-model="packForm.packaging_id" @change="onPackagingChange" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         <option value="">-- Pilih Jenis Kemasan --</option>
                         <template x-for="item in dataProduk" :key="item.id">
                             <option :value="item.id" x-text="item.nama"></option>
@@ -435,11 +431,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-foreground mb-1">Stok Diambil (Gram)</label>
-                        <input type="number" x-model="packForm.jumlah_stok_digunakan_gram" placeholder="Contoh: 2500" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        <input type="number" x-model="packForm.jumlah_stok_digunakan_gram" placeholder="Contoh: 2500" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-foreground mb-1">Ukuran Pouch (Gram)</label>
-                        <input type="number" x-model="packForm.ukuran_kemasan_gram" placeholder="Contoh: 200" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        <input type="number" x-model="packForm.ukuran_kemasan_gram" placeholder="Contoh: 200" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                     </div>
                 </div>
                 
@@ -457,12 +453,12 @@
 
                 <div class="mt-8 flex justify-end gap-3">
                     <button type="button" @click="isPackModalOpen = false" class="px-5 py-2.5 rounded-xl font-bold text-muted-foreground hover:bg-muted/50 transition-colors">Batal</button>
-                    <button type="submit" class="px-5 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold hover:bg-primary/90 shadow-md transition-all hover:scale-105" :disabled="isPackLoading">
+                    <button type="button" @click="submitPackaging" class="px-5 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold hover:bg-primary/90 shadow-md transition-all hover:scale-105" :disabled="isPackLoading">
                         <span x-show="!isPackLoading">Kemas</span>
                         <span x-show="isPackLoading" class="animate-pulse">Memproses...</span>
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -505,6 +501,11 @@
             },
             
             // Backend Data
+            dataGreenBean: @json($greenBeans),
+            dataRoastedBean: @json($roastedBeans),
+            dataRoastingBatches: @json($roastingBatches),
+            dataProduk: @json($packagings),
+
             getTabName() {
                 if(this.activeTab === 'greenbean') return 'Green Bean';
                 if(this.activeTab === 'roastedbean') return 'Roasted Bean';
@@ -536,7 +537,24 @@
                 this.packForm = { roasted_bean_id: '', packaging_id: '', jumlah_stok_digunakan_gram: '', ukuran_kemasan_gram: '' };
             },
 
+            onPackagingChange() {
+                if(!this.packForm.packaging_id) {
+                    this.packForm.ukuran_kemasan_gram = '';
+                    return;
+                }
+                // Find the selected packaging from dataProduk
+                const selected = this.dataProduk.find(p => p.id == this.packForm.packaging_id);
+                if(selected && selected.berat) {
+                    this.packForm.ukuran_kemasan_gram = selected.berat;
+                }
+            },
+
             async submitPackaging() {
+                if(!this.packForm.roasted_bean_id || !this.packForm.packaging_id || !this.packForm.jumlah_stok_digunakan_gram || !this.packForm.ukuran_kemasan_gram) {
+                    this.showToast('Gagal: Semua kolom form harus diisi.', 'error');
+                    return;
+                }
+                
                 this.isPackLoading = true;
                 try {
                     const res = await fetch('/internal-api/pengemasan/process', {

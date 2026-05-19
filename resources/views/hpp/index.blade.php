@@ -55,7 +55,7 @@
                         <select x-model="form.packaging_hpp" @change="fetchPreview()" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                             <option value="0">-- Pilih Kemasan --</option>
                             @foreach($packagings as $pack)
-                                <option value="{{ $pack->hpp }}">{{ $pack->nama }} (Rp{{ number_format($pack->hpp, 0, ',', '.') }}/pcs)</option>
+                                <option value="{{ $pack->harga_satuan }}">{{ $pack->nama_kemasan }} (Rp{{ number_format($pack->harga_satuan, 0, ',', '.') }}/pcs)</option>
                             @endforeach
                         </select>
                     </div>

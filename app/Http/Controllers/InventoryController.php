@@ -46,7 +46,7 @@ class InventoryController extends Controller
                 'kode' => 'PK-' . str_pad($item->id, 3, '0', STR_PAD_LEFT),
                 'nama' => $item->nama_kemasan,
                 'tipe' => $item->tipe,
-                'berat' => 0, // Nilai default karena belum ada di DB
+                'berat' => $item->kapasitas_gram,
                 'stok' => $item->stok_pcs,
                 'hpp' => $item->harga_satuan,
                 'harga' => $item->harga_satuan * 1.5, // Simulasi harga jual
@@ -69,17 +69,40 @@ class InventoryController extends Controller
         return view('inventory.index', compact('greenBeans', 'roastedBeans', 'packagings', 'roastingBatches'));
     }
 
-    // --- GREEN BEAN ---
     public function storeGreenBean(Request $request)
     {
         $validated = $request->validate([
             'green_bean_id' => 'required|exists:green_bean,id',
             'stok_gram' => 'required|numeric|min:0',
-            'tanggal_beli' => 'required|date'
+            'tanggal_beli' => 'required|date',
+            'total_harga' => 'nullable|numeric|min:0'
         ]);
 
         $bean = GreenBean::findOrFail($validated['green_bean_id']);
-        $bean->stok_gram += $validated['stok_gram'];
+        
+        $newStokGram = $validated['stok_gram'];
+        
+        // Menghitung Rata-rata Tertimbang (Weighted Average) jika total harga diinput
+        if (isset($validated['total_harga']) && $validated['total_harga'] > 0 && $newStokGram > 0) {
+            $totalHargaBaru = $validated['total_harga'];
+            
+            // Stok dan harga lama
+            $oldStokGram = $bean->stok_gram;
+            $oldHargaBeli = $bean->harga_beli; // per Kg
+            
+            // Value lama
+            $totalValueOld = ($oldStokGram / 1000) * $oldHargaBeli;
+            $totalValueNew = $totalHargaBaru;
+            
+            $totalValue = $totalValueOld + $totalValueNew;
+            $totalStokKg = ($oldStokGram + $newStokGram) / 1000;
+            
+            if ($totalStokKg > 0) {
+                $bean->harga_beli = round($totalValue / $totalStokKg);
+            }
+        }
+
+        $bean->stok_gram += $newStokGram;
         $bean->tanggal_beli = $validated['tanggal_beli'];
         $bean->save();
 
@@ -123,7 +146,7 @@ class InventoryController extends Controller
         if ($batch->roasted_bean_id) {
             $master = \App\Models\RoastedBean::find($batch->roasted_bean_id);
             if ($master) {
-                $master->total_stok += $diffGram;
+                $master->total_stok = max(0, $master->total_stok + $diffGram);
                 $master->save();
             }
         }
@@ -138,7 +161,7 @@ class InventoryController extends Controller
         if ($batch->roasted_bean_id) {
             $master = \App\Models\RoastedBean::find($batch->roasted_bean_id);
             if ($master) {
-                $master->total_stok -= ($batch->berat_matang_bersih * 1000);
+                $master->total_stok = max(0, $master->total_stok - ($batch->berat_matang_bersih * 1000));
                 $master->save();
             }
         }

@@ -184,6 +184,7 @@
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4">Tipe</th>
                         <th class="p-4">Nama Kemasan</th>
+                        <th class="p-4">Kapasitas (Gram)</th>
                         <th class="p-4 text-right">Harga Satuan (Rp)</th>
                         <th class="p-4 text-right">Stok (Pcs)</th>
                         <th class="p-4 text-center">Aksi</th>
@@ -197,6 +198,9 @@
                             </td>
                             <td class="p-4">
                                 <p class="font-bold text-primary" x-text="item.nama_kemasan"></p>
+                            </td>
+                            <td class="p-4">
+                                <span class="text-sm font-mono text-muted-foreground" x-text="item.kapasitas_gram + 'g'"></span>
                             </td>
                             <td class="p-4 text-right font-mono font-bold text-primary">
                                 Rp <span x-text="formatRupiah(item.harga_satuan)"></span>
@@ -310,9 +314,15 @@
                     <label class="text-xs font-bold text-primary uppercase tracking-widest">Nama Kemasan</label>
                     <input type="text" x-model="formPackaging.nama_kemasan" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: Pouch Hitam 200g" />
                 </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Harga Satuan (Rp)</label>
-                    <input type="number" min="0" x-model="formPackaging.harga_satuan" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest">Kapasitas (Gram)</label>
+                        <input type="number" min="0" x-model="formPackaging.kapasitas_gram" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: 200" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest">Harga Satuan (Rp)</label>
+                        <input type="number" min="0" x-model="formPackaging.harga_satuan" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
+                    </div>
                 </div>
                 <p class="text-xs text-muted-foreground italic mt-2">*Stok baru masuk otomatis 0. Stok riil disuplai dari menu Gudang.</p>
             </div>
@@ -341,7 +351,7 @@
             formBiaya: { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' },
             formGreenBean: { id: null, nama_biji: '', asal_kopi: '', harga_beli: 0 },
             formRoastedBean: { id: null, nama_kopi: '', bentuk_akhir: '' },
-            formPackaging: { id: null, tipe: 'Pouch Alumunium', nama_kemasan: '', harga_satuan: 0 },
+            formPackaging: { id: null, tipe: 'Pouch Alumunium', nama_kemasan: '', kapasitas_gram: 0, harga_satuan: 0 },
 
             dataBiaya: [
                 { id: 1, nama: 'Gas Elpiji 3Kg', kategori: 'Overhead', satuan: 'Tabung', harga: 20000 },
@@ -385,7 +395,7 @@
                 if(this.activeTab === 'biaya') this.formBiaya = { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' };
                 if(this.activeTab === 'greenbean') this.formGreenBean = { id: null, nama_biji: '', asal_kopi: '', harga_beli: 0 };
                 if(this.activeTab === 'roastedbean') this.formRoastedBean = { id: null, nama_kopi: '', bentuk_akhir: '' };
-                if(this.activeTab === 'packaging') this.formPackaging = { id: null, tipe: 'Pouch Alumunium', nama_kemasan: '', harga_satuan: 0 };
+                if(this.activeTab === 'packaging') this.formPackaging = { id: null, tipe: 'Pouch Alumunium', nama_kemasan: '', kapasitas_gram: 0, harga_satuan: 0 };
                 this.isModalOpen = true;
             },
 
@@ -409,38 +419,86 @@
 
             async deleteGreenBean(id) {
                 if(!confirm('Yakin ingin menghapus data Biji Mentah ini?')) return;
-                const res = await fetch(`/internal-api/master/green-beans/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
-                });
-                if(res.ok) this.fetchData();
+                try {
+                    const res = await fetch(`/internal-api/master/green-beans/${id}`, {
+                        method: 'DELETE',
+                        headers: { 
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
+                    if(res.ok) {
+                        this.fetchData();
+                    } else {
+                        alert(data.message || 'Gagal menghapus data Biji Mentah.');
+                    }
+                } catch(e) {
+                    alert('Terjadi kesalahan jaringan atau sistem.');
+                }
             },
 
             async deleteRoastedBean(id) {
                 if(!confirm('Yakin ingin menghapus data Produk Jadi ini?')) return;
-                const res = await fetch(`/internal-api/master/roasted-beans/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
-                });
-                if(res.ok) this.fetchData();
+                try {
+                    const res = await fetch(`/internal-api/master/roasted-beans/${id}`, {
+                        method: 'DELETE',
+                        headers: { 
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
+                    if(res.ok) {
+                        this.fetchData();
+                    } else {
+                        alert(data.message || 'Gagal menghapus data Roasted Bean.');
+                    }
+                } catch(e) {
+                    alert('Terjadi kesalahan jaringan atau sistem.');
+                }
             },
 
             async deleteBiaya(id) {
                 if(!confirm('Yakin ingin menghapus Komponen Biaya ini?')) return;
-                const res = await fetch(`/internal-api/master/biaya/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
-                });
-                if(res.ok) this.fetchData();
+                try {
+                    const res = await fetch(`/internal-api/master/biaya/${id}`, {
+                        method: 'DELETE',
+                        headers: { 
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
+                    if(res.ok) {
+                        this.fetchData();
+                    } else {
+                        alert(data.message || 'Gagal menghapus Komponen Biaya.');
+                    }
+                } catch(e) {
+                    alert('Terjadi kesalahan jaringan atau sistem.');
+                }
             },
 
             async deletePackaging(id) {
                 if(!confirm('Yakin ingin menghapus Kemasan ini?')) return;
-                const res = await fetch(`/internal-api/master/packagings/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
-                });
-                if(res.ok) this.fetchData();
+                try {
+                    const res = await fetch(`/internal-api/master/packagings/${id}`, {
+                        method: 'DELETE',
+                        headers: { 
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
+                    if(res.ok) {
+                        this.fetchData();
+                    } else {
+                        alert(data.message || 'Gagal menghapus Kemasan.');
+                    }
+                } catch(e) {
+                    alert('Terjadi kesalahan jaringan atau sistem.');
+                }
             },
 
             async saveData() {

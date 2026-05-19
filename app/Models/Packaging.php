@@ -12,6 +12,7 @@ class Packaging extends Model
     protected $fillable = [
         'tipe',
         'nama_kemasan',
+        'kapasitas_gram',
         'harga_satuan',
         'stok_pcs',
     ];

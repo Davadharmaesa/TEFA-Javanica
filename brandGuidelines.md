@@ -16,6 +16,6 @@ Clean, Precise, Professional, and Industrial.
 - **Surface/Cards**: #FFFFFF (Pure White) with soft borders.
 
 ## UI Elements
-- **Borders**: Thin, defined lines (##B3885B) to give a "blueprint" feel.
+- **Borders**: Thin, defined lines (#B3885B) to give a "blueprint" feel.
 - **Shadows**: Very subtle (soft) to keep the cards looking flat and modern.
 - [cite_start]**Components**: High-contrast buttons using the Earthy Terracotta for clear action hierarchy.

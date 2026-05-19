@@ -22,6 +22,7 @@ class MasterDataApiController extends Controller
         $validated = $request->validate([
             'tipe' => 'required|string|max:255',
             'nama_kemasan' => 'required|string|max:255',
+            'kapasitas_gram' => 'required|integer|min:0',
             'harga_satuan' => 'required|integer|min:0',
         ]);
         // Stok default 0 untuk master data baru
@@ -36,6 +37,7 @@ class MasterDataApiController extends Controller
         $validated = $request->validate([
             'tipe' => 'required|string|max:255',
             'nama_kemasan' => 'required|string|max:255',
+            'kapasitas_gram' => 'required|integer|min:0',
             'harga_satuan' => 'required|integer|min:0',
         ]);
         $packaging = Packaging::findOrFail($id);
@@ -45,9 +47,13 @@ class MasterDataApiController extends Controller
 
     public function destroyPackaging($id)
     {
-        $packaging = Packaging::findOrFail($id);
-        $packaging->delete();
-        return response()->json(['message' => 'Kemasan berhasil dihapus']);
+        try {
+            $packaging = Packaging::findOrFail($id);
+            $packaging->delete();
+            return response()->json(['message' => 'Kemasan berhasil dihapus']);
+        } catch (\Illuminate\Database\QueryException $e) {
+            return response()->json(['message' => 'Kemasan tidak dapat dihapus karena sudah digunakan dalam proses pengemasan!'], 400);
+        }
     }
 
     // --- BIAYA ---
@@ -83,9 +89,13 @@ class MasterDataApiController extends Controller
 
     public function destroyBiaya($id)
     {
-        $biaya = Biaya::findOrFail($id);
-        $biaya->delete();
-        return response()->json(['message' => 'Biaya berhasil dihapus']);
+        try {
+            $biaya = Biaya::findOrFail($id);
+            $biaya->delete();
+            return response()->json(['message' => 'Biaya berhasil dihapus']);
+        } catch (\Illuminate\Database\QueryException $e) {
+            return response()->json(['message' => 'Komponen Biaya tidak dapat dihapus karena sudah terhubung dengan data keuangan atau kalkulasi HPP!'], 400);
+        }
     }
 
     // --- GREEN BEAN ---
@@ -133,9 +143,13 @@ class MasterDataApiController extends Controller
 
     public function destroyGreenBean($id)
     {
-        $bean = GreenBean::findOrFail($id);
-        $bean->delete();
-        return response()->json(['message' => 'Data Green Bean berhasil dihapus']);
+        try {
+            $bean = GreenBean::findOrFail($id);
+            $bean->delete();
+            return response()->json(['message' => 'Data Green Bean berhasil dihapus']);
+        } catch (\Illuminate\Database\QueryException $e) {
+            return response()->json(['message' => 'Data Green Bean tidak dapat dihapus karena sudah digunakan dalam catatan produksi (Roasting Batch) atau gudang!'], 400);
+        }
     }
 
     // --- ROASTED BEAN ---
@@ -179,8 +193,12 @@ class MasterDataApiController extends Controller
 
     public function destroyRoastedBean($id)
     {
-        $bean = RoastedBean::findOrFail($id);
-        $bean->delete();
-        return response()->json(['message' => 'Data Roasted Bean berhasil dihapus']);
+        try {
+            $bean = RoastedBean::findOrFail($id);
+            $bean->delete();
+            return response()->json(['message' => 'Data Roasted Bean berhasil dihapus']);
+        } catch (\Illuminate\Database\QueryException $e) {
+            return response()->json(['message' => 'Data Roasted Bean tidak dapat dihapus karena sudah terhubung dengan data produksi (Roasting Batch) atau produk kemasan!'], 400);
+        }
     }
 }

@@ -48,7 +48,7 @@ class HppController extends Controller
 
     public function calculatePreview(Request $request)
     {
-        $batch = collect(json_decode($request->batch));
+        $batch = json_decode($request->batch, true);
         $hasil_kemasan_pcs = $request->hasil_kemasan_pcs;
         $daya_mesin_kw = $request->daya_mesin_kw;
         $packaging_hpp = $request->packaging_hpp;
@@ -57,12 +57,12 @@ class HppController extends Controller
         $biayaPenyusutanTarif = Biaya::where('nama', 'like', '%Penyusutan%')->first()->harga ?? 10000;
         $biayaGajiTarif = Biaya::where('nama', 'like', '%Gaji%')->orWhere('nama', 'like', '%Operator%')->first()->harga ?? 500;
 
-        $durasiJam = $batch['durasi_roasting'] / 60;
+        $durasiJam = isset($batch['durasi_roasting']) ? ($batch['durasi_roasting'] / 60) : 0;
         $biayaListrik = $durasiJam * $daya_mesin_kw * $biayaListrikTarif;
         
         $biayaGaji = $biayaGajiTarif * $hasil_kemasan_pcs;
         $biayaKemasan = $packaging_hpp * $hasil_kemasan_pcs;
-        $biayaBahanBaku = $batch['harga_bahan_baku'];
+        $biayaBahanBaku = $batch['harga_bahan_baku'] ?? 0;
         
         $totalHpp = $biayaBahanBaku + $biayaListrik + $biayaPenyusutanTarif + $biayaGaji + $biayaKemasan;
 
