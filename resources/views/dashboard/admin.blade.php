@@ -58,7 +58,7 @@
                         <span class="text-4xl font-mono font-extrabold">{{ number_format($penjualan_retail, 0, ',', '.') }}</span>
                     </div>
                 </div>
-                <div class="p-2 bg-primary text-primary-foreground rounded-md shadow-sm border border-primary">
+                <div class="p-2 border border-border text-primary rounded-md shadow-sm bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                 </div>
             </div>
@@ -147,8 +147,8 @@
                     </div>
                     <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Sistem Pegawai</span>
                 </a>
-                <a href="/reports" class="bg-card hover:bg-muted border border-border rounded-xl p-5 flex flex-col items-center justify-center gap-3 transition shadow-sm text-destructive hover:text-white hover:bg-destructive group">
-                    <div class="p-2 border border-destructive text-destructive rounded-md bg-background group-hover:bg-destructive group-hover:text-white transition-colors shadow-sm">
+                <a href="/reports" class="bg-card hover:bg-muted border border-border rounded-xl p-5 flex flex-col items-center justify-center gap-3 transition shadow-sm text-primary group">
+                    <div class="p-2 border border-border text-primary rounded-md bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-sm">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     </div>
                     <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Tutup Buku Periode</span>

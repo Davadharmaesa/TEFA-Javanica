@@ -273,16 +273,16 @@
             <div x-show="activeTab === 'greenbean'" class="space-y-4">
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-primary uppercase tracking-widest">Nama Biji Mentah</label>
-                    <input type="text" x-model="formGreenBean.nama_biji" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
+                    <input type="text" x-model="formGreenBean.nama_biji" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: Arabika Ijen" />
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest">Asal Kopi</label>
-                        <input type="text" x-model="formGreenBean.asal_kopi" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
+                        <input type="text" x-model="formGreenBean.asal_kopi" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: Banyuwangi" />
                     </div>
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest">Harga Beli Standar (Rp)</label>
-                        <input type="number" min="0" x-model="formGreenBean.harga_beli" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
+                        <input type="number" min="0" x-model="formGreenBean.harga_beli" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="0" />
                     </div>
                 </div>
                 <p class="text-xs text-muted-foreground italic mt-2">*Stok hanya bisa dirubah melalui menu Gudang / Barang Masuk.</p>
@@ -292,7 +292,7 @@
             <div x-show="activeTab === 'roastedbean'" class="space-y-4">
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-primary uppercase tracking-widest">Nama Produk Jadi</label>
-                    <input type="text" x-model="formRoastedBean.nama_kopi" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
+                    <input type="text" x-model="formRoastedBean.nama_kopi" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: Kopi Arabika Ijen" />
                 </div>
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-primary uppercase tracking-widest">Bentuk Akhir</label>
@@ -344,7 +344,7 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('masterData', () => ({
-            activeTab: 'greenbean',
+            activeTab: 'biaya',
             isModalOpen: false,
             modalTitle: '',
             
