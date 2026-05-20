@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\RoastedBean;
 use App\Models\Packaging;
+use App\Models\FinishedGood;
 use Illuminate\Support\Facades\DB;
 
 class PackagingApiController extends Controller
@@ -51,12 +52,21 @@ class PackagingApiController extends Controller
             $roastedBean->sisa_stok = $sisaGram;
             $roastedBean->save();
 
-            // 3. Tambah Stok Kemasan (Pouch / Stiker)
-            $packaging->stok_pcs += $hasilKemasanPcs;
+            // 3. Kurangi Stok Kemasan Kosong (Pouch / Stiker terpakai)
+            if ($packaging->stok_pcs < $hasilKemasanPcs) {
+                DB::rollBack();
+                return response()->json(['message' => 'Stok kemasan kosong tidak mencukupi untuk jumlah tersebut.'], 400);
+            }
+            $packaging->stok_pcs -= $hasilKemasanPcs;
             $packaging->save();
 
-            // Opsional: Jika Anda ingin menyimpan log transaksi pengemasan ke tabel baru
-            // PackagingProcess::create([...]);
+            // 4. Tambah Stok Kopi Siap Jual (Finished Goods)
+            $finishedGood = FinishedGood::firstOrCreate(
+                ['roasted_bean_id' => $roastedBean->id, 'packaging_id' => $packaging->id],
+                ['stok_pcs' => 0]
+            );
+            $finishedGood->stok_pcs += $hasilKemasanPcs;
+            $finishedGood->save();
 
             DB::commit();
 

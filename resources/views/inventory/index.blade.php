@@ -211,47 +211,74 @@
     </div>
 
     <!-- Tab Content: Produk Kemasan -->
-    <div x-show="activeTab === 'produk'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
-                        <th class="p-4">Nama Produk Kemasan</th>
-                        <th class="p-4">Berat</th>
-                        <th class="p-4 text-right">Stok (Pcs)</th>
-                        <th class="p-4 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-border/30">
-                    <template x-for="item in dataProduk" :key="item.id">
-                        <tr class="hover:bg-muted/10 transition-colors group">
-                            <td class="p-4">
-                                <p class="font-bold text-primary" x-text="item.nama"></p>
-                            </td>
-                            <td class="p-4">
-                                <span class="text-sm font-mono text-muted-foreground" x-text="item.berat + 'g'"></span>
-                            </td>
-                            <td class="p-4 text-right font-mono font-bold text-primary">
-                                <span x-text="item.stok"></span>
-                            </td>
-                            <td class="p-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <button @click="openModal('edit', 'produk', item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                    </button>
-                                    <form :action="'/inventory/packaging/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+    <div x-show="activeTab === 'produk'" x-transition.opacity.duration.300ms class="space-y-6" style="display: none;">
+        
+        <!-- Tabel Produk Siap Jual -->
+        <div class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-border/50 bg-primary/5">
+                <h3 class="text-lg font-bold text-primary font-heading">Kopi Siap Jual (Finished Goods)</h3>
+                <p class="text-xs text-muted-foreground mt-1">Stok kopi yang sudah dibungkus dan siap dipasarkan.</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
+                            <th class="p-4">Nama Produk (Kopi & Kemasan)</th>
+                            <th class="p-4">Berat / Pcs</th>
+                            <th class="p-4 text-right">Stok (Pcs)</th>
                         </tr>
-                    </template>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-border/30">
+                        <template x-for="item in dataFinishedGoods" :key="item.id">
+                            <tr class="hover:bg-muted/10 transition-colors group">
+                                <td class="p-4">
+                                    <p class="font-bold text-primary" x-text="item.nama"></p>
+                                </td>
+                                <td class="p-4">
+                                    <span class="text-sm font-mono text-muted-foreground" x-text="item.berat + 'g'"></span>
+                                </td>
+                                <td class="p-4 text-right font-mono font-bold text-primary">
+                                    <span x-text="item.stok"></span>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr x-show="dataFinishedGoods.length === 0">
+                            <td colspan="3" class="p-8 text-center text-muted-foreground italic">Belum ada Kopi Siap Jual. Gunakan menu 'Proses Kemas'.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tabel Kemasan Kosong -->
+        <div class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-border/50">
+                <h3 class="text-lg font-bold text-primary font-heading">Wadah Kosong (Material)</h3>
+                <p class="text-xs text-muted-foreground mt-1">Stok material kemasan yang belum diisi.</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
+                            <th class="p-4">Nama Kemasan Kosong</th>
+                            <th class="p-4 text-right">Stok (Pcs)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border/30">
+                        <template x-for="item in dataProduk" :key="item.id">
+                            <tr class="hover:bg-muted/10 transition-colors group">
+                                <td class="p-4">
+                                    <p class="font-bold text-primary" x-text="item.nama"></p>
+                                    <p class="text-xs text-muted-foreground" x-text="item.tipe"></p>
+                                </td>
+                                <td class="p-4 text-right font-mono font-bold text-primary">
+                                    <span x-text="item.stok"></span>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -503,12 +530,14 @@
             // Backend Data
             dataGreenBean: @json($greenBeans),
             dataRoastedBean: @json($roastedBeans),
-            dataRoastingBatches: @json($roastingBatches),
+            dataRoasting: @json($roastingBatches),
             dataProduk: @json($packagings),
+            dataFinishedGoods: @json($finishedGoods ?? []),
 
             getTabName() {
                 if(this.activeTab === 'greenbean') return 'Green Bean';
                 if(this.activeTab === 'roastedbean') return 'Roasted Bean';
+                if(this.activeTab === 'finishedgoods') return 'Finished Goods';
                 return 'Produk';
             },
 

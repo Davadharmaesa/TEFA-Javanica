@@ -53,6 +53,16 @@ class InventoryController extends Controller
             ];
         });
 
+        $finishedGoods = \App\Models\FinishedGood::with(['roastedBean', 'packaging'])->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'kode' => 'FG-' . str_pad($item->id, 3, '0', STR_PAD_LEFT),
+                'nama' => ($item->roastedBean->nama_kopi ?? 'Unknown') . ' - ' . ($item->packaging->nama_kemasan ?? 'Unknown'),
+                'berat' => $item->packaging->kapasitas_gram ?? 0,
+                'stok' => $item->stok_pcs,
+            ];
+        });
+
         $roastingBatches = \App\Models\RoastingBatch::with('roastedBean')->where('status_batch', 'completed')->orderBy('created_at', 'desc')->get()->map(function ($batch) {
             return [
                 'id' => $batch->id,
@@ -66,7 +76,7 @@ class InventoryController extends Controller
             ];
         });
 
-        return view('inventory.index', compact('greenBeans', 'roastedBeans', 'packagings', 'roastingBatches'));
+        return view('inventory.index', compact('greenBeans', 'roastedBeans', 'packagings', 'roastingBatches', 'finishedGoods'));
     }
 
     public function storeGreenBean(Request $request)
