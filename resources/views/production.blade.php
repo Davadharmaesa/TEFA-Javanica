@@ -277,20 +277,21 @@
 
         <!-- RIGHT: History Log (Spans 5 cols) -->
         <div class="lg:col-span-5 bg-card border border-border shadow-lg shadow-black/5 rounded-2xl p-0 flex flex-col overflow-hidden">
-            <div class="px-6 py-5 border-b border-border bg-gradient-to-b from-muted/30 to-background flex justify-between items-center">
+            <div class="bg-card border-b border-border p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex justify-between items-center z-10 relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
                 <div>
-                    <h2 class="font-heading font-black text-lg text-primary tracking-tight">Log Mesin Terkini</h2>
-                    <p class="text-[10px] uppercase font-bold text-muted-foreground mt-0.5 tracking-wider">Histori Operasional Shift</p>
+                    <h2 class="text-lg font-heading font-black text-primary tracking-tight">Log Mesin Terkini</h2>
+                    <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Histori Operasional Shift</p>
                 </div>
-                <div class="p-2.5 bg-background border border-border/80 text-primary rounded-xl shadow-sm drop-shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <div class="bg-primary/10 text-primary p-2 rounded-xl shadow-inner border border-primary/20 relative z-10 flex flex-col items-center justify-center">
+                    <span class="text-lg font-black leading-none" x-text="history.length"></span>
+                    <span class="text-[8px] font-bold uppercase">Batch</span>
                 </div>
             </div>
 
             <div class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar min-h-[500px] max-h-[850px] bg-background">
                 <template x-for="batch in history" :key="batch.id">
-                    <div class="p-4 bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300 group flex gap-4 items-start relative hover:border-primary/30">
-                        <div class="absolute inset-y-0 left-0 w-1.5 rounded-l-xl bg-gradient-to-b from-secondary to-secondary/50 opacity-60 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="bg-card border-l-4 border-l-secondary border border-border rounded-xl p-4 shadow-sm group hover:shadow-md transition-all relative overflow-hidden flex gap-4 items-start">
                         
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-start mb-1.5">

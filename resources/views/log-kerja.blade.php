@@ -92,8 +92,8 @@
         </div>
 
         <!-- RIGHT: History Panel (Spans 5 cols) -->
-        <div class="lg:col-span-5 flex flex-col gap-4">
-            <div class="bg-card border border-border rounded-2xl p-4 shadow-sm flex justify-between items-center z-10 relative overflow-hidden">
+        <div class="lg:col-span-5 bg-card border border-border shadow-lg shadow-black/5 rounded-2xl p-0 flex flex-col overflow-hidden">
+            <div class="bg-card border-b border-border p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex justify-between items-center z-10 relative overflow-hidden">
                 <div class="absolute right-0 top-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
                 <div>
                     <h2 class="text-lg font-heading font-black text-primary tracking-tight">Log Pekerja Terkini</h2>
@@ -106,7 +106,7 @@
             </div>
 
             <!-- List container -->
-            <div class="flex-1 bg-muted/20 border border-border/80 rounded-2xl overflow-y-auto min-h-[400px] max-h-[600px] p-4 space-y-3 relative shadow-inner">
+            <div class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar min-h-[500px] max-h-[850px] bg-background">
                 <template x-for="log in history" :key="log.id">
                     <div class="bg-card border-l-4 border-l-secondary border border-border rounded-xl p-4 shadow-sm group hover:shadow-md transition-all relative overflow-hidden">
                         <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

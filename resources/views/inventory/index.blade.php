@@ -327,7 +327,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1" x-text="isEditMode ? 'Tanggal Pembelian Asli' : 'Tanggal Barang Masuk'"></label>
-                            <input type="date" name="tanggal_beli" x-model="formData.tanggal_beli" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                            <input type="text" name="tanggal_beli" x-model="formData.tanggal_beli" x-ref="datePicker" x-init="flatpickr($refs.datePicker, { dateFormat: 'd/m/Y', allowInput: true })" placeholder="dd/mm/yyyy" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         </div>
                         <template x-if="!isEditMode">
                             <div class="md:col-span-2 space-y-2 mt-2">
@@ -508,6 +508,9 @@
 </div>
 
 @push('scripts')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('gudangData', () => ({

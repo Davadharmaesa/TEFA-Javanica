@@ -8,11 +8,11 @@
     <!-- Header Section -->
     <div class="print:hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-2xl shadow-sm border border-border/40">
         <div>
-            <h1 class="text-2xl font-heading font-bold text-primary flex items-center gap-2">
+            <h1 class="text-3xl font-heading font-black text-primary tracking-tight flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                 Laporan Keuangan
             </h1>
-            <p class="text-sm text-muted-foreground mt-1">Pantau kinerja finansial, profitabilitas, dan arus kas roastery.</p>
+            <p class="text-sm font-sans text-muted-foreground mt-1">Pantau kinerja finansial, profitabilitas, dan arus kas roastery.</p>
         </div>
         <!-- Actions Panel -->
         <div class="flex flex-col sm:flex-row gap-4 mt-4 md:mt-0 items-center bg-muted/20 p-2 sm:pr-2 sm:pl-4 rounded-2xl border border-border/50 shadow-sm">
