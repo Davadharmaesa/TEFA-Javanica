@@ -82,7 +82,7 @@
                                     <button @click="editBiaya(item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                     </button>
-                                    <button @click="deleteBiaya(item.id)" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
+                                    <button @click="openDeleteModal(item)" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                                     </button>
                                 </div>
@@ -123,7 +123,7 @@
                                     <button @click="editGreenBean(item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                     </button>
-                                    <button @click="deleteGreenBean(item.id)" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
+                                    <button @click="openDeleteModal(item)" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                                     </button>
                                 </div>
@@ -164,7 +164,7 @@
                                     <button @click="editRoastedBean(item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                     </button>
-                                    <button @click="deleteRoastedBean(item.id)" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
+                                    <button @click="openDeleteModal(item)" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                                     </button>
                                 </div>
@@ -183,7 +183,7 @@
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4">Tipe</th>
-                        <th class="p-4">Nama Kemasan</th>
+                        <th class="p-4">Nama Item</th>
                         <th class="p-4">Kapasitas (Gram)</th>
                         <th class="p-4 text-right">Harga Satuan (Rp)</th>
                         <th class="p-4 text-right">Stok (Pcs)</th>
@@ -200,7 +200,7 @@
                                 <p class="font-bold text-primary" x-text="item.nama_kemasan"></p>
                             </td>
                             <td class="p-4">
-                                <span class="text-sm font-mono text-muted-foreground" x-text="item.kapasitas_gram + 'g'"></span>
+                                <span class="text-sm font-mono text-muted-foreground" x-text="item.tipe === 'Stiker' ? '-' : item.kapasitas_gram + 'g'"></span>
                             </td>
                             <td class="p-4 text-right font-mono font-bold text-primary">
                                 Rp <span x-text="formatRupiah(item.harga_satuan)"></span>
@@ -213,7 +213,7 @@
                                     <button @click="editPackaging(item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                     </button>
-                                    <button @click="deletePackaging(item.id)" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
+                                    <button @click="openDeleteModal(item)" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                                     </button>
                                 </div>
@@ -226,9 +226,9 @@
     </div>
 
     <!-- Modal: Form Tambah/Edit -->
-    <div x-show="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center" style="display: none;">
+    <div x-show="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isModalOpen = false" x-transition.opacity></div>
-        <div class="relative bg-card w-full max-w-md p-6 rounded-2xl shadow-2xl border border-border/50 m-4" 
+        <div class="relative bg-card w-full max-w-xl sm:max-w-3xl p-4 sm:p-6 rounded-2xl shadow-2xl border border-border/50 m-2 sm:m-4" 
              x-transition:enter="transition ease-out duration-300" 
              x-transition:enter-start="opacity-0 translate-y-8 scale-95" 
              x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
@@ -249,7 +249,7 @@
                     <label class="text-xs font-bold text-primary uppercase tracking-widest">Nama Biaya</label>
                     <input type="text" x-model="formBiaya.nama" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: Gas Elpiji 3Kg" />
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest">Kategori</label>
                         <select x-model="formBiaya.kategori" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all">
@@ -297,21 +297,21 @@
             <!-- Form Packaging -->
             <div x-show="activeTab === 'packaging'" class="space-y-4">
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Tipe Kemasan</label>
-                    <select x-model="formPackaging.tipe" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all">
+                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Tipe</label>
+                    <select x-model="formPackaging.tipe" @change="if (formPackaging.tipe === 'Stiker') formPackaging.kapasitas_gram = ''" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all">
                         <option value="Pouch Alumunium">Pouch Alumunium</option>
                         <option value="Stiker">Stiker</option>
                         <option value="Lainnya">Lainnya</option>
                     </select>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Nama Kemasan</label>
+                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Nama Item</label>
                     <input type="text" x-model="formPackaging.nama_kemasan" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: Pouch Hitam 200g" />
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest">Kapasitas (Gram)</label>
-                        <input type="number" min="0" x-model="formPackaging.kapasitas_gram" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: 200" />
+                        <input type="number" min="0" x-model="formPackaging.kapasitas_gram" :disabled="formPackaging.tipe === 'Stiker'" :placeholder="formPackaging.tipe === 'Stiker' ? '-' : 'Contoh: 200'" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all disabled:cursor-not-allowed disabled:text-muted-foreground" />
                     </div>
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest">Harga Satuan (Rp)</label>
@@ -332,6 +332,28 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div x-show="isDeleteModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isDeleteModalOpen = false"></div>
+    <div x-show="isDeleteModalOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 scale-95" x-transition:enter-end="opacity-100 translate-y-0 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 scale-100" x-transition:leave-end="opacity-0 translate-y-4 scale-95" @click.stop class="relative bg-card w-full max-w-lg rounded-2xl border border-border/50 shadow-2xl p-4 sm:p-6 z-10">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start justify-between mb-4">
+            <div>
+                <h3 class="text-xl font-heading font-bold text-primary">Konfirmasi Hapus</h3>
+                <p class="text-sm text-muted-foreground mt-2">Apakah Anda yakin ingin menghapus item ini? Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+            <button @click="isDeleteModalOpen = false" class="self-start p-2 rounded-lg text-muted-foreground hover:bg-muted transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="rounded-2xl bg-muted/20 border border-border/60 p-4 mb-6">
+            <p class="text-sm font-semibold text-primary">Item yang akan dihapus:</p>
+            <p class="text-sm text-primary/90 mt-2" x-text="itemToDelete ? getDeleteLabel(itemToDelete) : '-' "></p>
+        </div>
+        <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <button @click="isDeleteModalOpen = false" class="w-full sm:w-auto px-5 py-3 rounded-xl bg-muted text-muted-foreground hover:bg-muted/80 font-bold transition-colors">Batal</button>
+            <button @click="confirmDelete()" class="w-full sm:w-auto px-5 py-3 rounded-xl bg-red-600 text-white hover:bg-red-700 font-bold transition-all shadow-md">Hapus</button>
+        </div>
+    </div>
 </div>
 
 @push('scripts')
@@ -340,6 +362,8 @@
         Alpine.data('masterData', () => ({
             activeTab: 'biaya',
             isModalOpen: false,
+            isDeleteModalOpen: false,
+            itemToDelete: null,
             modalTitle: '',
             
             formBiaya: { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' },
@@ -411,75 +435,31 @@
                 this.isModalOpen = true;
             },
 
-            async deleteGreenBean(id) {
-                if(!confirm('Yakin ingin menghapus data Biji Mentah ini?')) return;
-                try {
-                    const res = await fetch(`/internal-api/master/green-beans/${id}`, {
-                        method: 'DELETE',
-                        headers: { 
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json'
-                        }
-                    });
-                    const data = await res.json();
-                    if(res.ok) {
-                        this.fetchData();
-                    } else {
-                        alert(data.message || 'Gagal menghapus data Biji Mentah.');
-                    }
-                } catch(e) {
-                    alert('Terjadi kesalahan jaringan atau sistem.');
-                }
+            getDeleteLabel(item) {
+                if(this.activeTab === 'biaya') return `${item.nama} (${item.kategori})`;
+                if(this.activeTab === 'greenbean') return `${item.nama_biji} - ${item.asal_kopi}`;
+                if(this.activeTab === 'roastedbean') return `${item.nama_kopi} - ${item.bentuk_akhir}`;
+                return `${item.nama_kemasan} (${item.tipe})`;
             },
 
-            async deleteRoastedBean(id) {
-                if(!confirm('Yakin ingin menghapus data Produk Jadi ini?')) return;
-                try {
-                    const res = await fetch(`/internal-api/master/roasted-beans/${id}`, {
-                        method: 'DELETE',
-                        headers: { 
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json'
-                        }
-                    });
-                    const data = await res.json();
-                    if(res.ok) {
-                        this.fetchData();
-                    } else {
-                        alert(data.message || 'Gagal menghapus data Roasted Bean.');
-                    }
-                } catch(e) {
-                    alert('Terjadi kesalahan jaringan atau sistem.');
-                }
+            openDeleteModal(item) {
+                this.itemToDelete = item;
+                this.isDeleteModalOpen = true;
             },
 
-            async deleteBiaya(id) {
-                if(!confirm('Yakin ingin menghapus Komponen Biaya ini?')) return;
-                try {
-                    const res = await fetch(`/internal-api/master/biaya/${id}`, {
-                        method: 'DELETE',
-                        headers: { 
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json'
-                        }
-                    });
-                    const data = await res.json();
-                    if(res.ok) {
-                        this.fetchData();
-                    } else {
-                        alert(data.message || 'Gagal menghapus Komponen Biaya.');
-                    }
-                } catch(e) {
-                    alert('Terjadi kesalahan jaringan atau sistem.');
-                }
-            },
+            async confirmDelete() {
+                if(!this.itemToDelete) return;
 
-            async deletePackaging(id) {
-                if(!confirm('Yakin ingin menghapus Kemasan ini?')) return;
+                let url = '';
+                if(this.activeTab === 'biaya') url = `/internal-api/master/biaya/${this.itemToDelete.id}`;
+                if(this.activeTab === 'greenbean') url = `/internal-api/master/green-beans/${this.itemToDelete.id}`;
+                if(this.activeTab === 'roastedbean') url = `/internal-api/master/roasted-beans/${this.itemToDelete.id}`;
+                if(this.activeTab === 'packaging') url = `/internal-api/master/packagings/${this.itemToDelete.id}`;
+
                 try {
-                    const res = await fetch(`/internal-api/master/packagings/${id}`, {
+                    const res = await fetch(url, {
                         method: 'DELETE',
-                        headers: { 
+                        headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Accept': 'application/json'
                         }
@@ -487,8 +467,10 @@
                     const data = await res.json();
                     if(res.ok) {
                         this.fetchData();
+                        this.isDeleteModalOpen = false;
+                        this.itemToDelete = null;
                     } else {
-                        alert(data.message || 'Gagal menghapus Kemasan.');
+                        alert(data.message || 'Gagal menghapus data.');
                     }
                 } catch(e) {
                     alert('Terjadi kesalahan jaringan atau sistem.');

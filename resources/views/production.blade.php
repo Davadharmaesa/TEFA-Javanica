@@ -312,7 +312,7 @@
 
             <div class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar min-h-[500px] max-h-[850px] bg-background">
                 <template x-for="batch in history" :key="batch.id">
-                    <div class="bg-card border-l-4 border-l-secondary border border-border rounded-xl p-4 shadow-sm group hover:shadow-md transition-all relative overflow-hidden flex gap-4 items-start">
+                    <div @click="openModal(batch)" class="bg-card border-l-4 border-l-secondary border border-border rounded-xl p-4 shadow-sm group hover:shadow-lg hover:border-secondary transition-all relative overflow-hidden flex gap-4 items-start cursor-pointer hover:scale-105 origin-left">
                         
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-start mb-1.5">
@@ -362,6 +362,158 @@
         </div>
     </div>
 
+    <!-- Batch Details Modal -->
+    <div x-show="modalOpen" x-cloak 
+         x-transition:enter="transition ease-out duration-300" 
+         x-transition:enter-start="opacity-0" 
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200" 
+         x-transition:leave-start="opacity-100" 
+         x-transition:leave-end="opacity-0"
+         @click="closeModal()"
+         class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+        
+        <!-- Modal Content -->
+        <div x-show="modalOpen" x-cloak
+             x-transition:enter="transition ease-out duration-300" 
+             x-transition:enter-start="opacity-0 transform scale-95 -translate-y-4" 
+             x-transition:enter-end="opacity-100 transform scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200" 
+             x-transition:leave-start="opacity-100 transform scale-100 translate-y-0" 
+             x-transition:leave-end="opacity-0 transform scale-95 -translate-y-4"
+             @click.stop
+             class="bg-card border border-border rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            
+            <!-- Modal Header -->
+            <div class="bg-amber-700 dark:bg-amber-900 p-6 sticky top-0 z-10">
+                <div class="flex justify-between items-start gap-4 mb-2">
+                    <div>
+                        <h2 class="text-2xl font-heading font-black text-amber-50" x-text="selectedBatch?.kode_batch || 'Detail Batch'"></h2>
+                        <p class="text-sm text-amber-100 mt-1" x-text="selectedBatch ? formatTime(selectedBatch.created_at) : ''"></p>
+                    </div>
+                    <button @click="closeModal()" class="p-2 hover:bg-amber-600 dark:hover:bg-amber-800 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-amber-50"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 space-y-6">
+                <!-- Produk Info -->
+                <div class="bg-muted/30 rounded-2xl p-5 border border-border/60">
+                    <h3 class="text-xs font-black text-muted-foreground uppercase tracking-widest mb-3">Informasi Produk</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Produk Jadi</p>
+                            <p class="text-lg font-black text-primary" x-text="selectedBatch?.roasted_bean_nama || '-'"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Bahan Mentah</p>
+                            <p class="text-lg font-black text-primary" x-text="selectedBatch?.green_bean?.nama_biji || '-'"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profil Sangrai & Waktu -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-muted/30 rounded-2xl p-5 border border-border/60">
+                        <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Profil Sangrai</p>
+                        <p class="text-2xl font-black text-primary" x-text="selectedBatch?.profil_sangrai || '-'"></p>
+                        <div class="mt-3 h-1 bg-background rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-primary to-secondary rounded-full w-full"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-muted/30 rounded-2xl p-5 border border-border/60">
+                        <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">First Crack</p>
+                        <p class="text-2xl font-black text-primary font-mono" x-text="selectedBatch?.waktu_first_crack ? parseFloat(selectedBatch.waktu_first_crack).toFixed(1) + 'm' : '-'"></p>
+                        <p class="text-[10px] text-muted-foreground mt-2">Waktu Mulai Meledak</p>
+                    </div>
+                    
+                    <div class="bg-muted/30 rounded-2xl p-5 border border-border/60">
+                        <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Development</p>
+                        <p class="text-2xl font-black text-primary font-mono" x-text="selectedBatch?.waktu_development !== null ? selectedBatch.waktu_development + 's' : '-'"></p>
+                        <p class="text-[10px] text-muted-foreground mt-2">Fase Pengembangan</p>
+                    </div>
+                </div>
+
+                <!-- Total Roasting Duration -->
+                <div class="bg-secondary/10 rounded-2xl p-5 border border-secondary/30">
+                    <p class="text-xs font-bold text-secondary uppercase tracking-widest mb-2">Total Durasi Sangrai</p>
+                    <p class="text-3xl font-black text-secondary font-mono" x-text="selectedBatch?.durasi_roasting ? parseFloat(selectedBatch.durasi_roasting).toFixed(1) + ' menit' : '-'"></p>
+                </div>
+
+                <!-- Berat Flow -->
+                <div class="bg-muted/30 rounded-2xl p-5 border border-border/60">
+                    <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Alur Berat Bahan</h3>
+                    <div class="flex items-center justify-between gap-3">
+                        <!-- INPUT -->
+                        <div class="flex-1 text-center">
+                            <div class="bg-background border-2 border-border rounded-xl p-4 mb-2">
+                                <p class="text-2xl font-black text-primary font-mono" x-text="selectedBatch?.berat_mentah_gudang + 'kg'"></p>
+                            </div>
+                            <p class="text-[10px] font-bold text-muted-foreground uppercase">Input dari Gudang</p>
+                        </div>
+
+                        <!-- Arrow -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-muted-foreground/50 flex-shrink-0"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+
+                        <!-- SORT -->
+                        <div class="flex-1 text-center">
+                            <div class="bg-primary/10 border-2 border-primary/50 rounded-xl p-4 mb-2">
+                                <p class="text-2xl font-black text-primary font-mono" x-text="selectedBatch?.berat_mentah_sortasi + 'kg'"></p>
+                            </div>
+                            <p class="text-[10px] font-bold text-muted-foreground uppercase">Setelah Sortasi</p>
+                        </div>
+
+                        <!-- Arrow -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-muted-foreground/50 flex-shrink-0"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+
+                        <!-- OUTPUT -->
+                        <div class="flex-1 text-center">
+                            <div class="bg-secondary/10 border-2 border-secondary/50 rounded-xl p-4 mb-2">
+                                <p class="text-2xl font-black text-secondary font-mono" x-text="selectedBatch?.berat_matang_bersih + 'kg'"></p>
+                            </div>
+                            <p class="text-[10px] font-bold text-muted-foreground uppercase">Output Akhir</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shrinkage Details -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-50 dark:bg-blue-950/30 rounded-2xl p-5 border border-blue-200 dark:border-blue-800">
+                        <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">Susut Awal</p>
+                        <p class="text-3xl font-black text-blue-600 font-mono" x-show="selectedBatch?.berat_mentah_gudang > 0" x-text="((selectedBatch?.berat_mentah_gudang - selectedBatch?.berat_mentah_sortasi) / selectedBatch?.berat_mentah_gudang * 100).toFixed(1) + '%'"></p>
+                        <p class="text-[10px] text-blue-600/70 dark:text-blue-400/70 mt-2">Sortasi Biji Mentah</p>
+                    </div>
+
+                    <div class="rounded-2xl p-5 border-2 transition-all" :class="selectedBatch && ((selectedBatch.berat_mentah_sortasi - selectedBatch.berat_matang_kotor) / selectedBatch.berat_mentah_sortasi * 100) >= 12 && ((selectedBatch.berat_mentah_sortasi - selectedBatch.berat_matang_kotor) / selectedBatch.berat_mentah_sortasi * 100) <= 20 ? 'bg-secondary/10 border-secondary' : 'bg-accent/10 border-accent'">
+                        <p class="text-xs font-black uppercase tracking-widest mb-2" :class="selectedBatch && ((selectedBatch.berat_mentah_sortasi - selectedBatch.berat_matang_kotor) / selectedBatch.berat_mentah_sortasi * 100) >= 12 && ((selectedBatch.berat_mentah_sortasi - selectedBatch.berat_matang_kotor) / selectedBatch.berat_mentah_sortasi * 100) <= 20 ? 'text-secondary' : 'text-accent'">Susut Mesin</p>
+                        <p class="text-3xl font-black font-mono" x-show="selectedBatch?.berat_mentah_sortasi > 0" :class="selectedBatch && ((selectedBatch.berat_mentah_sortasi - selectedBatch.berat_matang_kotor) / selectedBatch.berat_mentah_sortasi * 100) >= 12 && ((selectedBatch.berat_mentah_sortasi - selectedBatch.berat_matang_kotor) / selectedBatch.berat_mentah_sortasi * 100) <= 20 ? 'text-secondary' : 'text-accent'" x-text="((selectedBatch?.berat_mentah_sortasi - selectedBatch?.berat_matang_kotor) / selectedBatch?.berat_mentah_sortasi * 100).toFixed(1) + '%'"></p>
+                        <p class="text-[10px] mt-2" :class="selectedBatch && ((selectedBatch.berat_mentah_sortasi - selectedBatch.berat_matang_kotor) / selectedBatch.berat_mentah_sortasi * 100) >= 12 && ((selectedBatch.berat_mentah_sortasi - selectedBatch.berat_matang_kotor) / selectedBatch.berat_mentah_sortasi * 100) <= 20 ? 'text-secondary/70' : 'text-accent/70'">Proses Sangrai Mesin</p>
+                    </div>
+
+                    <div class="bg-amber-50 dark:bg-amber-950/30 rounded-2xl p-5 border border-amber-200 dark:border-amber-800">
+                        <p class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-2">Susut Akhir</p>
+                        <p class="text-3xl font-black text-amber-600 font-mono" x-show="selectedBatch?.berat_matang_kotor > 0" x-text="((selectedBatch?.berat_matang_kotor - selectedBatch?.berat_matang_bersih) / selectedBatch?.berat_matang_kotor * 100).toFixed(1) + '%'"></p>
+                        <p class="text-[10px] text-amber-600/70 dark:text-amber-400/70 mt-2">Sortasi Biji Matang</p>
+                    </div>
+                </div>
+
+                <!-- Total Shrinkage -->
+                <div class="bg-primary/10 rounded-2xl p-6 border-2 border-primary/30">
+                    <p class="text-xs font-bold text-primary uppercase tracking-widest mb-3">Total Penyusutan Keseluruhan</p>
+                    <p class="text-4xl font-black text-primary font-mono" x-show="selectedBatch?.berat_mentah_gudang > 0" x-text="selectedBatch?.persentase_susut + '%'"></p>
+                    <p class="text-sm text-primary/70 mt-3" x-show="selectedBatch?.berat_mentah_gudang > 0">
+                        <span x-text="selectedBatch?.berat_mentah_gudang + 'kg'"></span> 
+                        <span class="text-muted-foreground">menjadi</span> 
+                        <span x-text="selectedBatch?.berat_matang_bersih + 'kg'"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification Toast -->
     <div x-show="toast.show" x-cloak 
          x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-8 scale-95" x-transition:enter-end="opacity-100 transform translate-y-0 scale-100" 
@@ -392,6 +544,8 @@
             form: { green_bean_id: '', roasted_bean_id: '', kode_batch: '', durasi_pre_heating: 0, profil_sangrai: '', waktu_first_crack: '', waktu_development: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' },
             toast: { show: false, msg: '', type: 'success' },
             timeObj: new Date(),
+            modalOpen: false,
+            selectedBatch: null,
 
             init() { 
                 this.fetchData(); 
@@ -590,6 +744,18 @@
             showToast(msg, type = 'success') {
                 this.toast = { show: true, msg, type };
                 setTimeout(() => this.toast.show = false, 4000);
+            },
+
+            openModal(batch) {
+                this.selectedBatch = batch;
+                this.modalOpen = true;
+                document.body.style.overflow = 'hidden';
+            },
+
+            closeModal() {
+                this.modalOpen = false;
+                document.body.style.overflow = 'auto';
+                this.selectedBatch = null;
             },
 
             formatTime(dateString) { 
