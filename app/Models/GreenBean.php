@@ -16,9 +16,11 @@ class GreenBean extends Model
     
     protected $fillable = [
         'nama_biji',
-        'stok_gram',
         'asal_kopi',
-        'tanggal_beli',
-        'harga_beli',
     ];
+
+    public function stocks()
+    {
+        return $this->hasMany(GreenBeanStock::class);
+    }
 }

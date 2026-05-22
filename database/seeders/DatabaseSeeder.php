@@ -48,8 +48,12 @@ class DatabaseSeeder extends Seeder
         // --- STOK GUDANG MENTAH (Seeder) ---
         $greenBean = \App\Models\GreenBean::create([
             'nama_biji' => 'GB Arabika Belawan',
-            'stok_gram' => 50000, // 50 Kg
             'asal_kopi' => 'Bali',
+        ]);
+
+        \App\Models\GreenBeanStock::create([
+            'green_bean_id' => $greenBean->id,
+            'stok_gram' => 40000, // 50 Kg - 10 Kg (used in BATCH-001) = 40 Kg remaining
             'harga_beli' => 120000,
             'tanggal_beli' => now()->toDateString()
         ]);
@@ -103,13 +107,16 @@ class DatabaseSeeder extends Seeder
             'roasted_bean_id' => $roastedBean->id,
             'profil_sangrai' => 'Medium Roast',
             'durasi_roasting' => 15, // 15 menit
+            'waktu_first_crack' => 12.00,
+            'waktu_development' => 180,
             'berat_mentah_gudang' => 10.00, // 10 Kg
             'berat_mentah_sortasi' => 9.80,
             'berat_matang_kotor' => 8.50,
             'berat_matang_bersih' => 8.20,
             'persentase_susut' => 18.00,
             'tanggal_roasting' => now()->toDateString(),
-            'status_batch' => 'completed'
+            'status_batch' => 'completed',
+            'biaya_bahan_baku' => 1200000 // 10 Kg * 120,000/Kg
         ]);
     }
 }

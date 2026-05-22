@@ -101,7 +101,10 @@ class MasterDataApiController extends Controller
     // --- GREEN BEAN ---
     public function getGreenBeans()
     {
-        $beans = GreenBean::all();
+        $beans = GreenBean::withSum('stocks as stok_gram', 'stok_gram')->get()->map(function ($item) {
+            $item->stok_gram = $item->stok_gram ?? 0;
+            return $item;
+        });
         return response()->json($beans);
     }
 
@@ -110,15 +113,14 @@ class MasterDataApiController extends Controller
         $validated = $request->validate([
             'nama_biji' => 'required|string|max:255',
             'asal_kopi' => 'nullable|string|max:255',
-            'harga_beli' => 'required|numeric|min:0',
         ]);
 
         $bean = GreenBean::create([
             'nama_biji' => $validated['nama_biji'],
             'asal_kopi' => $validated['asal_kopi'],
-            'harga_beli' => $validated['harga_beli'],
-            'stok_gram' => 0, // Default 0 for new beans
         ]);
+
+        $bean->stok_gram = 0; // for JSON response compatibility
 
         return response()->json(['message' => 'Data Green Bean berhasil ditambahkan', 'data' => $bean]);
     }
@@ -128,15 +130,15 @@ class MasterDataApiController extends Controller
         $validated = $request->validate([
             'nama_biji' => 'required|string|max:255',
             'asal_kopi' => 'nullable|string|max:255',
-            'harga_beli' => 'required|numeric|min:0',
         ]);
 
         $bean = GreenBean::findOrFail($id);
         $bean->update([
             'nama_biji' => $validated['nama_biji'],
             'asal_kopi' => $validated['asal_kopi'],
-            'harga_beli' => $validated['harga_beli'],
         ]);
+
+        $bean->stok_gram = $bean->stocks()->sum('stok_gram'); // for JSON response compatibility
 
         return response()->json(['message' => 'Data Green Bean berhasil diperbarui', 'data' => $bean]);
     }

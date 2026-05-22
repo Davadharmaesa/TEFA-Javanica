@@ -12,16 +12,28 @@ class InventoryController extends Controller
 {
     public function index()
     {
-        $greenBeans = GreenBean::all()->map(function ($item) {
+        $greenBeans = \App\Models\GreenBeanStock::with('greenBean')
+            ->orderBy('tanggal_beli', 'desc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'green_bean_id' => $item->green_bean_id,
+                    'kode' => 'GBS-' . str_pad($item->id, 3, '0', STR_PAD_LEFT),
+                    'nama' => $item->greenBean ? $item->greenBean->nama_biji : 'Unknown',
+                    'kategori' => $item->greenBean ? ($item->greenBean->asal_kopi ?? 'Unknown') : 'Unknown',
+                    'stok' => $item->stok_gram / 1000,
+                    'stok_raw' => $item->stok_gram,
+                    'harga_beli' => $item->harga_beli,
+                    'tanggal_beli' => \Carbon\Carbon::parse($item->tanggal_beli)->format('d/m/Y'),
+                ];
+            });
+
+        $masterGreenBeans = GreenBean::all()->map(function ($item) {
             return [
                 'id' => $item->id,
-                'kode' => 'GB-' . str_pad($item->id, 3, '0', STR_PAD_LEFT),
                 'nama' => $item->nama_biji,
                 'kategori' => $item->asal_kopi ?? 'Unknown',
-                'stok' => $item->stok_gram / 1000,
-                'stok_raw' => $item->stok_gram,
-                'harga_beli' => $item->harga_beli,
-                'tanggal_beli' => $item->tanggal_beli,
             ];
         });
 
@@ -76,7 +88,7 @@ class InventoryController extends Controller
             ];
         });
 
-        return view('inventory.index', compact('greenBeans', 'roastedBeans', 'packagings', 'roastingBatches', 'finishedGoods'));
+        return view('inventory.index', compact('greenBeans', 'masterGreenBeans', 'roastedBeans', 'packagings', 'roastingBatches', 'finishedGoods'));
     }
 
     public function storeGreenBean(Request $request)
@@ -84,37 +96,28 @@ class InventoryController extends Controller
         $validated = $request->validate([
             'green_bean_id' => 'required|exists:green_bean,id',
             'stok_gram' => 'required|numeric|min:0',
-            'tanggal_beli' => 'required|date',
+            'tanggal_beli' => 'required|string',
             'total_harga' => 'nullable|numeric|min:0'
         ]);
 
-        $bean = GreenBean::findOrFail($validated['green_bean_id']);
-        
-        $newStokGram = $validated['stok_gram'];
-        
-        // Menghitung Rata-rata Tertimbang (Weighted Average) jika total harga diinput
-        if (isset($validated['total_harga']) && $validated['total_harga'] > 0 && $newStokGram > 0) {
-            $totalHargaBaru = $validated['total_harga'];
-            
-            // Stok dan harga lama
-            $oldStokGram = $bean->stok_gram;
-            $oldHargaBeli = $bean->harga_beli; // per Kg
-            
-            // Value lama
-            $totalValueOld = ($oldStokGram / 1000) * $oldHargaBeli;
-            $totalValueNew = $totalHargaBaru;
-            
-            $totalValue = $totalValueOld + $totalValueNew;
-            $totalStokKg = ($oldStokGram + $newStokGram) / 1000;
-            
-            if ($totalStokKg > 0) {
-                $bean->harga_beli = round($totalValue / $totalStokKg);
-            }
+        $stokKg = $validated['stok_gram'] / 1000;
+        $hargaBeli = 0;
+        if ($stokKg > 0 && isset($validated['total_harga']) && $validated['total_harga'] > 0) {
+            $hargaBeli = round($validated['total_harga'] / $stokKg);
         }
 
-        $bean->stok_gram += $newStokGram;
-        $bean->tanggal_beli = $validated['tanggal_beli'];
-        $bean->save();
+        try {
+            $tanggalBeli = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['tanggal_beli'])->toDateString();
+        } catch (\Exception $e) {
+            $tanggalBeli = \Carbon\Carbon::parse($validated['tanggal_beli'])->toDateString();
+        }
+
+        \App\Models\GreenBeanStock::create([
+            'green_bean_id' => $validated['green_bean_id'],
+            'stok_gram' => $validated['stok_gram'],
+            'harga_beli' => $hargaBeli,
+            'tanggal_beli' => $tanggalBeli,
+        ]);
 
         return redirect()->route('inventory.index')->with('success', 'Stok Green Bean berhasil ditambahkan!');
     }
@@ -123,12 +126,30 @@ class InventoryController extends Controller
     {
         $validated = $request->validate([
             'stok_gram' => 'required|numeric|min:0',
-            'tanggal_beli' => 'required|date'
+            'tanggal_beli' => 'required|string'
+        ]);
+
+        try {
+            $tanggalBeli = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['tanggal_beli'])->toDateString();
+        } catch (\Exception $e) {
+            $tanggalBeli = \Carbon\Carbon::parse($validated['tanggal_beli'])->toDateString();
+        }
+        
+        $stock = \App\Models\GreenBeanStock::findOrFail($id);
+        $stock->update([
+            'stok_gram' => $validated['stok_gram'],
+            'tanggal_beli' => $tanggalBeli,
         ]);
         
-        GreenBean::findOrFail($id)->update($validated);
-        
         return redirect()->route('inventory.index')->with('success', 'Data Stok Green Bean berhasil diperbarui!');
+    }
+
+    public function destroyGreenBean($id)
+    {
+        $stock = \App\Models\GreenBeanStock::findOrFail($id);
+        $stock->delete();
+
+        return redirect()->route('inventory.index')->with('success', 'Data Stok Green Bean berhasil dihapus!');
     }
 
     // --- ROASTED BEAN ---

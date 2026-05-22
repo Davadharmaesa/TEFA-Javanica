@@ -275,17 +275,11 @@
                     <label class="text-xs font-bold text-primary uppercase tracking-widest">Nama Biji Mentah</label>
                     <input type="text" x-model="formGreenBean.nama_biji" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: Arabika Ijen" />
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-primary uppercase tracking-widest">Asal Kopi</label>
-                        <input type="text" x-model="formGreenBean.asal_kopi" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: Banyuwangi" />
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-primary uppercase tracking-widest">Harga Beli Standar (Rp)</label>
-                        <input type="number" min="0" x-model="formGreenBean.harga_beli" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="0" />
-                    </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Asal Kopi</label>
+                    <input type="text" x-model="formGreenBean.asal_kopi" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: Banyuwangi" />
                 </div>
-                <p class="text-xs text-muted-foreground italic mt-2">*Stok hanya bisa dirubah melalui menu Gudang / Barang Masuk.</p>
+                <p class="text-xs text-muted-foreground italic mt-2">*Stok dan harga beli dilacak dinamis per tanggal pembelian di menu Gudang.</p>
             </div>
 
             <!-- Form Roasted Bean -->
@@ -349,7 +343,7 @@
             modalTitle: '',
             
             formBiaya: { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' },
-            formGreenBean: { id: null, nama_biji: '', asal_kopi: '', harga_beli: 0 },
+            formGreenBean: { id: null, nama_biji: '', asal_kopi: '' },
             formRoastedBean: { id: null, nama_kopi: '', bentuk_akhir: '' },
             formPackaging: { id: null, tipe: 'Pouch Alumunium', nama_kemasan: '', kapasitas_gram: 0, harga_satuan: 0 },
 
@@ -393,7 +387,7 @@
             openModal() {
                 this.modalTitle = 'Tambah Master ' + this.getTabName();
                 if(this.activeTab === 'biaya') this.formBiaya = { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' };
-                if(this.activeTab === 'greenbean') this.formGreenBean = { id: null, nama_biji: '', asal_kopi: '', harga_beli: 0 };
+                if(this.activeTab === 'greenbean') this.formGreenBean = { id: null, nama_biji: '', asal_kopi: '' };
                 if(this.activeTab === 'roastedbean') this.formRoastedBean = { id: null, nama_kopi: '', bentuk_akhir: '' };
                 if(this.activeTab === 'packaging') this.formPackaging = { id: null, tipe: 'Pouch Alumunium', nama_kemasan: '', kapasitas_gram: 0, harga_satuan: 0 };
                 this.isModalOpen = true;

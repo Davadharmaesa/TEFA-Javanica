@@ -17,8 +17,12 @@ class RoastingApiController extends Controller
      */
     public function getGreenBeans()
     {
-        // Hanya ambil yang stoknya > 0
-        $beans = GreenBean::where('stok_gram', '>', 0)->get();
+        // Hanya ambil master Green Bean yang punya stok aktif di gudang
+        $beans = GreenBean::whereHas('stocks', function ($query) {
+            $query->where('stok_gram', '>', 0);
+        })
+        ->withSum('stocks as stok_gram', 'stok_gram')
+        ->get();
         return response()->json($beans);
     }
 
@@ -64,7 +68,8 @@ class RoastingApiController extends Controller
             'roasted_bean_id' => 'required|exists:roasted_bean,id',
             'kode_batch' => 'required|string|unique:roasting_batch,kode_batch',
             'profil_sangrai' => 'required|string',
-            'durasi_roasting' => 'required|integer|min:1',
+            'waktu_first_crack' => 'required|numeric|min:0.1',
+            'waktu_development' => 'required|integer|min:0',
             'berat_mentah_gudang' => 'required|numeric|min:0.1',
             'berat_mentah_sortasi' => 'required|numeric|min:0.1',
             'berat_matang_kotor' => 'required|numeric|min:0.1',
@@ -76,15 +81,39 @@ class RoastingApiController extends Controller
 
             $greenBean = GreenBean::findOrFail($validated['green_bean_id']);
 
-            // 1. Validasi Stok Mentah (konversi Kg -> Gram)
+            // 1. Validasi Stok Mentah (konversi Kg -> Gram) dari seluruh batch
             $beratMentahGram = $validated['berat_mentah_gudang'] * 1000;
-            if ($greenBean->stok_gram < $beratMentahGram) {
+            $totalAvailable = \App\Models\GreenBeanStock::where('green_bean_id', $greenBean->id)->sum('stok_gram');
+            if ($totalAvailable < $beratMentahGram) {
                 return response()->json(['message' => 'Stok Green Bean di gudang tidak mencukupi.'], 400);
             }
 
-            // 2. Kurangi Stok Mentah
-            $greenBean->stok_gram -= $beratMentahGram;
-            $greenBean->save();
+            // 2. Kurangi Stok Mentah menggunakan FIFO & Hitung Biaya Bahan Baku
+            $stocks = \App\Models\GreenBeanStock::where('green_bean_id', $greenBean->id)
+                ->where('stok_gram', '>', 0)
+                ->orderBy('tanggal_beli', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            $biayaBahanBaku = 0;
+            $remainingToDeduct = $beratMentahGram;
+            foreach ($stocks as $stock) {
+                if ($remainingToDeduct <= 0) break;
+                
+                $hargaPerGram = $stock->harga_beli / 1000;
+                
+                if ($stock->stok_gram >= $remainingToDeduct) {
+                    $biayaBahanBaku += $remainingToDeduct * $hargaPerGram;
+                    $stock->stok_gram -= $remainingToDeduct;
+                    $stock->save();
+                    $remainingToDeduct = 0;
+                } else {
+                    $biayaBahanBaku += $stock->stok_gram * $hargaPerGram;
+                    $remainingToDeduct -= $stock->stok_gram;
+                    $stock->stok_gram = 0;
+                    $stock->save();
+                }
+            }
 
             // 3. Ambil Roasted Bean
             $roastedBean = RoastedBean::findOrFail($validated['roasted_bean_id']);
@@ -102,21 +131,28 @@ class RoastingApiController extends Controller
             $susut = (($beratKgIn - $beratKgOutBersih) / $beratKgIn) * 100;
             if ($susut < 0) $susut = 0;
 
-            // 6. Simpan Log Roasting (Audit Trail)
+            // 6. Simpan Log Roasting (Audit Trail) dengan Biaya Bahan Baku
+            // Calculate total duration: first_crack (mins) + development (secs / 60)
+            $durasiTotal = $validated['waktu_first_crack'] + ($validated['waktu_development'] / 60);
+
+            // 6. Simpan Log Roasting (Audit Trail) dengan Biaya Bahan Baku
             $batch = RoastingBatch::create([
                 'kode_batch' => $validated['kode_batch'],
                 'user_id' => Auth::id() ?? 1, // Fallback to 1 if testing without auth
                 'green_bean_id' => $greenBean->id,
                 'roasted_bean_id' => $roastedBean->id,
                 'profil_sangrai' => $validated['profil_sangrai'],
-                'durasi_roasting' => $validated['durasi_roasting'],
+                'durasi_roasting' => round($durasiTotal, 2),
+                'waktu_first_crack' => $validated['waktu_first_crack'],
+                'waktu_development' => $validated['waktu_development'],
                 'berat_mentah_gudang' => $beratKgIn,
                 'berat_mentah_sortasi' => $validated['berat_mentah_sortasi'],
                 'berat_matang_kotor' => $validated['berat_matang_kotor'],
                 'berat_matang_bersih' => $validated['berat_matang_bersih'],
                 'persentase_susut' => round($susut, 2),
                 'tanggal_roasting' => date('Y-m-d'),
-                'status_batch' => 'completed'
+                'status_batch' => 'completed',
+                'biaya_bahan_baku' => round($biayaBahanBaku)
             ]);
 
             DB::commit();

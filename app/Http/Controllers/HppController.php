@@ -17,20 +17,14 @@ class HppController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($batch) {
-                // Harga bahan baku per gram = harga beli paket / stok saat beli (asumsi stok_gram + berat yang sudah dipakai)
-                // Karena kita belum melacak stok awal, kita asumsikan harga_beli adalah harga per Kg.
-                // Jika tidak, kita bisa ambil harga_beli saja.
                 $gb = $batch->greenBean;
-                $hargaPerKg = $gb ? ($gb->harga_beli ?? 100000) : 100000; 
-                $hargaPerGram = $hargaPerKg / 1000;
-                
                 return [
                     'id' => $batch->id,
                     'kode_batch' => $batch->kode_batch,
                     'green_bean_nama' => $gb ? $gb->nama_biji : 'Unknown',
                     'durasi_roasting' => $batch->durasi_roasting,
                     'berat_mentah_gudang' => $batch->berat_mentah_gudang, // kg
-                    'harga_bahan_baku' => $batch->berat_mentah_gudang * 1000 * $hargaPerGram, // Total harga bahan baku
+                    'harga_bahan_baku' => $batch->biaya_bahan_baku, // Total harga bahan baku dari DB
                     'sudah_dihitung' => $batch->hppCalculation ? true : false,
                     'hpp' => $batch->hppCalculation
                 ];

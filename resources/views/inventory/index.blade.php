@@ -92,10 +92,12 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
-                        <th class="p-4">ID / Kode</th>
+                        <th class="p-4">Kode Batch</th>
                         <th class="p-4">Nama Biji Mentah</th>
                         <th class="p-4">Asal</th>
-                        <th class="p-4 text-right">Stok Total</th>
+                        <th class="p-4">Tanggal Masuk</th>
+                        <th class="p-4 text-right">Harga Beli</th>
+                        <th class="p-4 text-right">Stok</th>
                         <th class="p-4 text-center">Status</th>
                         <th class="p-4 text-center">Aksi</th>
                     </tr>
@@ -112,7 +114,11 @@
                             <td class="p-4">
                                 <span class="px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-widest" x-text="item.kategori"></span>
                             </td>
-                            <td class="p-4 text-right font-mono font-bold" :class="item.stok < 10 ? 'text-red-500' : 'text-primary'">
+                            <td class="p-4 text-sm font-mono text-muted-foreground" x-text="item.tanggal_beli"></td>
+                            <td class="p-4 text-right font-mono font-bold text-primary">
+                                Rp <span x-text="formatRupiah(item.harga_beli)"></span><span class="text-[10px] font-medium text-muted-foreground">/Kg</span>
+                            </td>
+                            <td class="p-4 text-right font-mono font-bold" :class="item.stok <= 0 ? 'text-red-500' : 'text-primary'">
                                 <span x-text="item.stok"></span> Kg
                             </td>
                             <td class="p-4 text-center">
@@ -121,14 +127,14 @@
                                         <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Aman
                                     </span>
                                 </template>
-                                <template x-if="item.stok > 1 && item.stok <= 5">
+                                <template x-if="item.stok > 0 && item.stok <= 5">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-500/10 text-yellow-600">
                                         <span class="w-1.5 h-1.5 rounded-full bg-yellow-600"></span> Menipis
                                     </span>
                                 </template>
-                                <template x-if="item.stok <= 1">
+                                <template x-if="item.stok <= 0">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-600">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Kritis
+                                        <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Habis
                                     </span>
                                 </template>
                             </td>
@@ -137,6 +143,13 @@
                                     <button @click="openModal('edit', 'greenbean', item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Koreksi Stok Fisik">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                     </button>
+                                    <form :action="'/inventory/green-bean/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data stok Green Bean ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus Stok">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
@@ -311,7 +324,7 @@
                             <label class="block text-sm font-bold text-foreground mb-1">Pilih Biji Kopi Mentah</label>
                             <select name="green_bean_id" x-model="formData.green_bean_id" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                                 <option value="" disabled selected>Pilih Kopi dari Master Data...</option>
-                                <template x-for="bean in dataGreenBean" :key="bean.id">
+                                <template x-for="bean in masterGreenBeans" :key="bean.id">
                                     <option :value="bean.id" x-text="bean.nama + ' - ' + bean.kategori"></option>
                                 </template>
                             </select>
@@ -532,6 +545,7 @@
             
             // Backend Data
             dataGreenBean: @json($greenBeans),
+            masterGreenBeans: @json($masterGreenBeans),
             dataRoastedBean: @json($roastedBeans),
             dataRoasting: @json($roastingBatches),
             dataProduk: @json($packagings),

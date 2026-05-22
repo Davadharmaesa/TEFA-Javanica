@@ -12,8 +12,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Total Stok Biji Mentah (Ambil SUM dari kolom stok_gram)
-        $total_stok_biji_mentah = GreenBean::sum('stok_gram') / 1000;
+        // 1. Total Stok Biji Mentah (Ambil SUM dari tabel green_bean_stock)
+        $total_stok_biji_mentah = \App\Models\GreenBeanStock::sum('stok_gram') / 1000;
 
         // 2. Total Kopi Matang (Ambil SUM dari kolom berat_matang_bersih di tabel Roasting)
         $total_kopi_matang = RoastingBatch::sum('berat_matang_bersih');
@@ -23,14 +23,17 @@ class DashboardController extends Controller
             ->where('status_pembayaran', 'lunas')
             ->sum('total_pembayaran');
 
-        // 4. Stok Menipis
-        $stok_menipis = GreenBean::where('stok_gram', '<', 5000)
+        // 4. Stok Menipis (Total stok tiap master green bean < 5 Kg)
+        $stok_menipis = GreenBean::withSum('stocks as stok_gram', 'stok_gram')
             ->get()
+            ->filter(function ($item) {
+                return ($item->stok_gram ?? 0) < 5000;
+            })
             ->map(function ($item) {
                 return [
                     'name' => $item->nama_biji,
                     'type' => 'Green Bean',
-                    'amount' => $item->stok_gram / 1000,
+                    'amount' => ($item->stok_gram ?? 0) / 1000,
                     'unit' => 'kg'
                 ];
             });
