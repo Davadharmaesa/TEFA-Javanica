@@ -20,6 +20,7 @@ class RoastingBatch extends Model
         'durasi_roasting',
         'waktu_first_crack',
         'waktu_development',
+        'durasi_pre_heating',
         'berat_mentah_gudang',
         'berat_mentah_sortasi',
         'berat_matang_kotor',

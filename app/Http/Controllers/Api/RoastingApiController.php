@@ -70,6 +70,7 @@ class RoastingApiController extends Controller
             'profil_sangrai' => 'required|string',
             'waktu_first_crack' => 'required|numeric|min:0.1',
             'waktu_development' => 'required|integer|min:0',
+            'durasi_pre_heating' => 'required|numeric|min:0',
             'berat_mentah_gudang' => 'required|numeric|min:0.1',
             'berat_mentah_sortasi' => 'required|numeric|min:0.1',
             'berat_matang_kotor' => 'required|numeric|min:0.1',
@@ -131,20 +132,31 @@ class RoastingApiController extends Controller
             $susut = (($beratKgIn - $beratKgOutBersih) / $beratKgIn) * 100;
             if ($susut < 0) $susut = 0;
 
-            // 6. Simpan Log Roasting (Audit Trail) dengan Biaya Bahan Baku
-            // Calculate total duration: first_crack (mins) + development (secs / 60)
-            $durasiTotal = $validated['waktu_first_crack'] + ($validated['waktu_development'] / 60);
+            // 6. Hitung Akumulasi Biaya Mesin dan Biaya Bahan Baku (FIFO)
+            $durasiRoasting = $validated['waktu_first_crack'] + ($validated['waktu_development'] / 60);
+            $durasiTotalKerja = $durasiRoasting + $validated['durasi_pre_heating'];
 
-            // 6. Simpan Log Roasting (Audit Trail) dengan Biaya Bahan Baku
+            // Ambil biaya listrik/mesin per menit dari database (Listrik Mesin), default Rp 1.500 jika tidak ditemukan
+            $biayaMesinRecord = \App\Models\Biaya::where('nama', 'Listrik Mesin')
+                ->orWhere('nama', 'like', '%mesin%')
+                ->first();
+            $biayaMesinPerMenit = $biayaMesinRecord ? $biayaMesinRecord->harga : 1500;
+            $biayaMesinTotal = $durasiTotalKerja * $biayaMesinPerMenit;
+
+            // Akumulasikan biaya mesin ke biaya_bahan_baku untuk HPP
+            $biayaBahanBakuTotal = $biayaBahanBaku + $biayaMesinTotal;
+
+            // 7. Simpan Log Roasting (Audit Trail)
             $batch = RoastingBatch::create([
                 'kode_batch' => $validated['kode_batch'],
                 'user_id' => Auth::id() ?? 1, // Fallback to 1 if testing without auth
                 'green_bean_id' => $greenBean->id,
                 'roasted_bean_id' => $roastedBean->id,
                 'profil_sangrai' => $validated['profil_sangrai'],
-                'durasi_roasting' => round($durasiTotal, 2),
+                'durasi_roasting' => round($durasiRoasting, 2),
                 'waktu_first_crack' => $validated['waktu_first_crack'],
                 'waktu_development' => $validated['waktu_development'],
+                'durasi_pre_heating' => $validated['durasi_pre_heating'],
                 'berat_mentah_gudang' => $beratKgIn,
                 'berat_mentah_sortasi' => $validated['berat_mentah_sortasi'],
                 'berat_matang_kotor' => $validated['berat_matang_kotor'],
@@ -152,7 +164,7 @@ class RoastingApiController extends Controller
                 'persentase_susut' => round($susut, 2),
                 'tanggal_roasting' => date('Y-m-d'),
                 'status_batch' => 'completed',
-                'biaya_bahan_baku' => round($biayaBahanBaku)
+                'biaya_bahan_baku' => round($biayaBahanBakuTotal)
             ]);
 
             DB::commit();
