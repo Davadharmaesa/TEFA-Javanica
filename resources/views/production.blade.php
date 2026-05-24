@@ -110,7 +110,7 @@
                         <!-- Input A: Masa Pre-heating -->
                         <div class="space-y-1.5">
                             <label class="block text-[10px] font-black text-muted-foreground uppercase tracking-wider text-center">Pre-Heat (Menit)</label>
-                            <input type="number" min="0" step="1" x-model="form.durasi_pre_heating" @wheel="$event.target.blur()" class="w-full bg-white border border-border/60 rounded-lg px-3 py-2 text-sm font-black font-mono text-center text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="0" required />
+                            <input type="number" min="0" step="1" x-model="form.durasi_pre_heating" @wheel="$event.target.blur()" class="w-full bg-white border border-border/60 rounded-lg px-3 py-2 text-sm font-black font-mono text-center text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="-" required />
                         </div>
                         <!-- Input B: Menit First Crack -->
                         <div class="space-y-1.5">
@@ -541,7 +541,7 @@
             history: [],
             stats: { target_tercapai: 0, rata_susut: 0, total_batch: 0 },
             loading: false,
-            form: { green_bean_id: '', roasted_bean_id: '', kode_batch: '', durasi_pre_heating: 0, profil_sangrai: '', waktu_first_crack: '', waktu_development: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' },
+            form: { green_bean_id: '', roasted_bean_id: '', kode_batch: '', durasi_pre_heating: '', profil_sangrai: '', waktu_first_crack: '', waktu_development: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' },
             toast: { show: false, msg: '', type: 'success' },
             timeObj: new Date(),
             modalOpen: false,
@@ -617,46 +617,50 @@
                 return this.timeObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             },
 
-            get shrinkageAwal() {
-                if (!this.form.berat_mentah_gudang || !this.form.berat_mentah_sortasi || this.form.berat_mentah_gudang <= 0) return '0.0';
-                let p = (((this.form.berat_mentah_gudang - this.form.berat_mentah_sortasi) / this.form.berat_mentah_gudang) * 100);
-                if (p < 0) p = 0;
-                return p.toFixed(1);
-            },
-
-            get shrinkageTotal() {
-                if (!this.form.berat_mentah_gudang || !this.form.berat_matang_bersih || this.form.berat_mentah_gudang <= 0) return '0.0';
-                let p = (((this.form.berat_mentah_gudang - this.form.berat_matang_bersih) / this.form.berat_mentah_gudang) * 100);
-                if (p < 0) p = 0;
-                return p.toFixed(1);
-            },
-
-            get shrinkageRoasting() {
+            get shrinkageMesin() {
                 if (!this.form.berat_mentah_sortasi || !this.form.berat_matang_kotor || this.form.berat_mentah_sortasi <= 0) return '0.0';
                 let p = (((this.form.berat_mentah_sortasi - this.form.berat_matang_kotor) / this.form.berat_mentah_sortasi) * 100);
                 if (p < 0) p = 0;
                 return p.toFixed(1);
             },
 
-            // Kalkulasi Bar Proporsional (Relatif terhadap Gudang) agar stacked bar sejajar sempurna
-            get barPctAwal() {
-                if (!this.form.berat_mentah_gudang || this.form.berat_mentah_gudang <= 0) return 0;
-                let val = ((this.form.berat_mentah_gudang - this.form.berat_mentah_sortasi) / this.form.berat_mentah_gudang) * 100;
+            get shrinkageAkhir() {
+                if (!this.form.berat_matang_kotor || !this.form.berat_matang_bersih || this.form.berat_matang_kotor <= 0) return '0.0';
+                let p = (((this.form.berat_matang_kotor - this.form.berat_matang_bersih) / this.form.berat_matang_kotor) * 100);
+                if (p < 0) p = 0;
+                return p.toFixed(1);
+            },
+
+            get shrinkageTotal() {
+                if (!this.form.berat_mentah_sortasi || !this.form.berat_matang_bersih || this.form.berat_mentah_sortasi <= 0) return '0.0';
+                let p = (((this.form.berat_mentah_sortasi - this.form.berat_matang_bersih) / this.form.berat_mentah_sortasi) * 100);
+                if (p < 0) p = 0;
+                return p.toFixed(1);
+            },
+
+
+            // Kalkulasi Bar Proporsional (Relatif terhadap berat_mentah_sortasi sebagai acuan 100%)
+            get barPctSortasi() {
+                if (!this.form.berat_mentah_sortasi || this.form.berat_mentah_sortasi <= 0) return 0;
+                // Susut dari Gudang -> Sortasi, direferensikan ke sortasi
+                if (!this.form.berat_mentah_gudang) return 0;
+                let val = ((this.form.berat_mentah_gudang - this.form.berat_mentah_sortasi) / this.form.berat_mentah_sortasi) * 100;
                 return Math.max(0, Math.min(val, 100));
             },
             get barPctMesin() {
-                if (!this.form.berat_mentah_gudang || this.form.berat_mentah_gudang <= 0) return 0;
-                let val = ((this.form.berat_mentah_sortasi - this.form.berat_matang_kotor) / this.form.berat_mentah_gudang) * 100;
+                if (!this.form.berat_mentah_sortasi || this.form.berat_mentah_sortasi <= 0) return 0;
+                let val = ((this.form.berat_mentah_sortasi - this.form.berat_matang_kotor) / this.form.berat_mentah_sortasi) * 100;
                 return Math.max(0, Math.min(val, 100));
             },
             get barPctAkhir() {
-                if (!this.form.berat_mentah_gudang || this.form.berat_mentah_gudang <= 0) return 0;
-                let val = ((this.form.berat_matang_kotor - this.form.berat_matang_bersih) / this.form.berat_mentah_gudang) * 100;
+                if (!this.form.berat_mentah_sortasi || this.form.berat_mentah_sortasi <= 0) return 0;
+                let val = ((this.form.berat_matang_kotor - this.form.berat_matang_bersih) / this.form.berat_mentah_sortasi) * 100;
                 return Math.max(0, Math.min(val, 100));
             },
 
+
             get isOptimal() {
-                const s = parseFloat(this.shrinkageRoasting);
+                const s = parseFloat(this.shrinkageMesin);
                 return s >= 12 && s <= 20;
             },
 
@@ -731,7 +735,7 @@
                     
                     this.fetchData(); // Refresh history dari server
                     this.showToast(`Log ${this.form.kode_batch} berhasil direkam ke Database.`, 'success');
-                    this.form = { green_bean_id: '', roasted_bean_id: '', kode_batch: '', durasi_pre_heating: 0, profil_sangrai: '', waktu_first_crack: '', waktu_development: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' };
+                    this.form = { green_bean_id: '', roasted_bean_id: '', kode_batch: '', durasi_pre_heating: '', profil_sangrai: '', waktu_first_crack: '', waktu_development: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' };
                     this.generateBatchCode();
                 } catch (e) {
                     this.showToast(e.message || "Gagal melakukan post", 'error');
