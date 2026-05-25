@@ -298,11 +298,15 @@
             <div x-show="activeTab === 'packaging'" class="space-y-4">
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-primary uppercase tracking-widest">Tipe</label>
-                    <select x-model="formPackaging.tipe" @change="if (formPackaging.tipe === 'Stiker') formPackaging.kapasitas_gram = ''" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all">
-                        <option value="Pouch Alumunium">Pouch Alumunium</option>
-                        <option value="Stiker">Stiker</option>
-                        <option value="Lainnya">Lainnya</option>
+                    <select x-model="formPackaging.tipe" @change="if (formPackaging.tipe === 'Stiker') { formPackaging.kapasitas_gram = ''; } if (formPackaging.tipe !== 'Lainnya') { formPackaging.custom_tipe = ''; }" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all">
+                        <template x-for="type in packagingTypeOptions" :key="type">
+                            <option :value="type" x-text="type"></option>
+                        </template>
                     </select>
+                </div>
+                <div x-show="formPackaging.tipe === 'Lainnya'" class="space-y-2">
+                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Nama Tipe Kemasan Baru</label>
+                    <input type="text" x-model="formPackaging.custom_tipe" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: Kantong Kertas" />
                 </div>
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-primary uppercase tracking-widest">Nama Item</label>
@@ -318,7 +322,11 @@
                         <input type="number" min="0" x-model="formPackaging.harga_satuan" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
                     </div>
                 </div>
-                <p class="text-xs text-muted-foreground italic mt-2">*Stok baru masuk otomatis 0. Stok riil disuplai dari menu Gudang.</p>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Tambah Stok Awal (Pcs)</label>
+                    <input type="number" min="0" x-model.number="formPackaging.stok_pcs" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: 100" />
+                    <p class="text-xs text-muted-foreground italic">*Stok awal akan langsung masuk ke database pada saat simpan. Untuk koreksi stok lanjutan, kamu tetap bisa mengubah dari menu Gudang.</p>
+                </div>
             </div>
 
             <div class="mt-8 flex gap-3">
@@ -369,7 +377,7 @@
             formBiaya: { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' },
             formGreenBean: { id: null, nama_biji: '', asal_kopi: '' },
             formRoastedBean: { id: null, nama_kopi: '', bentuk_akhir: '' },
-            formPackaging: { id: null, tipe: 'Pouch Alumunium', nama_kemasan: '', kapasitas_gram: 0, harga_satuan: 0 },
+            formPackaging: { id: null, tipe: 'Pouch Alumunium', custom_tipe: '', nama_kemasan: '', kapasitas_gram: 0, harga_satuan: 0, stok_pcs: 0 },
 
             dataBiaya: [
                 { id: 1, nama: 'Gas Elpiji 3Kg', kategori: 'Overhead', satuan: 'Tabung', harga: 20000 },
@@ -408,12 +416,21 @@
                 return 'Roasted Bean';
             },
 
+            get packagingTypeOptions() {
+                const baseTypes = ['Pouch Alumunium', 'Stiker'];
+                const customTypes = [...new Set(this.dataPackaging
+                    .map(item => item.tipe)
+                    .filter(type => type && !baseTypes.includes(type) && type !== 'Lainnya'))];
+
+                return [...baseTypes, ...customTypes, 'Lainnya'];
+            },
+
             openModal() {
                 this.modalTitle = 'Tambah Master ' + this.getTabName();
                 if(this.activeTab === 'biaya') this.formBiaya = { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' };
                 if(this.activeTab === 'greenbean') this.formGreenBean = { id: null, nama_biji: '', asal_kopi: '' };
                 if(this.activeTab === 'roastedbean') this.formRoastedBean = { id: null, nama_kopi: '', bentuk_akhir: '' };
-                if(this.activeTab === 'packaging') this.formPackaging = { id: null, tipe: 'Pouch Alumunium', nama_kemasan: '', kapasitas_gram: 0, harga_satuan: 0 };
+                if(this.activeTab === 'packaging') this.formPackaging = { id: null, tipe: 'Pouch Alumunium', custom_tipe: '', nama_kemasan: '', kapasitas_gram: 0, harga_satuan: 0, stok_pcs: 0 };
                 this.isModalOpen = true;
             },
 
@@ -432,6 +449,22 @@
             editRoastedBean(item) {
                 this.modalTitle = 'Edit Produk Jadi';
                 this.formRoastedBean = { ...item };
+                this.isModalOpen = true;
+            },
+
+            editPackaging(item) {
+                this.modalTitle = 'Edit Master Kemasan';
+                const isCustomType = item.tipe && !['Pouch Alumunium', 'Stiker'].includes(item.tipe);
+
+                this.formPackaging = {
+                    id: item.id,
+                    tipe: isCustomType ? 'Lainnya' : item.tipe,
+                    custom_tipe: isCustomType ? item.tipe : '',
+                    nama_kemasan: item.nama_kemasan,
+                    kapasitas_gram: item.tipe === 'Stiker' ? 0 : item.kapasitas_gram,
+                    harga_satuan: item.harga_satuan,
+                    stok_pcs: item.stok_pcs ?? 0,
+                };
                 this.isModalOpen = true;
             },
 
@@ -511,13 +544,37 @@
                 } else if(this.activeTab === 'packaging') {
                     const method = this.formPackaging.id ? 'PUT' : 'POST';
                     const url = this.formPackaging.id ? `/internal-api/master/packagings/${this.formPackaging.id}` : `/internal-api/master/packagings`;
+                    const customTipe = this.formPackaging.tipe === 'Lainnya' ? this.formPackaging.custom_tipe.trim() : this.formPackaging.tipe;
+
+                    if (this.formPackaging.tipe === 'Lainnya' && !customTipe) {
+                        alert('Nama tipe kemasan wajib diisi ketika memilih Lainnya.');
+                        return;
+                    }
+
+                    const payload = {
+                        ...this.formPackaging,
+                        tipe: customTipe,
+                        kapasitas_gram: this.formPackaging.tipe === 'Stiker' ? 0 : Number(this.formPackaging.kapasitas_gram || 0),
+                        stok_pcs: Number(this.formPackaging.stok_pcs || 0),
+                    };
+                    delete payload.custom_tipe;
+
                     const res = await fetch(url, {
                         method: method,
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json',
                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
-                        body: JSON.stringify(this.formPackaging)
+                        body: JSON.stringify(payload)
                     });
-                    if(res.ok) this.fetchData();
+
+                    if(res.ok) {
+                        await this.fetchData();
+                        this.isModalOpen = false;
+                    } else {
+                        const data = await res.json().catch(() => ({}));
+                        alert(data.message || 'Gagal menyimpan data kemasan.');
+                    }
+
+                    return;
                 }
                 this.isModalOpen = false;
             },

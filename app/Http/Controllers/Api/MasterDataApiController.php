@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\GreenBean;
-use App\Models\RoastedBean;
 use App\Models\Biaya;
+use App\Models\GreenBean;
 use App\Models\Packaging;
+use App\Models\RoastedBean;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class MasterDataApiController extends Controller
 {
@@ -17,16 +20,34 @@ class MasterDataApiController extends Controller
         return response()->json(Packaging::all());
     }
 
-    public function storePackaging(Request $request)
+    private function resolvePackagingValidationData(Request $request, ?int $id = null): array
     {
-        $validated = $request->validate([
-            'tipe' => 'required|string|max:255',
+        $selectedType = (string) $request->input('tipe', '');
+        $customType = Str::squish((string) $request->input('custom_tipe', ''));
+
+        if ($selectedType === 'Lainnya' && $customType === '') {
+            throw ValidationException::withMessages([
+                'custom_tipe' => ['Nama tipe kemasan wajib diisi ketika memilih Lainnya.'],
+            ]);
+        }
+
+        $normalizedType = $selectedType === 'Lainnya' ? $customType : Str::squish($selectedType);
+        $request->merge(['tipe' => $normalizedType]);
+
+        return $request->validate([
+            'tipe' => ['required', 'string', 'max:255', Rule::unique('packagings', 'tipe')->ignore($id)],
             'nama_kemasan' => 'required|string|max:255',
             'kapasitas_gram' => 'required|integer|min:0',
             'harga_satuan' => 'required|integer|min:0',
+            'stok_pcs' => 'nullable|integer|min:0',
         ]);
-        // Stok default 0 untuk master data baru
-        $validated['stok_pcs'] = 0;
+    }
+
+    public function storePackaging(Request $request)
+    {
+        $validated = $this->resolvePackagingValidationData($request);
+
+        $validated['stok_pcs'] = $validated['stok_pcs'] ?? 0;
 
         $packaging = Packaging::create($validated);
         return response()->json(['message' => 'Kemasan berhasil ditambahkan', 'data' => $packaging]);
@@ -34,12 +55,7 @@ class MasterDataApiController extends Controller
 
     public function updatePackaging(Request $request, $id)
     {
-        $validated = $request->validate([
-            'tipe' => 'required|string|max:255',
-            'nama_kemasan' => 'required|string|max:255',
-            'kapasitas_gram' => 'required|integer|min:0',
-            'harga_satuan' => 'required|integer|min:0',
-        ]);
+        $validated = $this->resolvePackagingValidationData($request, (int) $id);
         $packaging = Packaging::findOrFail($id);
         $packaging->update($validated);
         return response()->json(['message' => 'Kemasan berhasil diperbarui', 'data' => $packaging]);
