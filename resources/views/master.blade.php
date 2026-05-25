@@ -325,7 +325,6 @@
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-primary uppercase tracking-widest">Tambah Stok Awal (Pcs)</label>
                     <input type="number" min="0" x-model.number="formPackaging.stok_pcs" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: 100" />
-                    <p class="text-xs text-muted-foreground italic">*Stok awal akan langsung masuk ke database pada saat simpan. Untuk koreksi stok lanjutan, kamu tetap bisa mengubah dari menu Gudang.</p>
                 </div>
             </div>
 
