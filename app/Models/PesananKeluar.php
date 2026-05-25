@@ -24,4 +24,15 @@ class PesananKeluar extends Model
         'status_pembayaran',
         'status_pengiriman'
     ];
+
+    public function roastedBean()
+    {
+        return $this->belongsTo(RoastedBean::class, 'roasted_bean_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
+

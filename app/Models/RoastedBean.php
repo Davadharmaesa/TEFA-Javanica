@@ -20,4 +20,10 @@ class RoastedBean extends Model
         'tanggal_expire',
         'sisa_stok'
     ];
+
+    public function stocks()
+    {
+        return $this->hasMany(RoastedBeanStock::class, 'roasted_bean_id');
+    }
 }
+

@@ -11,6 +11,22 @@ class RoastingBatch extends Model
 
     protected $table = 'roasting_batch';
 
+    protected static function booted()
+    {
+        static::created(function ($batch) {
+            if ($batch->status_batch === 'completed') {
+                $hpp = $batch->berat_matang_bersih > 0 ? ($batch->biaya_bahan_baku / $batch->berat_matang_bersih) : 0;
+                
+                \App\Models\RoastedBeanStock::create([
+                    'roasted_bean_id' => $batch->roasted_bean_id,
+                    'stok_gram' => $batch->berat_matang_bersih * 1000,
+                    'harga_roasting' => round($hpp),
+                    'tanggal_roasting' => $batch->tanggal_roasting ?? now()->toDateString(),
+                ]);
+            }
+        });
+    }
+
     protected $fillable = [
         'kode_batch',
         'user_id',

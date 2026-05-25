@@ -113,6 +113,13 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/create', [\App\Http\Controllers\SalesController::class, 'create'])->name('create');
             });
 
+            // Internal API: Kasir Timbangan Dinamis
+            Route::prefix('internal-api/sales')->group(function () {
+                Route::post('/cashier', [\App\Http\Controllers\SalesController::class, 'storeCashierSale']);
+                Route::get('/cashier/history', [\App\Http\Controllers\SalesController::class, 'getCashierHistory']);
+                Route::get('/cashier/roasted-beans', [\App\Http\Controllers\SalesController::class, 'getRoastedBeansStock']);
+            });
+
             // Reports
             Route::prefix('reports')->name('reports.')->group(function () {
                 Route::get('/', [\App\Http\Controllers\ReportController::class, 'index'])->name('index');
