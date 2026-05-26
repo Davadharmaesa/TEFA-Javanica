@@ -5,6 +5,12 @@
 @section('content')
 <div x-data="{ activeTab: 'internal' }" class="space-y-6">
 
+    @if(session('success'))
+        <div class="p-4 bg-green-500/10 border border-green-500/20 text-green-600 rounded-xl font-bold text-sm">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-2xl shadow-sm border border-border/40">
         <div>
@@ -73,7 +79,7 @@
                             <td class="p-4 font-bold text-primary">{{ $order['customer_name'] }}</td>
                             <td class="p-4">
                                 <div class="font-bold text-primary">{{ $order['item'] }}</div>
-                                <div class="text-xs text-muted-foreground mt-0.5 font-mono">{{ $order['qty'] }} pcs</div>
+                                <div class="text-xs text-muted-foreground mt-0.5 font-mono">{{ number_format($order['qty']) }} Gram</div>
                             </td>
                             <td class="p-4 text-right font-mono font-bold text-primary">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</td>
                             <td class="p-4 text-sm font-mono font-bold text-primary">
@@ -143,7 +149,7 @@
                             <td class="p-4 font-bold text-primary">{{ $order['customer_name'] }}</td>
                             <td class="p-4">
                                 <div class="font-bold text-primary">{{ $order['item'] }}</div>
-                                <div class="text-xs text-muted-foreground mt-0.5 font-mono">{{ $order['qty'] }} pcs</div>
+                                <div class="text-xs text-muted-foreground mt-0.5 font-mono">{{ number_format($order['qty']) }} Gram</div>
                             </td>
                             <td class="p-4 text-right font-mono font-bold text-primary">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</td>
                             <td class="p-4 text-sm font-mono font-bold text-primary">

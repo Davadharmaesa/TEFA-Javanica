@@ -66,4 +66,9 @@ class RoastingBatch extends Model
     {
         return $this->hasOne(HppCalculation::class);
     }
+
+    public function logPekerjas()
+    {
+        return $this->hasMany(LogPekerja::class, 'roasting_batch_id');
+    }
 }
