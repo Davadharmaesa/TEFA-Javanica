@@ -127,24 +127,14 @@ class RoastingApiController extends Controller
             $roastedBean->save();
 
             // 5. Hitung Persentase Susut Total (Bahan)
-            $beratKgIn = $validated['berat_mentah_gudang'];
+            $beratKgInSortasi = $validated['berat_mentah_sortasi'];
             $beratKgOutBersih = $validated['berat_matang_bersih'];
-            $susut = (($beratKgIn - $beratKgOutBersih) / $beratKgIn) * 100;
+            $susut = (($beratKgInSortasi - $beratKgOutBersih) / $beratKgInSortasi) * 100;
             if ($susut < 0) $susut = 0;
 
-            // 6. Hitung Akumulasi Biaya Mesin dan Biaya Bahan Baku (FIFO)
+            // 6. Hitung Akumulasi Biaya Mesin (Opsional jika ingin dilacak terpisah, namun biaya_bahan_baku hanya diisi harga biji kopi mentah)
             $durasiRoasting = $validated['waktu_first_crack'] + ($validated['waktu_development'] / 60);
             $durasiTotalKerja = $durasiRoasting + $validated['durasi_pre_heating'];
-
-            // Ambil biaya listrik/mesin per menit dari database (Listrik Mesin), default Rp 1.500 jika tidak ditemukan
-            $biayaMesinRecord = \App\Models\Biaya::where('nama', 'Listrik Mesin')
-                ->orWhere('nama', 'like', '%mesin%')
-                ->first();
-            $biayaMesinPerMenit = $biayaMesinRecord ? $biayaMesinRecord->harga : 1500;
-            $biayaMesinTotal = $durasiTotalKerja * $biayaMesinPerMenit;
-
-            // Akumulasikan biaya mesin ke biaya_bahan_baku untuk HPP
-            $biayaBahanBakuTotal = $biayaBahanBaku + $biayaMesinTotal;
 
             // 7. Simpan Log Roasting (Audit Trail)
             $batch = RoastingBatch::create([
@@ -157,14 +147,14 @@ class RoastingApiController extends Controller
                 'waktu_first_crack' => $validated['waktu_first_crack'],
                 'waktu_development' => $validated['waktu_development'],
                 'durasi_pre_heating' => $validated['durasi_pre_heating'],
-                'berat_mentah_gudang' => $beratKgIn,
+                'berat_mentah_gudang' => $validated['berat_mentah_gudang'],
                 'berat_mentah_sortasi' => $validated['berat_mentah_sortasi'],
                 'berat_matang_kotor' => $validated['berat_matang_kotor'],
                 'berat_matang_bersih' => $validated['berat_matang_bersih'],
                 'persentase_susut' => round($susut, 2),
                 'tanggal_roasting' => date('Y-m-d'),
                 'status_batch' => 'completed',
-                'biaya_bahan_baku' => round($biayaBahanBakuTotal)
+                'biaya_bahan_baku' => round($biayaBahanBaku)
             ]);
 
             DB::commit();

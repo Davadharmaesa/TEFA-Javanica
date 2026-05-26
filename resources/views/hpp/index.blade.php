@@ -44,18 +44,41 @@
                         </p>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-primary mb-1">Daya Mesin (Kilowatt)</label>
-                        <input type="number" step="0.1" x-model="form.daya_mesin_kw" @wheel="$event.target.blur()" @input.debounce.500ms="fetchPreview()" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="Contoh: 1.5">
-                        <p class="text-[10px] text-muted-foreground mt-1">Tarif Listrik: Rp{{ $biayaListrik->harga }} / kWh</p>
+                    <div x-show="form.selectedBatch" class="p-4 bg-muted/40 border border-border/60 rounded-xl space-y-2">
+                        <p class="text-xs font-bold text-primary uppercase tracking-wider">Durasi Kerja Mesin</p>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-background p-2 rounded-lg border border-border/50">
+                                <p class="text-[9px] font-bold text-muted-foreground uppercase">Pre-heat</p>
+                                <p class="text-xs font-black text-primary font-mono" x-text="JSON.parse(form.selectedBatch).durasi_pre_heating + 'm'"></p>
+                            </div>
+                            <div class="bg-background p-2 rounded-lg border border-border/50">
+                                <p class="text-[9px] font-bold text-muted-foreground uppercase">First Crack</p>
+                                <p class="text-xs font-black text-primary font-mono" x-text="JSON.parse(form.selectedBatch).waktu_first_crack + 'm'"></p>
+                            </div>
+                            <div class="bg-background p-2 rounded-lg border border-border/50">
+                                <p class="text-[9px] font-bold text-muted-foreground uppercase">Dev Tahan</p>
+                                <p class="text-xs font-black text-primary font-mono" x-text="JSON.parse(form.selectedBatch).waktu_development + 's'"></p>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-muted-foreground mt-1">Tarif Mesin: Rp{{ number_format($biayaListrik->harga, 0, ',', '.') }} / Menit</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-primary mb-1">Jenis Kemasan Target</label>
-                        <select x-model="form.packaging_hpp" @change="fetchPreview()" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
-                            <option value="0">-- Pilih Kemasan --</option>
-                            @foreach($packagings as $pack)
-                                <option value="{{ $pack->harga_satuan }}">{{ $pack->nama_kemasan }} (Rp{{ number_format($pack->harga_satuan, 0, ',', '.') }}/pcs)</option>
+                        <label class="block text-sm font-bold text-primary mb-1">Pilih Kemasan Utama (Pouch)</label>
+                        <select x-model="form.selectedPouch" @change="onPouchChange($event)" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                            <option value="">-- Pilih Pouch --</option>
+                            @foreach($packagings->filter(fn($p) => $p->kapasitas_gram > 0) as $pack)
+                                <option value="{{ $pack->id }}" data-hpp="{{ $pack->harga_satuan }}" data-capacity="{{ $pack->kapasitas_gram }}">{{ $pack->nama_kemasan }} (Rp{{ number_format($pack->harga_satuan, 0, ',', '.') }}/pcs)</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-primary mb-1">Pilih Label / Stiker (Opsional)</label>
+                        <select x-model="form.selectedSticker" @change="onStickerChange($event)" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                            <option value="">-- Tanpa Stiker --</option>
+                            @foreach($packagings->filter(fn($p) => $p->kapasitas_gram == 0 || $p->tipe === 'Stiker') as $pack)
+                                <option value="{{ $pack->id }}" data-hpp="{{ $pack->harga_satuan }}">{{ $pack->nama_kemasan }} (Rp{{ number_format($pack->harga_satuan, 0, ',', '.') }}/pcs)</option>
                             @endforeach
                         </select>
                     </div>
@@ -70,7 +93,12 @@
                                @input.debounce.500ms="fetchPreview()" 
                                class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                                placeholder="Contoh: 25">
-                        <p class="text-[10px] text-muted-foreground mt-1">Gaji Operator & Packing: Rp{{ $biayaGaji->harga }} / Pcs</p>
+                        <p class="text-[10px] text-muted-foreground mt-1" x-show="form.selectedBatch && form.selectedPouch && getMaxPcs() > 0">
+                            Maksimum output dari batch ini: <span class="font-bold text-secondary" x-text="getMaxPcs().toFixed(2) + ' Pcs'"></span>
+                        </p>
+                        <p class="text-[10px] text-red-500 font-bold mt-1" x-show="form.selectedBatch && form.selectedPouch && getMaxPcs() > 0 && parseFloat(form.hasil_kemasan_pcs) > getMaxPcs()">
+                            Peringatan: Output melebihi kapasitas batch kopi!
+                        </p>
                     </div>
                 </div>
             </div>
@@ -101,8 +129,8 @@
                             <!-- Listrik -->
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
-                                    <p class="text-sm font-bold text-foreground">Biaya Listrik (Energi)</p>
-                                    <p class="text-[10px] text-muted-foreground">Durasi(jam) × Daya Mesin(kW) × Tarif(kWh)</p>
+                                    <p class="text-sm font-bold text-foreground">Biaya Operasional Mesin (Listrik & Gas)</p>
+                                    <p class="text-[10px] text-muted-foreground">Durasi Total Kerja (Menit) × Tarif per Menit</p>
                                 </div>
                                 <p class="font-mono font-bold text-primary" x-text="formatRupiah(preview.biaya_listrik)"></p>
                             </div>
@@ -110,8 +138,11 @@
                             <!-- Penyusutan -->
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
-                                    <p class="text-sm font-bold text-foreground">Penyusutan Mesin</p>
-                                    <p class="text-[10px] text-muted-foreground">Biaya tetap per siklus (batch)</p>
+                                    <p class="text-sm font-bold text-foreground">Overhead Lainnya & Penyusutan</p>
+                                    <p class="text-[10px] text-muted-foreground" x-text="'Membagi Biaya Overhead Standar (Rp' + formatRupiah(preview.biaya_overhead_lainnya_batch) + '/batch)'"></p>
+                                    <template x-if="preview.overhead_list && preview.overhead_list.length > 0">
+                                        <p class="text-[9px] text-secondary font-bold mt-0.5">Komponen: <span x-text="preview.overhead_list.join(', ')"></span></p>
+                                    </template>
                                 </div>
                                 <p class="font-mono font-bold text-primary" x-text="formatRupiah(preview.biaya_penyusutan)"></p>
                             </div>
@@ -119,8 +150,11 @@
                             <!-- Gaji -->
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
-                                    <p class="text-sm font-bold text-foreground">Tenaga Kerja (Gaji + Packing)</p>
-                                    <p class="text-[10px] text-muted-foreground">Total Pcs × Tarif per Pcs</p>
+                                    <p class="text-sm font-bold text-foreground">Tenaga Kerja (Gaji & Roasting)</p>
+                                    <p class="text-[10px] text-muted-foreground" x-text="preview.is_fallback_gaji ? 'Membagi Upah Standar Master (Rp' + formatRupiah(preview.biaya_tenaga_kerja_batch) + '/batch)' : 'Membagi Upah dari Log Kerja Batch (Rp' + formatRupiah(preview.biaya_tenaga_kerja_batch) + ')'"></p>
+                                    <template x-if="preview.pekerja_list && preview.pekerja_list.length > 0">
+                                        <p class="text-[9px] text-secondary font-bold mt-0.5">Pekerja Terlibat: <span x-text="preview.pekerja_list.join(', ')"></span></p>
+                                    </template>
                                 </div>
                                 <p class="font-mono font-bold text-primary" x-text="formatRupiah(preview.biaya_gaji)"></p>
                             </div>
@@ -128,8 +162,8 @@
                             <!-- Kemasan -->
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
-                                    <p class="text-sm font-bold text-foreground">Modal Kemasan (Packaging)</p>
-                                    <p class="text-[10px] text-muted-foreground">Total Pcs × HPP Kemasan</p>
+                                    <p class="text-sm font-bold text-foreground">Modal Kemasan (Pouch + Stiker)</p>
+                                    <p class="text-[10px] text-muted-foreground" x-text="'Pcs × (Pouch: Rp' + formatRupiah(form.pouch_hpp) + ' + Stiker: Rp' + formatRupiah(form.sticker_hpp) + ')'"></p>
                                 </div>
                                 <p class="font-mono font-bold text-primary" x-text="formatRupiah(preview.biaya_kemasan)"></p>
                             </div>
@@ -219,8 +253,11 @@
             loading: false,
             form: {
                 selectedBatch: '',
-                daya_mesin_kw: 1.5, // Default 1.5 kW
-                packaging_hpp: 0,
+                selectedPouch: '',
+                selectedSticker: '',
+                pouch_hpp: 0,
+                pouch_capacity_gram: 0,
+                sticker_hpp: 0,
                 hasil_kemasan_pcs: ''
             },
             preview: {
@@ -230,23 +267,64 @@
                 biaya_gaji: 0,
                 biaya_kemasan: 0,
                 total_hpp: 0,
-                hpp_per_pcs: 0
+                hpp_per_pcs: 0,
+                pekerja_list: [],
+                biaya_tenaga_kerja_batch: 0,
+                is_fallback_gaji: false
             },
 
             formatRupiah(number) {
                 return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
             },
 
+            getMaxPcs() {
+                if (!this.form.selectedBatch || !this.form.pouch_capacity_gram || this.form.pouch_capacity_gram <= 0) return 0;
+                try {
+                    const batchObj = JSON.parse(this.form.selectedBatch);
+                    const totalRoastedGram = batchObj.berat_matang_bersih * 1000;
+                    return totalRoastedGram / this.form.pouch_capacity_gram;
+                } catch (e) {
+                    return 0;
+                }
+            },
+
             get canSubmit() {
+                const max = this.getMaxPcs();
                 return this.form.selectedBatch !== '' && 
+                       this.form.selectedPouch !== '' &&
                        this.form.hasil_kemasan_pcs > 0 && 
+                       (max === 0 || parseFloat(this.form.hasil_kemasan_pcs) <= max) &&
                        this.preview.total_hpp > 0 &&
                        !this.loading;
             },
 
+            onPouchChange(event) {
+                const selectEl = event.target;
+                const selectedOpt = selectEl.options[selectEl.selectedIndex];
+                if (selectedOpt && selectedOpt.value !== "") {
+                    this.form.pouch_hpp = parseFloat(selectedOpt.getAttribute('data-hpp') || 0);
+                    this.form.pouch_capacity_gram = parseFloat(selectedOpt.getAttribute('data-capacity') || 0);
+                } else {
+                    this.form.pouch_hpp = 0;
+                    this.form.pouch_capacity_gram = 0;
+                }
+                this.fetchPreview();
+            },
+
+            onStickerChange(event) {
+                const selectEl = event.target;
+                const selectedOpt = selectEl.options[selectEl.selectedIndex];
+                if (selectedOpt && selectedOpt.value !== "") {
+                    this.form.sticker_hpp = parseFloat(selectedOpt.getAttribute('data-hpp') || 0);
+                } else {
+                    this.form.sticker_hpp = 0;
+                }
+                this.fetchPreview();
+            },
+
             async fetchPreview() {
-                if (!this.form.selectedBatch || !this.form.hasil_kemasan_pcs || !this.form.daya_mesin_kw) {
-                    this.preview = { biaya_bahan_baku: 0, biaya_listrik: 0, biaya_penyusutan: 0, biaya_gaji: 0, biaya_kemasan: 0, total_hpp: 0, hpp_per_pcs: 0 };
+                if (!this.form.selectedBatch || !this.form.selectedPouch || !this.form.hasil_kemasan_pcs) {
+                    this.preview = { biaya_bahan_baku: 0, biaya_listrik: 0, biaya_penyusutan: 0, biaya_gaji: 0, biaya_kemasan: 0, total_hpp: 0, hpp_per_pcs: 0, pekerja_list: [], biaya_tenaga_kerja_batch: 0, is_fallback_gaji: false };
                     return;
                 }
 
@@ -262,8 +340,8 @@
                         body: JSON.stringify({
                             batch: this.form.selectedBatch,
                             hasil_kemasan_pcs: this.form.hasil_kemasan_pcs,
-                            daya_mesin_kw: this.form.daya_mesin_kw,
-                            packaging_hpp: this.form.packaging_hpp
+                            pouch_id: this.form.selectedPouch,
+                            sticker_id: this.form.selectedSticker
                         })
                     });
                     

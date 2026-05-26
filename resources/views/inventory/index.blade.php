@@ -543,7 +543,7 @@
             dataGreenBean: @json($greenBeans),
             masterGreenBeans: @json($masterGreenBeans),
             dataRoastedBean: @json($roastedBeans),
-            dataRoasting: @json($roastingBatches),
+            dataRoastingBatches: @json($roastingBatches),
             dataProduk: @json($packagings),
             dataFinishedGoods: @json($finishedGoods ?? []),
 
@@ -566,6 +566,9 @@
                     this.formData = { ...item };
                     if (this.activeTab === 'greenbean') {
                         this.formData.stok_kg = (item.stok_raw / 1000) || 0;
+                    }
+                    if (this.activeTab === 'roastedbean') {
+                        this.formData.stok_raw = item.sisa_stok || 0;
                     }
                 } else {
                     this.editId = null;

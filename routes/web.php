@@ -111,6 +111,7 @@ Route::middleware(['auth'])->group(function () {
             Route::prefix('sales')->name('sales.')->group(function () {
                 Route::get('/', [\App\Http\Controllers\SalesController::class, 'index'])->name('index');
                 Route::get('/create', [\App\Http\Controllers\SalesController::class, 'create'])->name('create');
+                Route::post('/store', [\App\Http\Controllers\SalesController::class, 'store'])->name('store');
             });
 
             // Internal API: Kasir Timbangan Dinamis

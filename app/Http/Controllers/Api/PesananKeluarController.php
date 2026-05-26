@@ -17,7 +17,7 @@ class PesananKeluarController extends Controller
      */
     public function index()
     {
-        $pesanan = PesananKeluar::with(['roastedBean', 'user'])->orderBy('id', 'desc')->get();
+        $pesanan = PesananKeluar::with('roastedBean')->orderBy('id', 'desc')->get();
         return response()->json($pesanan);
     }
 
@@ -28,83 +28,80 @@ class PesananKeluarController extends Controller
     {
         $validated = $request->validate([
             'roasted_bean_id' => 'required|exists:roasted_bean,id',
+            'nama_pesanan' => 'required|string|max:255',
             'jumlah_gram_pesanan' => 'required|integer|min:1',
             'harga_jual_pesanan' => 'required|integer|min:0',
-            'nama_pesanan' => 'nullable|string',
-            'status_pembayaran' => 'nullable|string|in:pending,lunas',
+            'status_pembayaran' => 'nullable|string',
             'status_pengiriman' => 'nullable|string',
         ]);
 
+        $roastedBean = \App\Models\RoastedBean::findOrFail($validated['roasted_bean_id']);
+        $requestedGram = $validated['jumlah_gram_pesanan'];
+
+        if ($roastedBean->total_stok < $requestedGram) {
+            return response()->json([
+                'message' => 'Stok Roasted Bean di gudang tidak mencukupi (Tersedia: ' . ($roastedBean->total_stok / 1000) . ' kg).'
+            ], 400);
+        }
+
         try {
-            DB::beginTransaction();
+            \Illuminate\Support\Facades\DB::beginTransaction();
 
-            $roastedBean = RoastedBean::findOrFail($validated['roasted_bean_id']);
-            $jumlahGram = $validated['jumlah_gram_pesanan'];
-
-            // 1. Validasi Ketersediaan Stok Kopi Matang di tabel roasted_bean_stock
-            $totalAvailable = RoastedBeanStock::where('roasted_bean_id', $roastedBean->id)->sum('stok_gram');
-            if ($totalAvailable < $jumlahGram) {
-                return response()->json([
-                    'message' => 'Stok kopi matang tidak mencukupi.'
-                ], 400);
-            }
-
-            // 2. Kurangi Stok dari tabel roasted_bean_stock menggunakan FIFO
-            $stocks = RoastedBeanStock::where('roasted_bean_id', $roastedBean->id)
-                ->where('stok_gram', '>', 0)
+            // FIFO deduction from RoastingBatch
+            $batches = \App\Models\RoastingBatch::where('roasted_bean_id', $roastedBean->id)
+                ->where('status_batch', 'completed')
+                ->where('berat_matang_bersih', '>', 0)
                 ->orderBy('tanggal_roasting', 'asc')
                 ->orderBy('id', 'asc')
                 ->get();
 
-            $remainingToDeduct = $jumlahGram;
-            foreach ($stocks as $stock) {
-                if ($remainingToDeduct <= 0) {
-                    break;
-                }
+            $remainingToDeduct = $requestedGram;
 
-                if ($stock->stok_gram >= $remainingToDeduct) {
-                    $stock->stok_gram -= $remainingToDeduct;
-                    $stock->save();
+            foreach ($batches as $batch) {
+                if ($remainingToDeduct <= 0) break;
+
+                $batchStokGram = $batch->berat_matang_bersih * 1000;
+
+                if ($batchStokGram >= $remainingToDeduct) {
+                    $newBatchStokGram = $batchStokGram - $remainingToDeduct;
+                    $batch->berat_matang_bersih = $newBatchStokGram / 1000;
+                    $batch->save();
                     $remainingToDeduct = 0;
                 } else {
-                    $remainingToDeduct -= $stock->stok_gram;
-                    $stock->stok_gram = 0;
-                    $stock->save();
+                    $remainingToDeduct -= $batchStokGram;
+                    $batch->berat_matang_bersih = 0;
+                    $batch->save();
                 }
             }
 
-            // 3. Kurangi total_stok pada tabel cache roasted_bean secara sinkron
-            $roastedBean->total_stok = max(0, $roastedBean->total_stok - $jumlahGram);
+            // Update master roasted bean stock
+            $roastedBean->total_stok = max(0, $roastedBean->total_stok - $requestedGram);
             $roastedBean->save();
 
-            // 4. Mencatat penjualan di tabel pesanan_keluar
-            $namaPesanan = $validated['nama_pesanan'] ?? 'Kasir Timbangan - ' . $roastedBean->nama_kopi;
-            $statusPembayaran = $validated['status_pembayaran'] ?? 'lunas';
-            $statusPengiriman = $validated['status_pengiriman'] ?? 'selesai';
-
+            // Create pesanan keluar record
             $pesanan = PesananKeluar::create([
-                'user_id' => Auth::id() ?? 1,
+                'user_id' => \Illuminate\Support\Facades\Auth::id() ?? 1,
                 'roasted_bean_id' => $roastedBean->id,
-                'nama_pesanan' => $namaPesanan,
-                'jumlah_gram_pesanan' => $jumlahGram,
+                'nama_pesanan' => $validated['nama_pesanan'],
+                'jumlah_gram_pesanan' => $validated['jumlah_gram_pesanan'],
                 'harga_jual_pesanan' => $validated['harga_jual_pesanan'],
-                'tanggal_pesanan' => now()->toDateString(),
-                'total_pembayaran' => $jumlahGram * $validated['harga_jual_pesanan'],
-                'status_pembayaran' => $statusPembayaran,
-                'status_pengiriman' => $statusPengiriman,
+                'tanggal_pesanan' => date('Y-m-d'),
+                'total_pembayaran' => $validated['harga_jual_pesanan'],
+                'status_pembayaran' => $validated['status_pembayaran'] ?? 'lunas',
+                'status_pengiriman' => $validated['status_pengiriman'] ?? 'selesai',
             ]);
 
-            DB::commit();
+            \Illuminate\Support\Facades\DB::commit();
 
             return response()->json([
-                'message' => 'Transaksi penjualan berhasil disimpan dan stok terpotong.',
-                'data' => $pesanan
+                'message' => 'Transaksi penjualan berhasil dicatat dengan pemotongan stok FIFO.',
+                'pesanan' => $pesanan
             ], 201);
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            \Illuminate\Support\Facades\DB::rollBack();
             return response()->json([
-                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -114,7 +111,8 @@ class PesananKeluarController extends Controller
      */
     public function show(string $id)
     {
-        // TODO
+        $pesanan = PesananKeluar::with('roastedBean')->findOrFail($id);
+        return response()->json($pesanan);
     }
 
     /**
@@ -122,7 +120,9 @@ class PesananKeluarController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // TODO
+        $pesanan = PesananKeluar::findOrFail($id);
+        $pesanan->update($request->all());
+        return response()->json($pesanan);
     }
 
     /**
@@ -130,6 +130,8 @@ class PesananKeluarController extends Controller
      */
     public function destroy(string $id)
     {
-        // TODO
+        $pesanan = PesananKeluar::findOrFail($id);
+        $pesanan->delete();
+        return response()->json(['message' => 'Pesanan berhasil dihapus']);
     }
 }

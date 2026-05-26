@@ -79,6 +79,12 @@ class DatabaseSeeder extends Seeder
             'harga' => 1500,
         ]);
         \App\Models\Biaya::create([
+            'nama' => 'Penyusutan Mesin',
+            'kategori' => 'Overhead',
+            'satuan' => 'Batch',
+            'harga' => 10000,
+        ]);
+        \App\Models\Biaya::create([
             'nama' => 'Upah Roaster',
             'kategori' => 'Tenaga Kerja',
             'satuan' => 'Batch',
@@ -89,12 +95,14 @@ class DatabaseSeeder extends Seeder
         \App\Models\Packaging::create([
             'tipe' => 'Pouch Alumunium',
             'nama_kemasan' => 'Pouch Hitam Doff 200g',
+            'kapasitas_gram' => 200,
             'harga_satuan' => 1500,
             'stok_pcs' => 100,
         ]);
         \App\Models\Packaging::create([
             'tipe' => 'Stiker',
             'nama_kemasan' => 'Stiker Label Arabika Ijen',
+            'kapasitas_gram' => 0,
             'harga_satuan' => 500,
             'stok_pcs' => 100,
         ]);
@@ -109,11 +117,12 @@ class DatabaseSeeder extends Seeder
             'durasi_roasting' => 15, // 15 menit
             'waktu_first_crack' => 12.00,
             'waktu_development' => 180,
+            'durasi_pre_heating' => 5,
             'berat_mentah_gudang' => 10.00, // 10 Kg
             'berat_mentah_sortasi' => 9.80,
             'berat_matang_kotor' => 8.50,
             'berat_matang_bersih' => 8.20,
-            'persentase_susut' => 18.00,
+            'persentase_susut' => 16.33,
             'tanggal_roasting' => now()->toDateString(),
             'status_batch' => 'completed',
             'biaya_bahan_baku' => 1200000 // 10 Kg * 120,000/Kg

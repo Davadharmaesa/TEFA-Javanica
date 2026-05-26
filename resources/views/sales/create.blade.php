@@ -21,7 +21,18 @@
 <div class="max-w-2xl">
     <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
         <div class="p-6">
-            <form action="#" method="POST" class="space-y-6">
+            @if ($errors->any())
+                <div class="mb-4 p-4 bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl font-bold text-sm">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('sales.store') }}" method="POST" class="space-y-6">
+                @csrf
                 <!-- Kategori -->
                 <div class="space-y-2">
                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Kategori Pesanan</label>
@@ -50,7 +61,7 @@
                     <h3 class="text-lg font-semibold border-b border-border pb-2">Informasi Pelanggan</h3>
                     <div class="space-y-2">
                         <label for="customer_name" class="text-sm font-medium leading-none">Nama Lengkap / Instansi</label>
-                        <input type="text" id="customer_name" name="customer_name" placeholder="Contoh: Bapak Budi (Dosen TI) / Cafe Senja" class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                        <input type="text" id="customer_name" name="customer_name" required placeholder="Contoh: Bapak Budi (Dosen TI) / Cafe Senja" class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                     </div>
                     <div class="space-y-2">
                         <label for="contact" class="text-sm font-medium leading-none">Kontak (WhatsApp / Email)</label>
@@ -63,32 +74,40 @@
                     <h3 class="text-lg font-semibold border-b border-border pb-2">Detail Pesanan</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-2 md:col-span-2">
-                            <label for="item" class="text-sm font-medium leading-none">Produk</label>
-                            <select id="item" name="item" class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                            <label for="roasted_bean_id" class="text-sm font-medium leading-none">Produk Kopi Matang</label>
+                            <select id="roasted_bean_id" name="roasted_bean_id" required class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                                 <option value="" disabled selected>Pilih Produk...</option>
-                                <option value="Arabica Ijen Roasting Light (200g)">Arabica Ijen Roasting Light (200g)</option>
-                                <option value="Arabica Ijen Roasting Medium (200g)">Arabica Ijen Roasting Medium (200g)</option>
-                                <option value="Robusta Gombengsari Dark (500g)">Robusta Gombengsari Dark (500g)</option>
-                                <option value="Espresso Blend (1kg)">Espresso Blend (1kg)</option>
+                                @foreach($roastedBeans as $bean)
+                                    <option value="{{ $bean->id }}">{{ $bean->nama_kopi }} ({{ $bean->bentuk_akhir }}) - Tersedia: {{ $bean->total_stok / 1000 }} kg</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="space-y-2">
-                            <label for="qty" class="text-sm font-medium leading-none">Jumlah (Qty)</label>
-                            <input type="number" id="qty" name="qty" min="1" value="1" class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                            <label for="jumlah_gram_pesanan" class="text-sm font-medium leading-none">Jumlah (Gram)</label>
+                            <input type="number" id="jumlah_gram_pesanan" name="jumlah_gram_pesanan" min="1" required class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-2">
-                            <label for="target_date" class="text-sm font-medium leading-none">Target Selesai (Diambil/Kirim)</label>
-                            <input type="date" id="target_date" name="target_date" class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                            <label for="harga_jual_pesanan" class="text-sm font-medium leading-none">Total Harga Jual (Rp)</label>
+                            <input type="number" id="harga_jual_pesanan" name="harga_jual_pesanan" min="0" required placeholder="Contoh: 150000" class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                         </div>
                         <div class="space-y-2">
-                            <label for="payment_status" class="text-sm font-medium leading-none">Status Pembayaran</label>
-                            <select id="payment_status" name="payment_status" class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-                                <option value="belum_bayar">Belum Bayar</option>
-                                <option value="dp">DP (Uang Muka)</option>
-                                <option value="lunas">Lunas</option>
+                            <label for="status_pembayaran" class="text-sm font-medium leading-none">Status Pembayaran</label>
+                            <select id="status_pembayaran" name="status_pembayaran" required class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                                <option value="Belum Bayar">Belum Bayar</option>
+                                <option value="DP (50%)">DP (50%)</option>
+                                <option value="Lunas">Lunas</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label for="status_pengiriman" class="text-sm font-medium leading-none">Status Pengiriman</label>
+                            <select id="status_pengiriman" name="status_pengiriman" required class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                                <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
+                                <option value="Diproses">Diproses</option>
+                                <option value="Siap Diambil">Siap Diambil</option>
+                                <option value="Selesai">Selesai</option>
                             </select>
                         </div>
                     </div>
@@ -98,7 +117,7 @@
                     <a href="{{ route('sales.index') }}" class="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
                         Batal
                     </a>
-                    <button type="button" onclick="alert('Ini hanya tampilan UI simulasi. Integrasi backend akan dilakukan di tahap berikutnya.')" class="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                    <button type="submit" class="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
                         Simpan Pre-Order
                     </button>
                 </div>
