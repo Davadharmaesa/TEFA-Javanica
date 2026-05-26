@@ -101,7 +101,7 @@
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4">Nama Biji Mentah</th>
-                        <th class="p-4">Kategori</th>
+                        <th class="p-4">Asal</th>
                         <th class="p-4 text-right">Stok (Kg)</th>
                         <th class="p-4 text-center">Aksi</th>
                     </tr>
