@@ -93,6 +93,15 @@
                                 @else
                                     <span class="inline-flex items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">{{ $order['payment_status'] }}</span>
                                 @endif
+                                @if(isset($order['pickup_status']))
+                                    <div class="text-xs mt-1">
+                                        @if($order['pickup_status'] == 'Belum Diambil')
+                                            <span class="inline-flex items-center justify-center rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-red-600">Belum Diambil</span>
+                                        @else
+                                            <span class="inline-flex items-center justify-center rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-green-600">Sudah Diambil</span>
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
                             <td class="p-4 text-center">
                                 @if($order['status'] == 'Menunggu Konfirmasi')
@@ -103,6 +112,15 @@
                                     <span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary">{{ $order['status'] }}</span>
                                 @else
                                     <span class="inline-flex items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">{{ $order['status'] }}</span>
+                                @endif
+                                @if(isset($order['pickup_status']))
+                                    <div class="text-xs mt-1">
+                                        @if($order['pickup_status'] == 'Belum Diambil')
+                                            <span class="inline-flex items-center justify-center rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-red-600">Belum Diambil</span>
+                                        @else
+                                            <span class="inline-flex items-center justify-center rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-green-600">Sudah Diambil</span>
+                                        @endif
+                                    </div>
                                 @endif
                             </td>
                             <td class="p-4 text-center">

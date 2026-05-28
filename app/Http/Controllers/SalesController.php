@@ -27,6 +27,7 @@ class SalesController extends Controller
                 'total_price' => $order->harga_jual_pesanan,
                 'status' => $order->status_pengiriman,
                 'payment_status' => $order->status_pembayaran,
+                'pickup_status' => $order->status_pengambilan ?? 'Belum Diambil',
                 'target_date' => $order->tanggal_pesanan,
                 'created_at' => $order->created_at->toDateTimeString()
             ];
@@ -104,6 +105,10 @@ class SalesController extends Controller
             'harga_jual_pesanan' => 'required|integer|min:0',
             'status_pembayaran' => 'required|string',
             'status_pengiriman' => 'required|string',
+            'metode_pembayaran' => 'nullable|string|in:lunas,dp',
+            'nominal_dp' => 'nullable|integer|min:0',
+            'tanggal_bayar_dp' => 'nullable|date',
+            'batas_waktu_pembayaran' => 'nullable|date',
         ]);
 
         $roastedBean = RoastedBean::findOrFail($validated['roasted_bean_id']);
@@ -147,6 +152,18 @@ class SalesController extends Controller
             $roastedBean->total_stok = max(0, $roastedBean->total_stok - $requestedGram);
             $roastedBean->save();
 
+            // Prepare payment
+            $total = $validated['harga_jual_pesanan'];
+            $metode = $validated['metode_pembayaran'] ?? ($validated['status_pembayaran'] ?? 'lunas');
+            $nominalDp = $validated['nominal_dp'] ?? null;
+            $sisa = null;
+            if ($metode === 'dp' && $nominalDp) {
+                $sisa = max(0, $total - $nominalDp);
+                $statusPembayaran = $sisa === 0 ? 'lunas' : 'dp';
+            } else {
+                $statusPembayaran = $validated['status_pembayaran'];
+            }
+
             // Create pesanan keluar record
             PesananKeluar::create([
                 'user_id' => Auth::id() ?? 1,
@@ -155,9 +172,15 @@ class SalesController extends Controller
                 'jumlah_gram_pesanan' => $validated['jumlah_gram_pesanan'],
                 'harga_jual_pesanan' => $validated['harga_jual_pesanan'],
                 'tanggal_pesanan' => date('Y-m-d'),
-                'total_pembayaran' => $validated['harga_jual_pesanan'],
-                'status_pembayaran' => $validated['status_pembayaran'],
+                'total_pembayaran' => $total,
+                'status_pembayaran' => $statusPembayaran,
                 'status_pengiriman' => $validated['status_pengiriman'],
+                'metode_pembayaran' => $metode,
+                'nominal_dp' => $nominalDp,
+                'sisa_pembayaran' => $sisa,
+                'tanggal_bayar_dp' => $validated['tanggal_bayar_dp'] ?? null,
+                'batas_waktu_pembayaran' => $validated['batas_waktu_pembayaran'] ?? null,
+                'status_pengambilan' => 'Belum Diambil',
             ]);
 
             DB::commit();

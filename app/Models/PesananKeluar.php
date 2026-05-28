@@ -22,7 +22,21 @@ class PesananKeluar extends Model
         'tanggal_pesanan',
         'total_pembayaran',
         'status_pembayaran',
-        'status_pengiriman'
+        'status_pengiriman',
+        'metode_pembayaran',
+        'nominal_dp',
+        'sisa_pembayaran',
+        'tanggal_bayar_dp',
+        'tanggal_pelunasan',
+        'batas_waktu_pembayaran',
+        'status_pengambilan'
+    ];
+
+    protected $casts = [
+        'tanggal_pesanan' => 'date',
+        'tanggal_bayar_dp' => 'date',
+        'tanggal_pelunasan' => 'date',
+        'batas_waktu_pembayaran' => 'date',
     ];
 
     public function roastedBean()

@@ -94,12 +94,23 @@
                             <input type="number" id="harga_jual_pesanan" name="harga_jual_pesanan" min="0" required placeholder="Contoh: 150000" class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                         </div>
                         <div class="space-y-2">
-                            <label for="status_pembayaran" class="text-sm font-medium leading-none">Status Pembayaran</label>
-                            <select id="status_pembayaran" name="status_pembayaran" required class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-                                <option value="Belum Bayar">Belum Bayar</option>
-                                <option value="DP (50%)">DP (50%)</option>
-                                <option value="Lunas">Lunas</option>
+                            <label for="metode_pembayaran" class="text-sm font-medium leading-none">Metode Pembayaran</label>
+                            <select id="metode_pembayaran" name="metode_pembayaran" class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                                <option value="lunas">Langsung Lunas</option>
+                                <option value="dp">DP (Down Payment)</option>
                             </select>
+                        </div>
+                        <div id="dpFields" class="space-y-2" style="display:none;">
+                            <label for="nominal_dp" class="text-sm font-medium leading-none">Nominal DP (Rp)</label>
+                            <input type="number" id="nominal_dp" name="nominal_dp" min="0" placeholder="Contoh: 50000" class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm">
+
+                            <label for="tanggal_bayar_dp" class="text-sm font-medium leading-none">Tanggal Bayar DP</label>
+                            <input type="date" id="tanggal_bayar_dp" name="tanggal_bayar_dp" class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm">
+
+                            <label for="batas_waktu_pembayaran" class="text-sm font-medium leading-none">Batas Waktu Pelunasan</label>
+                            <input type="date" id="batas_waktu_pembayaran" name="batas_waktu_pembayaran" class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm">
+
+                            <div class="text-sm text-muted-foreground">Sisa: <span id="sisaDpText">-</span></div>
                         </div>
                         <div class="space-y-2">
                             <label for="status_pengiriman" class="text-sm font-medium leading-none">Status Pengiriman</label>
@@ -126,3 +137,43 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const metode = document.getElementById('metode_pembayaran');
+        const dpFields = document.getElementById('dpFields');
+        const nominalInput = document.getElementById('nominal_dp');
+        const hargaInput = document.getElementById('harga_jual_pesanan');
+        const sisaText = document.getElementById('sisaDpText');
+
+        function updateDpVisibility() {
+            if (!metode) return;
+            if (metode.value === 'dp') {
+                dpFields.style.display = 'block';
+            } else {
+                dpFields.style.display = 'none';
+                sisaText.textContent = '-';
+                nominalInput.value = '';
+            }
+        }
+
+        function updateSisa() {
+            const harga = Number(hargaInput.value) || 0;
+            const nominal = Number(nominalInput.value) || 0;
+            if (nominal > 0) {
+                const sisa = Math.max(0, harga - nominal);
+                sisaText.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(sisa);
+            } else {
+                sisaText.textContent = '-';
+            }
+        }
+
+        if (metode) metode.addEventListener('change', updateDpVisibility);
+        if (nominalInput) nominalInput.addEventListener('input', updateSisa);
+        if (hargaInput) hargaInput.addEventListener('input', updateSisa);
+
+        updateDpVisibility();
+    });
+</script>
+@endpush

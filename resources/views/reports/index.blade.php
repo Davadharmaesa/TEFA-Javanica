@@ -16,18 +16,16 @@
         </div>
         <!-- Actions Panel -->
         <div class="flex flex-col sm:flex-row gap-4 mt-4 md:mt-0 items-center bg-muted/20 p-2 sm:pr-2 sm:pl-4 rounded-2xl border border-border/50 shadow-sm">
-            <!-- Filter Tanggal -->
-            <div class="flex flex-col w-full sm:w-auto">
+            <!-- Filter Periode (start / end) -->
+            <form method="GET" action="{{ route('reports.index') }}" class="flex flex-col w-full sm:w-auto">
                 <label class="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1 ml-1">Periode Laporan</label>
                 <div class="bg-background border border-border/60 rounded-xl px-3 py-2 text-sm font-bold text-primary flex items-center gap-2 shadow-sm transition-colors hover:border-primary/50">
-                    <svg class="text-primary/70" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
-                    <select class="bg-transparent border-none focus:ring-0 outline-none cursor-pointer w-full">
-                        <option value="this_month">Bulan Ini (Mei 2026)</option>
-                        <option value="last_month">Bulan Lalu (Apr 2026)</option>
-                        <option value="this_year">Tahun Ini</option>
-                    </select>
+                    <input type="date" name="start_date" value="{{ $start ?? now()->startOfMonth()->toDateString() }}" class="border-none bg-transparent text-sm">
+                    <span class="text-muted-foreground">—</span>
+                    <input type="date" name="end_date" value="{{ $end ?? now()->endOfMonth()->toDateString() }}" class="border-none bg-transparent text-sm">
+                    <button type="submit" class="ml-2 bg-primary/10 text-primary px-3 py-1 rounded-md text-xs font-bold">Terapkan</button>
                 </div>
-            </div>
+            </form>
             
             <div class="hidden sm:block w-px h-12 bg-border/60 rounded-full"></div>
             
@@ -48,6 +46,25 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-0 group-hover:opacity-100 transition-transform transform translate-x-[-5px] group-hover:translate-x-0"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Period Summaries -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-card border border-border/40 rounded-2xl p-4">
+            <p class="text-sm font-bold text-muted-foreground">Green Bean Masuk (Periode)</p>
+            <p class="text-xl font-black text-foreground">{{ number_format(($greenBeanIncoming ?? 0) / 1000, 2, ',', '.') }} Kg</p>
+            <p class="text-xs text-muted-foreground">Sisa stok (sekarang): {{ number_format(($greenBeanRemaining ?? 0) / 1000, 2, ',', '.') }} Kg</p>
+        </div>
+        <div class="bg-card border border-border/40 rounded-2xl p-4">
+            <p class="text-sm font-bold text-muted-foreground">Aktivitas Roasting (Periode)</p>
+            <p class="text-xl font-black text-foreground">{{ $roastingCount ?? 0 }} Batch</p>
+        </div>
+        <div class="bg-card border border-border/40 rounded-2xl p-4">
+            <p class="text-sm font-bold text-muted-foreground">Transaksi (Periode)</p>
+            <p class="text-sm text-muted-foreground">Lunas: Rp {{ number_format($totalLunas ?? 0, 0, ',', '.') }}</p>
+            <p class="text-sm text-muted-foreground">DP Terbayar: Rp {{ number_format($totalDP ?? 0, 0, ',', '.') }}</p>
+            <p class="text-sm text-muted-foreground">Sisa Piutang: Rp {{ number_format($totalSisaPiutang ?? 0, 0, ',', '.') }}</p>
         </div>
     </div>
 
@@ -99,8 +116,30 @@
         </div>
     </div>
 
-    <!-- Tabs Navigation -->
+    <!-- Report Section Navigation -->
     <div class="print:hidden flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50">
+        <button @click="activeSection = 'keuangan'" 
+            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            :class="activeSection === 'keuangan' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            Keuangan
+        </button>
+        <button @click="activeSection = 'greenbean'" 
+            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            :class="activeSection === 'greenbean' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-45 12 12)"><rect x="5" y="3" width="14" height="18" rx="7"/><path d="M12 3c-1.5 3 1.5 6 0 9s-1.5 6 0 9"/></g></svg>
+            Green Bean
+        </button>
+        <button @click="activeSection = 'roastedbean'" 
+            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            :class="activeSection === 'roastedbean' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
+            Roasted Bean
+        </button>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div x-show="activeSection === 'keuangan'" class="print:hidden flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50">
         <button @click="activeTab = 'labarugi'" 
             class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
             :class="activeTab === 'labarugi' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
@@ -115,15 +154,87 @@
         </button>
     </div>
 
+    <!-- Green Bean Report -->
+    <div x-show="activeSection === 'greenbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden print:border-none print:shadow-none print:rounded-none">
+        <div class="p-6 border-b border-primary/40 bg-primary text-primary-foreground">
+            <h2 class="text-xl font-heading font-bold text-white">Laporan Green Bean</h2>
+            <p class="text-sm text-white/80">Periode: {{ \Carbon\Carbon::parse($start)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($end)->translatedFormat('d F Y') }}</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
+                        <th class="p-4">Tanggal Masuk</th>
+                        <th class="p-4">Nama Green Bean</th>
+                        <th class="p-4">Supplier</th>
+                        <th class="p-4 text-right">Qty Masuk</th>
+                        <th class="p-4 text-right">Sisa Stok</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border/30">
+                    @forelse($greenBeanStockEntries as $stock)
+                        <tr class="hover:bg-muted/10 transition-colors">
+                            <td class="p-4 text-sm font-mono text-muted-foreground">{{ $stock->tanggal_beli }}</td>
+                            <td class="p-4 font-bold text-foreground">{{ $stock->greenBean?->nama_biji ?? 'Tidak diketahui' }}</td>
+                            <td class="p-4 text-muted-foreground">{{ $stock->greenBean?->asal_kopi ?? '-' }}</td>
+                            <td class="p-4 text-right font-mono font-medium text-foreground">{{ number_format($stock->stok_gram / 1000, 2, ',', '.') }} Kg</td>
+                            <td class="p-4 text-right font-mono font-medium text-foreground">{{ number_format($stock->stok_gram / 1000, 2, ',', '.') }} Kg</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="p-4 text-center text-sm text-muted-foreground">Tidak ada data Green Bean untuk periode ini.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Roasted Bean Report -->
+    <div x-show="activeSection === 'roastedbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden print:border-none print:shadow-none print:rounded-none">
+        <div class="p-6 border-b border-primary/40 bg-primary text-primary-foreground">
+            <h2 class="text-xl font-heading font-bold text-white">Laporan Roasted Bean</h2>
+            <p class="text-sm text-white/80">Periode: {{ \Carbon\Carbon::parse($start)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($end)->translatedFormat('d F Y') }}</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
+                        <th class="p-4">Tanggal Roasting</th>
+                        <th class="p-4">Nama Batch</th>
+                        <th class="p-4">Roast Profile</th>
+                        <th class="p-4 text-right">Hasil Roasting</th>
+                        <th class="p-4 text-right">Operator</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border/30">
+                    @forelse($roastingBatchEntries as $batch)
+                        <tr class="hover:bg-muted/10 transition-colors">
+                            <td class="p-4 text-sm font-mono text-muted-foreground">{{ $batch->tanggal_roasting }}</td>
+                            <td class="p-4 font-bold text-foreground">{{ $batch->kode_batch }}</td>
+                            <td class="p-4 text-muted-foreground">{{ $batch->profil_sangrai }}</td>
+                            <td class="p-4 text-right font-mono font-medium text-foreground">{{ number_format($batch->berat_matang_bersih, 2, ',', '.') }} Kg</td>
+                            <td class="p-4 text-right font-bold text-foreground">{{ $batch->user?->name ?? 'Operator tidak diketahui' }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="p-4 text-center text-sm text-muted-foreground">Tidak ada data Roasted Bean untuk periode ini.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- Print Header -->
     <div class="hidden print:block text-center mb-8 pb-4 border-b-2 border-primary">
         <h1 class="text-3xl font-heading font-black text-primary">TEFA Javanica</h1>
-        <p class="text-lg font-bold text-foreground mt-1">Laporan Keuangan Roastery</p>
-        <p class="text-sm text-muted-foreground mt-1" x-text="activeTab === 'labarugi' ? 'Laporan Laba Rugi - Periode: Mei 2026' : 'Riwayat Arus Kas - Periode: Mei 2026'"></p>
+        <p class="text-lg font-bold text-foreground mt-1">Laporan Roastery</p>
+        <p class="text-sm text-muted-foreground mt-1" x-text="activeSection === 'keuangan' ? (activeTab === 'labarugi' ? 'Laporan Laba Rugi - Periode: {{ $start }} hingga {{ $end }}' : 'Riwayat Arus Kas - Periode: {{ $start }} hingga {{ $end }}') : (activeSection === 'greenbean' ? 'Laporan Green Bean - Periode: {{ $start }} hingga {{ $end }}' : 'Laporan Roasted Bean - Periode: {{ $start }} hingga {{ $end }}')"></p>
     </div>
 
     <!-- Tab Content: Laba Rugi -->
-    <div x-show="activeTab === 'labarugi'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden print:border-none print:shadow-none print:rounded-none">
+    <div x-show="activeSection === 'keuangan' && activeTab === 'labarugi'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden print:border-none print:shadow-none print:rounded-none">
         <div class="p-6 border-b border-primary/40 bg-primary text-primary-foreground">
             <h2 class="text-xl font-heading font-bold text-white">Laporan Laba Rugi</h2>
             <p class="text-sm text-white/80">Periode: 1 Mei 2026 - 31 Mei 2026</p>
@@ -207,7 +318,7 @@
     </div>
 
     <!-- Tab Content: Arus Kas -->
-    <div x-show="activeTab === 'aruskas'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden print:border-none print:shadow-none print:rounded-none" style="display: none;">
+    <div x-show="activeSection === 'keuangan' && activeTab === 'aruskas'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden print:border-none print:shadow-none print:rounded-none" style="display: none;">
         <div class="p-6 border-b border-primary/40 bg-primary flex justify-between items-center text-primary-foreground">
             <div>
                 <h2 class="text-xl font-heading font-bold text-primary">Riwayat Arus Kas (Buku Kas)</h2>
@@ -367,6 +478,7 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('reportData', () => ({
             activeTab: 'labarugi',
+            activeSection: 'keuangan',
             isImportModalOpen: false,
             isModalAwalOpen: false,
             
