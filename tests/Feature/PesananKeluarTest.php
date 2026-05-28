@@ -167,9 +167,10 @@ class PesananKeluarTest extends TestCase
             'roasted_bean_id' => $roastedBean->id,
             'jumlah_gram_pesanan' => 600,
             'harga_jual_pesanan' => 100,
+            'nama_pesanan' => 'Meja 5',
         ]);
 
         $response->assertStatus(400)
-            ->assertJsonPath('message', 'Stok kopi matang tidak mencukupi.');
+            ->assertJsonPath('message', 'Stok Roasted Bean di gudang tidak mencukupi (Tersedia: 0.5 kg).');
     }
 }

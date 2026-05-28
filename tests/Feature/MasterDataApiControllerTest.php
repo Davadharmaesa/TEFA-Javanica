@@ -35,7 +35,7 @@ class MasterDataApiControllerTest extends TestCase
         ]);
     }
 
-    public function test_duplicate_packaging_type_is_rejected(): void
+    public function test_duplicate_packaging_name_is_rejected(): void
     {
         $user = User::factory()->create(['role' => 'PIC']);
 
@@ -49,12 +49,12 @@ class MasterDataApiControllerTest extends TestCase
 
         $response = $this->actingAs($user)->postJson('/internal-api/master/packagings', [
             'tipe' => 'Pouch Alumunium',
-            'nama_kemasan' => 'Pouch Alumunium 500g',
+            'nama_kemasan' => 'Pouch Alumunium 200g',
             'kapasitas_gram' => 500,
             'harga_satuan' => 750,
         ]);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors('tipe');
+            ->assertJsonValidationErrors('nama_kemasan');
     }
 }

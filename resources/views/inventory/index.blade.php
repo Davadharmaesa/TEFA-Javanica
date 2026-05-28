@@ -456,11 +456,20 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-foreground mb-1">Pilih Kemasan Target</label>
+                    <label class="block text-sm font-bold text-foreground mb-1">Pilih Kemasan Pouch (Target)</label>
                     <select x-model="packForm.packaging_id" @change="onPackagingChange" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         <option value="">-- Pilih Jenis Kemasan --</option>
-                        <template x-for="item in dataProduk" :key="item.id">
-                            <option :value="item.id" x-text="item.nama"></option>
+                        <template x-for="item in dataProduk.filter(p => p.tipe !== 'Stiker' && p.berat > 0)" :key="item.id">
+                            <option :value="item.id" x-text="item.nama + ' (Stok: ' + item.stok + ' Pcs)'"></option>
+                        </template>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-foreground mb-1">Pilih Label / Stiker (Opsional)</label>
+                    <select x-model="packForm.sticker_id" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        <option value="">-- Tanpa Stiker --</option>
+                        <template x-for="item in dataProduk.filter(p => p.tipe === 'Stiker' || p.berat === 0)" :key="item.id">
+                            <option :value="item.id" x-text="item.nama + ' (Stok: ' + item.stok + ' Pcs)'"></option>
                         </template>
                     </select>
                 </div>
@@ -471,7 +480,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-foreground mb-1">Ukuran Pouch (Gram)</label>
-                        <input type="number" min="0" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" x-model="packForm.ukuran_kemasan_gram" placeholder="Contoh: 200" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        <input type="number" min="0" readonly x-model="packForm.ukuran_kemasan_gram" placeholder="Otomatis" class="w-full bg-muted border border-border rounded-lg px-4 py-2.5 focus:outline-none text-muted-foreground transition-all cursor-not-allowed">
                     </div>
                 </div>
                 
@@ -531,7 +540,7 @@
             
             isPackModalOpen: false,
             isPackLoading: false,
-            packForm: { roasted_bean_id: '', packaging_id: '', jumlah_stok_digunakan_gram: '', ukuran_kemasan_gram: '' },
+            packForm: { roasted_bean_id: '', packaging_id: '', sticker_id: '', jumlah_stok_digunakan_gram: '', ukuran_kemasan_gram: '' },
             toast: { show: false, msg: '', type: 'success' },
             
             showToast(msg, type = 'success') {
@@ -579,7 +588,7 @@
 
             openPackModal() {
                 this.isPackModalOpen = true;
-                this.packForm = { roasted_bean_id: '', packaging_id: '', jumlah_stok_digunakan_gram: '', ukuran_kemasan_gram: '' };
+                this.packForm = { roasted_bean_id: '', packaging_id: '', sticker_id: '', jumlah_stok_digunakan_gram: '', ukuran_kemasan_gram: '' };
             },
 
             onPackagingChange() {
@@ -616,7 +625,7 @@
                     
                     if(res.ok) {
                         this.isPackModalOpen = false;
-                        const qty = Math.floor(this.packForm.jumlah_stok_digunakan_gram / this.packForm.ukuran_kemasan_gram);
+                        const qty = data.data.hasil_kemasan_pcs;
                         this.showToast(`Berhasil! ${qty} kemasan ditambahkan. Sisa residu: ${data.data.sisa_gram_dicatat} gram.`, 'success');
                         setTimeout(() => window.location.reload(), 2500);
                     } else {

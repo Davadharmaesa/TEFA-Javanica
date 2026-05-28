@@ -19,50 +19,72 @@ class PackagingApiController extends Controller
         $validated = $request->validate([
             'roasted_bean_id' => 'required|exists:roasted_bean,id',
             'packaging_id' => 'required|exists:packagings,id',
+            'sticker_id' => 'nullable|exists:packagings,id',
             'jumlah_stok_digunakan_gram' => 'required|numeric|min:1',
-            'ukuran_kemasan_gram' => 'required|integer|min:1',
+            'ukuran_kemasan_gram' => 'nullable|integer',
         ]);
 
         try {
             DB::beginTransaction();
 
             $roastedBean = RoastedBean::findOrFail($validated['roasted_bean_id']);
-            $packaging = Packaging::findOrFail($validated['packaging_id']);
+            $pouch = Packaging::findOrFail($validated['packaging_id']);
+            
+            $sticker = null;
+            if (!empty($validated['sticker_id'])) {
+                $sticker = Packaging::findOrFail($validated['sticker_id']);
+            }
 
             $stokDigunakan = $validated['jumlah_stok_digunakan_gram'];
-            $ukuranKemasan = $validated['ukuran_kemasan_gram'];
+            
+            // Auto-Adjust Ukuran: automatically adjust to target packaging size from DB
+            $ukuranKemasan = $pouch->kapasitas_gram;
+            if ($ukuranKemasan <= 0) {
+                return response()->json(['message' => 'Kemasan utama (Pouch) harus memiliki kapasitas gram yang valid.'], 400);
+            }
 
-            // Validasi apakah stok cukup
+            // Validasi apakah stok roasted bean cukup
             if ($roastedBean->total_stok < $stokDigunakan) {
                 return response()->json(['message' => 'Stok Roasted Bean tidak mencukupi.'], 400);
             }
 
-            // 1. Hitung Kemasan & Sisa
-            // Contoh: 2500 gram dibagi 200 gram -> hasil 12 pouch, sisa 100 gram
-            $hasilKemasanPcs = floor($stokDigunakan / $ukuranKemasan);
-            $sisaGram = fmod($stokDigunakan, $ukuranKemasan); // sisa stok (residu)
+            // 1. Hitung output maksimum berdasarkan kopi
+            $maxPcsByCoffee = floor($stokDigunakan / $ukuranKemasan);
 
-            // 2. Update Stok Roasted Bean
+            // 2. Terapkan limitasi stok material di database secara ril
+            $maxPcsByPouch = $pouch->stok_pcs;
+            $maxPcsBySticker = $sticker ? $sticker->stok_pcs : $maxPcsByCoffee;
+
+            // Output pcs yang dapat dikemas adalah nilai minimum dari ketiganya
+            $hasilKemasanPcs = min($maxPcsByCoffee, $maxPcsByPouch, $maxPcsBySticker);
+
+            if ($hasilKemasanPcs <= 0) {
+                return response()->json(['message' => 'Stok kemasan kosong (pouch/stiker) tidak mencukupi untuk membuat setidaknya 1 produk kemasan.'], 400);
+            }
+
+            // 3. Update Stok Roasted Bean
             // Kurangi stok utama hanya sebesar yang sukses dikemas ke dalam pouch (tidak termasuk sisa residu)
-            // Sehingga sisa residu secara otomatis tetap berada di total_stok untuk dapat dikemas di proses berikutnya
             $stokTerkemas = $hasilKemasanPcs * $ukuranKemasan;
             $roastedBean->total_stok -= $stokTerkemas;
 
-            // Perbarui sisa_stok sesuai dengan sisa residu ril yang dihasilkan dari proses terbaru ini
+            // Perbarui sisa_stok sesuai dengan sisa residu ril yang dihasilkan
+            $sisaGram = $stokDigunakan - $stokTerkemas;
             $roastedBean->sisa_stok = $sisaGram;
             $roastedBean->save();
 
-            // 3. Kurangi Stok Kemasan Kosong (Pouch / Stiker terpakai)
-            if ($packaging->stok_pcs < $hasilKemasanPcs) {
-                DB::rollBack();
-                return response()->json(['message' => 'Stok kemasan kosong tidak mencukupi untuk jumlah tersebut.'], 400);
-            }
-            $packaging->stok_pcs -= $hasilKemasanPcs;
-            $packaging->save();
+            // 4. Kurangi Stok Kemasan Kosong (Pouch terpakai)
+            $pouch->stok_pcs -= $hasilKemasanPcs;
+            $pouch->save();
 
-            // 4. Tambah Stok Kopi Siap Jual (Finished Goods)
+            // 5. Kurangi Stok Stiker (jika digunakan)
+            if ($sticker) {
+                $sticker->stok_pcs -= $hasilKemasanPcs;
+                $sticker->save();
+            }
+
+            // 6. Tambah/Update Stok Kopi Siap Jual (Finished Goods)
             $finishedGood = FinishedGood::firstOrCreate(
-                ['roasted_bean_id' => $roastedBean->id, 'packaging_id' => $packaging->id],
+                ['roasted_bean_id' => $roastedBean->id, 'packaging_id' => $pouch->id],
                 ['stok_pcs' => 0]
             );
             $finishedGood->stok_pcs += $hasilKemasanPcs;
@@ -78,7 +100,8 @@ class PackagingApiController extends Controller
                     'sisa_gram_dicatat' => $sisaGram,
                     'total_stok_roasted_bean_sekarang' => $roastedBean->total_stok,
                     'sisa_stok_tersimpan' => $roastedBean->sisa_stok,
-                    'total_kemasan_sekarang' => $packaging->stok_pcs
+                    'total_kemasan_sekarang' => $pouch->stok_pcs,
+                    'total_stiker_sekarang' => $sticker ? $sticker->stok_pcs : null,
                 ]
             ], 200);
 

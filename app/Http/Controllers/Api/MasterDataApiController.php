@@ -35,8 +35,8 @@ class MasterDataApiController extends Controller
         $request->merge(['tipe' => $normalizedType]);
 
         return $request->validate([
-            'tipe' => ['required', 'string', 'max:255', Rule::unique('packagings', 'tipe')->ignore($id)],
-            'nama_kemasan' => 'required|string|max:255',
+            'tipe' => ['required', 'string', 'max:255'],
+            'nama_kemasan' => ['required', 'string', 'max:255', Rule::unique('packagings', 'nama_kemasan')->ignore($id)],
             'kapasitas_gram' => 'required|integer|min:0',
             'harga_satuan' => 'required|integer|min:0',
             'stok_pcs' => 'nullable|integer|min:0',

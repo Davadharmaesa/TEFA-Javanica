@@ -52,7 +52,7 @@ class PesananKeluarController extends Controller
         try {
             \Illuminate\Support\Facades\DB::beginTransaction();
 
-            // FIFO deduction from RoastingBatch
+            // 1. FIFO deduction from RoastingBatch
             $batches = \App\Models\RoastingBatch::where('roasted_bean_id', $roastedBean->id)
                 ->where('status_batch', 'completed')
                 ->where('berat_matang_bersih', '>', 0)
@@ -60,22 +60,45 @@ class PesananKeluarController extends Controller
                 ->orderBy('id', 'asc')
                 ->get();
 
-            $remainingToDeduct = $requestedGram;
+            $remainingToDeductBatches = $requestedGram;
 
             foreach ($batches as $batch) {
-                if ($remainingToDeduct <= 0) break;
+                if ($remainingToDeductBatches <= 0) break;
 
                 $batchStokGram = $batch->berat_matang_bersih * 1000;
 
-                if ($batchStokGram >= $remainingToDeduct) {
-                    $newBatchStokGram = $batchStokGram - $remainingToDeduct;
+                if ($batchStokGram >= $remainingToDeductBatches) {
+                    $newBatchStokGram = $batchStokGram - $remainingToDeductBatches;
                     $batch->berat_matang_bersih = $newBatchStokGram / 1000;
                     $batch->save();
-                    $remainingToDeduct = 0;
+                    $remainingToDeductBatches = 0;
                 } else {
-                    $remainingToDeduct -= $batchStokGram;
+                    $remainingToDeductBatches -= $batchStokGram;
                     $batch->berat_matang_bersih = 0;
                     $batch->save();
+                }
+            }
+
+            // 2. FIFO deduction from RoastedBeanStock
+            $stocks = \App\Models\RoastedBeanStock::where('roasted_bean_id', $roastedBean->id)
+                ->where('stok_gram', '>', 0)
+                ->orderBy('tanggal_roasting', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            $remainingToDeductStocks = $requestedGram;
+
+            foreach ($stocks as $stock) {
+                if ($remainingToDeductStocks <= 0) break;
+
+                if ($stock->stok_gram >= $remainingToDeductStocks) {
+                    $stock->stok_gram -= $remainingToDeductStocks;
+                    $stock->save();
+                    $remainingToDeductStocks = 0;
+                } else {
+                    $remainingToDeductStocks -= $stock->stok_gram;
+                    $stock->stok_gram = 0;
+                    $stock->save();
                 }
             }
 
@@ -84,7 +107,7 @@ class PesananKeluarController extends Controller
             $roastedBean->save();
 
             // Prepare payment values
-            $total = $validated['harga_jual_pesanan'];
+            $total = $validated['harga_jual_pesanan'] * $validated['jumlah_gram_pesanan'];
             $metode = $validated['metode_pembayaran'] ?? ($validated['status_pembayaran'] ?? 'lunas');
             $nominalDp = $validated['nominal_dp'] ?? null;
             $sisa = null;
@@ -118,7 +141,7 @@ class PesananKeluarController extends Controller
 
             return response()->json([
                 'message' => 'Transaksi penjualan berhasil dicatat dengan pemotongan stok FIFO.',
-                'pesanan' => $pesanan
+                'data' => $pesanan
             ], 201);
 
         } catch (\Exception $e) {

@@ -94,9 +94,30 @@ class DatabaseSeeder extends Seeder
         // --- KEMASAN / PACKAGING (Seeder) ---
         \App\Models\Packaging::create([
             'tipe' => 'Pouch Alumunium',
+            'nama_kemasan' => 'Pouch Standard 100g',
+            'kapasitas_gram' => 100,
+            'harga_satuan' => 1000,
+            'stok_pcs' => 100,
+        ]);
+        \App\Models\Packaging::create([
+            'tipe' => 'Pouch Alumunium',
             'nama_kemasan' => 'Pouch Hitam Doff 200g',
             'kapasitas_gram' => 200,
             'harga_satuan' => 1500,
+            'stok_pcs' => 100,
+        ]);
+        \App\Models\Packaging::create([
+            'tipe' => 'Pouch Alumunium',
+            'nama_kemasan' => 'Pouch Standard 500g',
+            'kapasitas_gram' => 500,
+            'harga_satuan' => 2500,
+            'stok_pcs' => 100,
+        ]);
+        \App\Models\Packaging::create([
+            'tipe' => 'Pouch Alumunium',
+            'nama_kemasan' => 'Pouch Standard 1kg',
+            'kapasitas_gram' => 1000,
+            'harga_satuan' => 4000,
             'stok_pcs' => 100,
         ]);
         \App\Models\Packaging::create([

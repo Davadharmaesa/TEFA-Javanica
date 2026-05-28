@@ -123,6 +123,9 @@
                             <input type="number" min="0" x-model="form.waktu_development" @wheel="$event.target.blur()" class="w-full bg-white border border-border/60 rounded-lg px-3 py-2 text-sm font-black font-mono text-center text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="45" required />
                         </div>
                     </div>
+                    <p class="text-xs text-red-500 font-bold text-center mt-2 animate-bounce" x-show="form.waktu_development > 240">
+                        ⚠️ Peringatan: Waktu development melebihi batas aman (maks. 240 detik). Biji kopi berisiko hangus!
+                    </p>
                 </div>
 
                 <!-- Custom Selectors (Radio Cards) -->
@@ -561,6 +564,10 @@
                     if (val < 30) this.form.profil_sangrai = 'Light Roast';
                     else if (val >= 30 && val < 120) this.form.profil_sangrai = 'Medium Roast';
                     else if (val >= 120) this.form.profil_sangrai = 'Dark Roast';
+
+                    if (val > 240) {
+                        this.showToast("Waktu development melebihi batas profil aman (maks. 240 detik)!", "warning");
+                    }
                 });
 
                 // Validasi Input Cepat
