@@ -123,9 +123,24 @@
                             <input type="number" min="0" x-model="form.waktu_development" @wheel="$event.target.blur()" class="w-full bg-white border border-border/60 rounded-lg px-3 py-2 text-sm font-black font-mono text-center text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="45" required />
                         </div>
                     </div>
-                    <p class="text-xs text-red-500 font-bold text-center mt-2 animate-bounce" x-show="form.waktu_development > 240">
-                        ⚠️ Peringatan: Waktu development melebihi batas aman (maks. 240 detik). Biji kopi berisiko hangus!
-                    </p>
+
+                    <!-- Warning Batas Maksimum Development -->
+                    <div x-show="form.waktu_development && parseInt(form.waktu_development) > 240" 
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 transform -translate-y-2"
+                         x-transition:enter-end="opacity-100 transform translate-y-0"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100 transform translate-y-0"
+                         x-transition:leave-end="opacity-0 transform -translate-y-2"
+                         class="mt-3 p-3 bg-[#D97706]/10 border border-[#D97706]/30 rounded-xl text-[#D97706] text-xs font-bold space-y-1 shadow-sm">
+                        <div class="flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-[#D97706]"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            <span class="uppercase tracking-wider">Peringatan: Batas Maksimum Development Terlampaui!</span>
+                        </div>
+                        <p class="font-normal text-[10px] opacity-90 leading-relaxed">
+                            Waktu development saat ini (<span class="font-black font-mono" x-text="form.waktu_development + ' detik'"></span>) telah melebihi batas aman profil sangrai (<span class="font-semibold">240 detik / 4 menit</span>). 
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Custom Selectors (Radio Cards) -->
@@ -565,8 +580,14 @@
                     else if (val >= 30 && val < 120) this.form.profil_sangrai = 'Medium Roast';
                     else if (val >= 120) this.form.profil_sangrai = 'Dark Roast';
 
+<<<<<<< HEAD
                     if (val > 240) {
                         this.showToast("Waktu development melebihi batas profil aman (maks. 240 detik)!", "warning");
+=======
+                    // Warning Batas Maksimum Development (Pendekatan 1)
+                    if (val > 240) {
+                        this.showToast("Peringatan: Waktu development melebihi batas profil aman", "warning");
+>>>>>>> 120068b44c375a419f496ff329d8c342bbf72c9a
                     }
                 });
 
