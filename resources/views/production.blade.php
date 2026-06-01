@@ -580,14 +580,9 @@
                     else if (val >= 30 && val < 120) this.form.profil_sangrai = 'Medium Roast';
                     else if (val >= 120) this.form.profil_sangrai = 'Dark Roast';
 
-<<<<<<< HEAD
-                    if (val > 240) {
-                        this.showToast("Waktu development melebihi batas profil aman (maks. 240 detik)!", "warning");
-=======
                     // Warning Batas Maksimum Development (Pendekatan 1)
                     if (val > 240) {
                         this.showToast("Peringatan: Waktu development melebihi batas profil aman", "warning");
->>>>>>> 120068b44c375a419f496ff329d8c342bbf72c9a
                     }
                 });
 

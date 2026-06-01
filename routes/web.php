@@ -86,6 +86,15 @@ Route::middleware(['auth'])->group(function () {
             })->name('index');
         });
 
+        // Kelola User
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\UserController::class, 'index'])->name('index');
+            Route::post('/', [\App\Http\Controllers\UserController::class, 'store'])->name('store');
+            Route::put('/{id}', [\App\Http\Controllers\UserController::class, 'update'])->name('update');
+            Route::delete('/{id}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('destroy');
+        });
+
+
         // Route production sudah dipindah ke shared area di atas
 
             // ------------------------------------------
