@@ -112,13 +112,13 @@ class PesananKeluarTest extends TestCase
         $response = $this->actingAs($user)->postJson('/api/v1/pesanan-keluar', [
             'roasted_bean_id' => $roastedBean->id,
             'jumlah_gram_pesanan' => 1500,
-            'harga_jual_pesanan' => 150000, // Rp 150.000 total price to match controller total
+            'harga_jual_pesanan' => 100, // Rp 100 per gram * 1500 grams = Rp 150.000 total price
             'nama_pesanan' => 'Meja 5',
         ]);
 
         $response->assertStatus(201)
-            ->assertJsonPath('pesanan.total_pembayaran', 150000)
-            ->assertJsonPath('pesanan.status_pembayaran', 'lunas');
+            ->assertJsonPath('data.total_pembayaran', 150000)
+            ->assertJsonPath('data.status_pembayaran', 'lunas');
 
         // Check stock reductions
         $this->assertEquals(0, $stockA->refresh()->stok_gram, 'Oldest stock should be fully depleted');

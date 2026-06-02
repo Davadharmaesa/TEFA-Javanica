@@ -107,10 +107,16 @@ class InventoryController extends Controller
         }
 
         try {
-            $tanggalBeli = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['tanggal_beli'])->toDateString();
+            $tanggalBeliCarbon = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['tanggal_beli'])->startOfDay();
         } catch (\Exception $e) {
-            $tanggalBeli = \Carbon\Carbon::parse($validated['tanggal_beli'])->toDateString();
+            $tanggalBeliCarbon = \Carbon\Carbon::parse($validated['tanggal_beli'])->startOfDay();
         }
+
+        if ($tanggalBeliCarbon->gt(\Carbon\Carbon::today())) {
+            return redirect()->back()->withInput()->with('error', 'Tanggal barang masuk tidak boleh melebihi hari ini!');
+        }
+
+        $tanggalBeli = $tanggalBeliCarbon->toDateString();
 
         \App\Models\GreenBeanStock::create([
             'green_bean_id' => $validated['green_bean_id'],
@@ -130,10 +136,16 @@ class InventoryController extends Controller
         ]);
 
         try {
-            $tanggalBeli = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['tanggal_beli'])->toDateString();
+            $tanggalBeliCarbon = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['tanggal_beli'])->startOfDay();
         } catch (\Exception $e) {
-            $tanggalBeli = \Carbon\Carbon::parse($validated['tanggal_beli'])->toDateString();
+            $tanggalBeliCarbon = \Carbon\Carbon::parse($validated['tanggal_beli'])->startOfDay();
         }
+
+        if ($tanggalBeliCarbon->gt(\Carbon\Carbon::today())) {
+            return redirect()->back()->withInput()->with('error', 'Tanggal pembelian asli tidak boleh melebihi hari ini!');
+        }
+
+        $tanggalBeli = $tanggalBeliCarbon->toDateString();
         
         $stock = \App\Models\GreenBeanStock::findOrFail($id);
         $stock->update([

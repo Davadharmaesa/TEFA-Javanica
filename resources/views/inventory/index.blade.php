@@ -5,6 +5,34 @@
 @section('content')
 <div x-data="gudangData()" class="space-y-6">
 
+    @if(session('success'))
+        <div class="p-4 bg-secondary/10 border border-secondary/20 text-secondary rounded-xl font-bold flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl font-bold flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{{ session('error') }}</span>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl font-bold">
+            <div class="flex items-center gap-2 mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>Terjadi kesalahan pengisian data:</span>
+            </div>
+            <ul class="list-disc list-inside text-sm font-medium pl-6 space-y-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-2xl shadow-sm border border-border/40">
         <div>
@@ -302,7 +330,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
-            <form :action="getFormAction()" method="POST">
+            <form :action="getFormAction()" method="POST" @submit="validateDate($event)">
                 @csrf
                 <template x-if="isEditMode"><input type="hidden" name="_method" value="PUT"></template>
                 <div class="space-y-4">
@@ -336,7 +364,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1" x-text="isEditMode ? 'Tanggal Pembelian Asli' : 'Tanggal Barang Masuk'"></label>
-                            <input type="text" name="tanggal_beli" x-model="formData.tanggal_beli" x-ref="datePicker" x-init="flatpickr($refs.datePicker, { dateFormat: 'd/m/Y', allowInput: true })" placeholder="dd/mm/yyyy" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                            <input type="text" name="tanggal_beli" x-model="formData.tanggal_beli" x-ref="datePicker" x-init="flatpickr($refs.datePicker, { dateFormat: 'd/m/Y', allowInput: true, maxDate: 'today' })" placeholder="dd/mm/yyyy" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                         </div>
                         <template x-if="!isEditMode">
                             <div class="md:col-span-2 space-y-2 mt-2">
@@ -636,6 +664,28 @@
                 } finally {
                     this.isPackLoading = false;
                 }
+            },
+
+            validateDate(event) {
+                if (this.activeTab === 'greenbean' && this.formData.tanggal_beli) {
+                    const parts = this.formData.tanggal_beli.split('/');
+                    if (parts.length === 3) {
+                        const day = parseInt(parts[0], 10);
+                        const month = parseInt(parts[1], 10) - 1;
+                        const year = parseInt(parts[2], 10);
+                        
+                        const inputDate = new Date(year, month, day);
+                        const today = new Date();
+                        today.setHours(23, 59, 59, 999);
+                        
+                        if (inputDate > today) {
+                            event.preventDefault();
+                            this.showToast('Tanggal tidak boleh melebihi hari ini!', 'error');
+                            return false;
+                        }
+                    }
+                }
+                return true;
             },
 
             getFormAction() {
