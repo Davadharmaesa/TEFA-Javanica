@@ -25,16 +25,16 @@
 
     <!-- Alert Notifications -->
     @if(session('success'))
-        <div class="p-4 bg-green-500/10 border border-green-500/20 text-green-600 rounded-xl font-bold flex items-center gap-2 shadow-sm animate-fade-in">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            {{ session('success') }}
+        <div class="p-4 bg-secondary/10 border border-secondary/20 text-secondary rounded-xl font-bold flex items-center gap-2 shadow-sm animate-fade-in">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>{{ session('success') }}</span>
         </div>
     @endif
 
     @if(session('error'))
         <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl font-bold flex items-center gap-2 shadow-sm animate-fade-in">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            {{ session('error') }}
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{{ session('error') }}</span>
         </div>
     @endif
 
@@ -122,36 +122,36 @@
                         <tr class="hover:bg-muted/10 transition-colors group">
                             <td class="p-4 pl-6">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0 uppercase">
+                                    <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0 uppercase border border-primary/20">
                                         {{ substr($user->name, 0, 2) }}
                                     </div>
                                     <div>
                                         <p class="font-bold text-foreground group-hover:text-primary transition-colors">{{ $user->name }}</p>
                                         @if(auth()->id() === $user->id)
-                                            <span class="inline-flex text-[9px] font-black uppercase bg-secondary/20 text-secondary px-1.5 py-0.5 rounded leading-none">Sedang Aktif</span>
+                                            <span class="inline-flex text-[9px] font-black uppercase tracking-widest bg-secondary/20 text-secondary px-1.5 py-0.5 rounded leading-none mt-1">Sedang Aktif</span>
                                         @endif
                                     </div>
                                 </div>
                             </td>
                             <td class="p-4">
-                                <span class="text-sm font-mono text-muted-foreground">{{ $user->email }}</span>
+                                <span class="text-sm font-mono font-medium text-muted-foreground">{{ $user->email }}</span>
                             </td>
                             <td class="p-4 text-center">
                                 @if($user->role === 'PIC')
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-600 border border-red-500/20">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-500/10 text-red-600 border border-red-500/20 shadow-sm">
                                         <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> PIC
                                     </span>
                                 @elseif($user->role === 'Operator')
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-secondary/10 text-secondary border border-secondary/20">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Operator
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-secondary/10 text-secondary border border-secondary/20 shadow-sm">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> OPERATOR
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-accent/10 text-accent border border-accent/20">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-accent"></span> {{ $user->role }}
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-accent/10 text-accent border border-accent/20 shadow-sm">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-accent"></span> MAGANG
                                     </span>
                                 @endif
                             </td>
-                            <td class="p-4 text-sm font-mono text-muted-foreground">
+                            <td class="p-4 text-sm font-mono font-medium text-muted-foreground">
                                 {{ $user->created_at->format('d M Y - H:i') }}
                             </td>
                             <td class="p-4 text-center pr-6">
@@ -192,10 +192,13 @@
     <div x-show="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
         <div @click.away="isModalOpen = false" class="bg-card w-full max-w-lg rounded-2xl shadow-xl border border-border/40 p-6 relative overflow-hidden">
             <!-- Modal Header -->
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-heading font-bold text-primary flex items-center gap-2" x-text="isEditMode ? 'Edit Pengguna' : 'Tambah Pengguna Baru'"></h2>
-                <button @click="isModalOpen = false" class="text-muted-foreground hover:text-foreground transition-colors p-1 hover:bg-muted rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <div class="flex justify-between items-center mb-6 border-b border-border/50 pb-4">
+                <h2 class="text-xl font-heading font-bold text-primary flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
+                    <span x-text="isEditMode ? 'Edit Pengguna' : 'Tambah Pengguna Baru'"></span>
+                </h2>
+                <button @click="isModalOpen = false" class="text-muted-foreground hover:text-foreground transition-colors p-1.5 hover:bg-muted/50 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
 
@@ -208,38 +211,38 @@
 
                 <!-- Input Name -->
                 <div>
-                    <label class="block text-sm font-bold text-foreground mb-1">Nama Lengkap</label>
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Nama Lengkap</label>
                     <input 
                         type="text" 
                         name="name" 
                         x-model="formData.name" 
                         required 
                         placeholder="Contoh: Nain Habib" 
-                        class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all"
+                        class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all"
                     >
                 </div>
 
                 <!-- Input Email -->
                 <div>
-                    <label class="block text-sm font-bold text-foreground mb-1">Alamat Email</label>
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Alamat Email</label>
                     <input 
                         type="email" 
                         name="email" 
                         x-model="formData.email" 
                         required 
-                        placeholder="Contoh: nian@mahasiswa.com" 
-                        class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all font-mono"
+                        placeholder="Contoh: user@javanica.com" 
+                        class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all font-mono"
                     >
                 </div>
 
                 <!-- Dropdown Role -->
                 <div>
-                    <label class="block text-sm font-bold text-foreground mb-1">Pilih Role / Hak Akses</label>
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Pilih Role / Hak Akses</label>
                     <select 
                         name="role" 
                         x-model="formData.role" 
                         required 
-                        class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all"
+                        class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all cursor-pointer"
                     >
                         <option value="" disabled selected>Pilih hak akses...</option>
                         <option value="PIC">PIC (Administrator Utama)</option>
@@ -250,13 +253,13 @@
 
                 <!-- Input Password -->
                 <div>
-                    <label class="block text-sm font-bold text-foreground mb-1">Kata Sandi (Password)</label>
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Kata Sandi (Password)</label>
                     <input 
                         type="password" 
                         name="password" 
                         :required="!isEditMode" 
                         placeholder="Minimal 6 karakter" 
-                        class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all font-mono"
+                        class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all font-mono"
                     >
                     <p class="text-[10px] text-muted-foreground mt-1.5 italic" x-show="isEditMode">
                         *Kosongkan kolom sandi jika tidak ingin memperbarui password saat ini.
@@ -265,8 +268,10 @@
 
                 <!-- Form Action Buttons -->
                 <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-border/30">
-                    <button type="button" @click="isModalOpen = false" class="px-5 py-2.5 rounded-xl font-bold text-muted-foreground hover:bg-muted/50 transition-colors">Batal</button>
-                    <button type="submit" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold hover:bg-primary/90 shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-2">
+                    <button type="button" @click="isModalOpen = false" class="px-5 py-2.5 rounded-xl text-sm font-bold text-muted-foreground hover:bg-muted/50 transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-bold hover:bg-primary/90 shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                         Simpan Pengguna
                     </button>
