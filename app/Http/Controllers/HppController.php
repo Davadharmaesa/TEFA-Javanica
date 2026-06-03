@@ -66,7 +66,8 @@ class HppController extends Controller
 
         // Durasi Total Kerja Mesin = Masa Pre-heating + Menit First Crack + Detik Dev Tahan / 60
         $durasiTotalKerja = $batch->durasi_pre_heating + $batch->waktu_first_crack + ($batch->waktu_development / 60);
-        $biayaListrikBatch = $durasiTotalKerja * $biayaListrikTarif;
+        // Hitung secara dinamis berdasarkan durasi (jam): tarif * (menit / 60)
+        $biayaListrikBatch = ($durasiTotalKerja / 60) * $biayaListrikTarif;
         
         $pouch = $pouch_id ? Packaging::find($pouch_id) : null;
         $sticker = $sticker_id ? Packaging::find($sticker_id) : null;
@@ -76,6 +77,13 @@ class HppController extends Controller
         $sticker_hpp = $sticker ? $sticker->harga_satuan : 0;
 
         $totalRoastedGram = $batch->berat_matang_bersih * 1000; // in grams
+        
+        // Hitung batas maksimum pcs hasil kemasan secara fisik & stok
+        $maxPcsByCoffee = $pouch_capacity_gram > 0 ? floor($totalRoastedGram / $pouch_capacity_gram) : 0;
+        $maxPcsByPouch = $pouch ? $pouch->stok_pcs : 999999;
+        $maxPcsBySticker = $sticker ? $sticker->stok_pcs : 999999;
+        $maxOutputPcs = min($maxPcsByCoffee, $maxPcsByPouch, $maxPcsBySticker);
+
         $share = 1.0;
         if ($totalRoastedGram > 0 && $pouch_capacity_gram > 0) {
             $share = min(1.0, ($hasil_kemasan_pcs * $pouch_capacity_gram) / $totalRoastedGram);
@@ -118,8 +126,9 @@ class HppController extends Controller
             'biaya_tenaga_kerja_batch' => $biayaTenagaKerjaBatch,
             'is_fallback_gaji' => $is_fallback_gaji,
             'pekerja_list' => $pekerjaList,
-            'biaya_overhead_lainnya_batch' => $biayaOverheadLainnyaTarif,
-            'overhead_list' => $overheadList
+            'biaya_overhead_custom_batch' => $biayaOverheadLainnyaTarif,
+            'overhead_list' => $overheadList,
+            'max_output_pcs' => $maxOutputPcs
         ]);
     }
 

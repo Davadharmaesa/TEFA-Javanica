@@ -13,7 +13,10 @@ class Packaging extends Model
         'tipe',
         'nama_kemasan',
         'kapasitas_gram',
+        'satuan',
         'harga_satuan',
+        'harga_total_pembelian',
+        'jumlah_qty_pembelian',
         'stok_pcs',
     ];
 }

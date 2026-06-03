@@ -20,6 +20,7 @@ class MasterDataApiControllerTest extends TestCase
             'custom_tipe' => 'Kantong Kertas',
             'nama_kemasan' => 'Kantong Kertas 250g',
             'kapasitas_gram' => 250,
+            'satuan' => 'pcs',
             'harga_satuan' => 1200,
         ]);
 
@@ -31,6 +32,7 @@ class MasterDataApiControllerTest extends TestCase
             'tipe' => 'Kantong Kertas',
             'nama_kemasan' => 'Kantong Kertas 250g',
             'kapasitas_gram' => 250,
+            'satuan' => 'pcs',
             'harga_satuan' => 1200,
         ]);
     }
@@ -51,6 +53,7 @@ class MasterDataApiControllerTest extends TestCase
             'tipe' => 'Pouch Alumunium',
             'nama_kemasan' => 'Pouch Alumunium 200g',
             'kapasitas_gram' => 500,
+            'satuan' => 'pcs',
             'harga_satuan' => 750,
         ]);
 

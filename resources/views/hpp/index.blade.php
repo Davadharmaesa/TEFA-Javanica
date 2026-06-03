@@ -68,7 +68,7 @@
                         <select x-model="form.selectedPouch" @change="onPouchChange($event)" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                             <option value="">-- Pilih Pouch --</option>
                             @foreach($packagings->filter(fn($p) => $p->kapasitas_gram > 0) as $pack)
-                                <option value="{{ $pack->id }}" data-hpp="{{ $pack->harga_satuan }}" data-capacity="{{ $pack->kapasitas_gram }}">{{ $pack->nama_kemasan }} (Rp{{ number_format($pack->harga_satuan, 0, ',', '.') }}/pcs)</option>
+                                <option value="{{ $pack->id }}" data-hpp="{{ $pack->harga_satuan }}" data-capacity="{{ $pack->kapasitas_gram }}" data-stock="{{ $pack->stok_pcs }}">{{ $pack->nama_kemasan }} (Rp{{ number_format($pack->harga_satuan, 0, ',', '.') }}/pcs)</option>
                             @endforeach
                         </select>
                     </div>
@@ -78,7 +78,7 @@
                         <select x-model="form.selectedSticker" @change="onStickerChange($event)" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
                             <option value="">-- Tanpa Stiker --</option>
                             @foreach($packagings->filter(fn($p) => $p->kapasitas_gram == 0 || $p->tipe === 'Stiker') as $pack)
-                                <option value="{{ $pack->id }}" data-hpp="{{ $pack->harga_satuan }}">{{ $pack->nama_kemasan }} (Rp{{ number_format($pack->harga_satuan, 0, ',', '.') }}/pcs)</option>
+                                <option value="{{ $pack->id }}" data-hpp="{{ $pack->harga_satuan }}" data-stock="{{ $pack->stok_pcs }}">{{ $pack->nama_kemasan }} (Rp{{ number_format($pack->harga_satuan, 0, ',', '.') }}/pcs)</option>
                             @endforeach
                         </select>
                     </div>
@@ -94,10 +94,10 @@
                                class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                                placeholder="Contoh: 25">
                         <p class="text-[10px] text-muted-foreground mt-1" x-show="form.selectedBatch && form.selectedPouch && getMaxPcs() > 0">
-                            Maksimum output dari batch ini: <span class="font-bold text-secondary" x-text="getMaxPcs().toFixed(2) + ' Pcs'"></span>
+                            Maksimum output dari batch & stok kemasan: <span class="font-bold text-secondary" x-text="getMaxPcs() + ' Pcs'"></span>
                         </p>
                         <p class="text-[10px] text-red-500 font-bold mt-1" x-show="form.selectedBatch && form.selectedPouch && getMaxPcs() > 0 && parseFloat(form.hasil_kemasan_pcs) > getMaxPcs()">
-                            Peringatan: Output melebihi kapasitas batch kopi!
+                            Peringatan: Output melebihi kapasitas batch kopi atau stok bahan kemasan (Anti-Gravity Guard)!
                         </p>
                     </div>
                 </div>
@@ -257,7 +257,9 @@
                 selectedSticker: '',
                 pouch_hpp: 0,
                 pouch_capacity_gram: 0,
+                pouch_stock: 999999,
                 sticker_hpp: 0,
+                sticker_stock: 999999,
                 hasil_kemasan_pcs: ''
             },
             preview: {
@@ -270,7 +272,8 @@
                 hpp_per_pcs: 0,
                 pekerja_list: [],
                 biaya_tenaga_kerja_batch: 0,
-                is_fallback_gaji: false
+                is_fallback_gaji: false,
+                max_output_pcs: 999999
             },
 
             formatRupiah(number) {
@@ -282,7 +285,12 @@
                 try {
                     const batchObj = JSON.parse(this.form.selectedBatch);
                     const totalRoastedGram = batchObj.berat_matang_bersih * 1000;
-                    return totalRoastedGram / this.form.pouch_capacity_gram;
+                    
+                    const maxPcsByCoffee = Math.floor(totalRoastedGram / this.form.pouch_capacity_gram);
+                    const maxPcsByPouch = this.form.pouch_stock !== undefined ? this.form.pouch_stock : 999999;
+                    const maxPcsBySticker = this.form.sticker_stock !== undefined ? this.form.sticker_stock : 999999;
+                    
+                    return Math.min(maxPcsByCoffee, maxPcsByPouch, maxPcsBySticker);
                 } catch (e) {
                     return 0;
                 }
@@ -290,10 +298,12 @@
 
             get canSubmit() {
                 const max = this.getMaxPcs();
+                const inputVal = parseFloat(this.form.hasil_kemasan_pcs) || 0;
                 return this.form.selectedBatch !== '' && 
                        this.form.selectedPouch !== '' &&
-                       this.form.hasil_kemasan_pcs > 0 && 
-                       (max === 0 || parseFloat(this.form.hasil_kemasan_pcs) <= max) &&
+                       inputVal > 0 && 
+                       (max === 0 || inputVal <= max) &&
+                       (this.preview.max_output_pcs === undefined || inputVal <= this.preview.max_output_pcs) &&
                        this.preview.total_hpp > 0 &&
                        !this.loading;
             },
@@ -304,9 +314,11 @@
                 if (selectedOpt && selectedOpt.value !== "") {
                     this.form.pouch_hpp = parseFloat(selectedOpt.getAttribute('data-hpp') || 0);
                     this.form.pouch_capacity_gram = parseFloat(selectedOpt.getAttribute('data-capacity') || 0);
+                    this.form.pouch_stock = parseFloat(selectedOpt.getAttribute('data-stock') || 0);
                 } else {
                     this.form.pouch_hpp = 0;
                     this.form.pouch_capacity_gram = 0;
+                    this.form.pouch_stock = 999999;
                 }
                 this.fetchPreview();
             },
@@ -316,15 +328,17 @@
                 const selectedOpt = selectEl.options[selectEl.selectedIndex];
                 if (selectedOpt && selectedOpt.value !== "") {
                     this.form.sticker_hpp = parseFloat(selectedOpt.getAttribute('data-hpp') || 0);
+                    this.form.sticker_stock = parseFloat(selectedOpt.getAttribute('data-stock') || 0);
                 } else {
                     this.form.sticker_hpp = 0;
+                    this.form.sticker_stock = 999999;
                 }
                 this.fetchPreview();
             },
 
             async fetchPreview() {
                 if (!this.form.selectedBatch || !this.form.selectedPouch || !this.form.hasil_kemasan_pcs) {
-                    this.preview = { biaya_bahan_baku: 0, biaya_listrik: 0, biaya_penyusutan: 0, biaya_gaji: 0, biaya_kemasan: 0, total_hpp: 0, hpp_per_pcs: 0, pekerja_list: [], biaya_tenaga_kerja_batch: 0, is_fallback_gaji: false };
+                    this.preview = { biaya_bahan_baku: 0, biaya_listrik: 0, biaya_penyusutan: 0, biaya_gaji: 0, biaya_kemasan: 0, total_hpp: 0, hpp_per_pcs: 0, pekerja_list: [], biaya_tenaga_kerja_batch: 0, is_fallback_gaji: false, max_output_pcs: 999999 };
                     return;
                 }
 

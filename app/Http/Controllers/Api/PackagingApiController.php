@@ -43,24 +43,31 @@ class PackagingApiController extends Controller
                 return response()->json(['message' => 'Kemasan utama (Pouch) harus memiliki kapasitas gram yang valid.'], 400);
             }
 
+            // Validasi berat kopi yang digunakan minimal 1 kemasan
+            if ($stokDigunakan < $ukuranKemasan) {
+                return response()->json(['message' => 'Berat kopi yang digunakan tidak mencukupi untuk membuat minimal 1 kemasan.'], 400);
+            }
+
             // Validasi apakah stok roasted bean cukup
             if ($roastedBean->total_stok < $stokDigunakan) {
                 return response()->json(['message' => 'Stok Roasted Bean tidak mencukupi.'], 400);
             }
 
-            // 1. Hitung output maksimum berdasarkan kopi
-            $maxPcsByCoffee = floor($stokDigunakan / $ukuranKemasan);
+            // Hitung kebutuhan kemasan pcs berdasarkan berat kopi yang digunakan
+            $requiredPcs = floor($stokDigunakan / $ukuranKemasan);
 
-            // 2. Terapkan limitasi stok material di database secara ril
-            $maxPcsByPouch = $pouch->stok_pcs;
-            $maxPcsBySticker = $sticker ? $sticker->stok_pcs : $maxPcsByCoffee;
-
-            // Output pcs yang dapat dikemas adalah nilai minimum dari ketiganya
-            $hasilKemasanPcs = min($maxPcsByCoffee, $maxPcsByPouch, $maxPcsBySticker);
-
-            if ($hasilKemasanPcs <= 0) {
-                return response()->json(['message' => 'Stok kemasan kosong (pouch/stiker) tidak mencukupi untuk membuat setidaknya 1 produk kemasan.'], 400);
+            // Validasi ketersediaan stok material pouch secara ril
+            if ($pouch->stok_pcs < $requiredPcs) {
+                return response()->json(['message' => "Stok kemasan kosong (Pouch) tidak mencukupi untuk jumlah kopi yang dikemas. Dibutuhkan minimal {$requiredPcs} pcs kemasan (Tersedia: {$pouch->stok_pcs} pcs)."], 400);
             }
+
+            // Validasi ketersediaan stok material stiker secara ril
+            if ($sticker && $sticker->stok_pcs < $requiredPcs) {
+                return response()->json(['message' => "Stok stiker tidak mencukupi untuk jumlah kopi yang dikemas. Dibutuhkan minimal {$requiredPcs} pcs stiker (Tersedia: {$sticker->stok_pcs} pcs)."], 400);
+            }
+
+            // Output pcs yang dikemas wajib sama dengan kebutuhan riil
+            $hasilKemasanPcs = $requiredPcs;
 
             // 3. Update Stok Roasted Bean
             // Kurangi stok utama hanya sebesar yang sukses dikemas ke dalam pouch (tidak termasuk sisa residu)

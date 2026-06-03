@@ -96,6 +96,8 @@ class RoastingApiController extends Controller
                 ->orderBy('id', 'asc')
                 ->get();
 
+
+
             $biayaBahanBaku = 0;
             $remainingToDeduct = $beratMentahGram;
             foreach ($stocks as $stock) {
@@ -135,6 +137,14 @@ class RoastingApiController extends Controller
             // 6. Hitung Akumulasi Biaya Mesin (Opsional jika ingin dilacak terpisah, namun biaya_bahan_baku hanya diisi harga biji kopi mentah)
             $durasiRoasting = $validated['waktu_first_crack'] + ($validated['waktu_development'] / 60);
             $durasiTotalKerja = $durasiRoasting + $validated['durasi_pre_heating'];
+
+            // Ambil tarif mesin per jam dari database (Listrik Mesin), default Rp 1.500 jika tidak ditemukan
+            $biayaMesinRecord = \App\Models\Biaya::where('nama', 'Listrik Mesin')
+                ->orWhere('nama', 'like', '%mesin%')
+                ->first();
+            $tarifMesinPerJam = $biayaMesinRecord ? $biayaMesinRecord->harga : 1500;
+            // Hitung secara dinamis berdasarkan durasi (jam): tarif * (menit / 60)
+            $biayaMesinTotal = ($durasiTotalKerja / 60) * $tarifMesinPerJam;
 
             // 7. Simpan Log Roasting (Audit Trail)
             $batch = RoastingBatch::create([

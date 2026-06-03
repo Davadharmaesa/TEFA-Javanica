@@ -173,4 +173,95 @@ class PesananKeluarTest extends TestCase
         $response->assertStatus(400)
             ->assertJsonPath('message', 'Stok Roasted Bean di gudang tidak mencukupi (Tersedia: 0.5 kg).');
     }
+
+    /**
+     * Test that a pre-order sale allows negative stock (backorder).
+     */
+    public function test_pre_order_sales_allows_negative_stock(): void
+    {
+        $user = User::factory()->create(['role' => 'PIC']);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Arabica Gayo',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 500,
+            'satuan_dasar' => 'gram',
+            'tanggal_roasting' => '2026-05-25',
+            'tanggal_expire' => '2026-06-25',
+            'sisa_stok' => 0,
+        ]);
+
+        $stock = RoastedBeanStock::create([
+            'roasted_bean_id' => $roastedBean->id,
+            'stok_gram' => 500,
+            'harga_roasting' => 50000,
+            'tanggal_roasting' => '2026-05-20',
+        ]);
+
+        // Pre-order 1200 grams when only 500 is available
+        $response = $this->actingAs($user)->post('/sales/store', [
+            'customer_name' => 'Budi Pre-Order',
+            'roasted_bean_id' => $roastedBean->id,
+            'jumlah_gram_pesanan' => 1200,
+            'harga_jual_pesanan' => 200000,
+            'status_pengiriman' => 'Menunggu Konfirmasi',
+            'metode_pembayaran' => 'lunas',
+        ]);
+
+        $response->assertRedirect('/sales');
+
+        // Check that the stock is negative in roasted_bean
+        $this->assertEquals(-700, $roastedBean->refresh()->total_stok);
+
+        // Check that RoastedBeanStock is depleted to 0
+        $this->assertEquals(0, $stock->refresh()->stok_gram);
+
+        // Check pesanan_keluar record
+        $this->assertDatabaseHas('pesanan_keluar', [
+            'nama_pesanan' => 'Budi Pre-Order',
+            'jumlah_gram_pesanan' => 1200,
+            'status_pembayaran' => 'lunas',
+        ]);
+    }
+
+    /**
+     * Test that pre-order sale auto-detects DP status correctly.
+     */
+    public function test_pre_order_sales_auto_detects_payment_status(): void
+    {
+        $user = User::factory()->create(['role' => 'PIC']);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Arabica Gayo',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 1000,
+            'satuan_dasar' => 'gram',
+            'tanggal_roasting' => '2026-05-25',
+            'tanggal_expire' => '2026-06-25',
+            'sisa_stok' => 0,
+        ]);
+
+        // Pre-order with DP
+        $response = $this->actingAs($user)->post('/sales/store', [
+            'customer_name' => 'Customer DP',
+            'roasted_bean_id' => $roastedBean->id,
+            'jumlah_gram_pesanan' => 500,
+            'harga_jual_pesanan' => 100000,
+            'status_pengiriman' => 'Menunggu Konfirmasi',
+            'metode_pembayaran' => 'dp',
+            'nominal_dp' => 40000,
+            'tanggal_bayar_dp' => '2026-06-03',
+            'batas_waktu_pembayaran' => '2026-06-10',
+        ]);
+
+        $response->assertRedirect('/sales');
+
+        // Check pesanan_keluar record has status_pembayaran = 'dp' and sisa_pembayaran = 60000
+        $this->assertDatabaseHas('pesanan_keluar', [
+            'nama_pesanan' => 'Customer DP',
+            'status_pembayaran' => 'dp',
+            'nominal_dp' => 40000,
+            'sisa_pembayaran' => 60000,
+        ]);
+    }
 }

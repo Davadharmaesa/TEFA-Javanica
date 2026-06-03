@@ -185,8 +185,9 @@
                         <th class="p-4">Tipe</th>
                         <th class="p-4">Nama Item</th>
                         <th class="p-4">Kapasitas (Gram)</th>
+                        <th class="p-4">Satuan</th>
                         <th class="p-4 text-right">Harga Satuan (Rp)</th>
-                        <th class="p-4 text-right">Stok (Pcs)</th>
+                        <th class="p-4 text-right">Stok</th>
                         <th class="p-4 text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -202,11 +203,14 @@
                             <td class="p-4">
                                 <span class="text-sm font-mono text-muted-foreground" x-text="item.tipe === 'Stiker' ? '-' : item.kapasitas_gram + 'g'"></span>
                             </td>
+                            <td class="p-4">
+                                <span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[10px] font-bold rounded-md uppercase tracking-wider" x-text="item.satuan || 'pcs'"></span>
+                            </td>
                             <td class="p-4 text-right font-mono font-bold text-primary">
                                 Rp <span x-text="formatRupiah(item.harga_satuan)"></span>
                             </td>
                             <td class="p-4 text-right font-mono font-bold" :class="item.stok_pcs < 50 ? 'text-red-500' : 'text-primary'">
-                                <span x-text="item.stok_pcs"></span> Pcs
+                                <span x-text="item.stok_pcs"></span> <span x-text="item.satuan || 'pcs'"></span>
                             </td>
                             <td class="p-4 text-center">
                                 <div class="flex justify-center gap-1">
@@ -296,13 +300,23 @@
             </div>
             <!-- Form Packaging -->
             <div x-show="activeTab === 'packaging'" class="space-y-4">
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Tipe</label>
-                    <select x-model="formPackaging.tipe" @change="if (formPackaging.tipe === 'Stiker') { formPackaging.kapasitas_gram = ''; } if (formPackaging.tipe !== 'Lainnya') { formPackaging.custom_tipe = ''; }" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all">
-                        <template x-for="type in packagingTypeOptions" :key="type">
-                            <option :value="type" x-text="type"></option>
-                        </template>
-                    </select>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest">Tipe</label>
+                        <select x-model="formPackaging.tipe" @change="if (formPackaging.tipe === 'Stiker') { formPackaging.kapasitas_gram = ''; } if (formPackaging.tipe !== 'Lainnya') { formPackaging.custom_tipe = ''; }" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all">
+                            <template x-for="type in packagingTypeOptions" :key="type">
+                                <option :value="type" x-text="type"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest">Satuan Baru</label>
+                        <select x-model="formPackaging.satuan" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all">
+                            <option value="pcs">pcs</option>
+                            <option value="gram">gram</option>
+                            <option value="pack">pack</option>
+                        </select>
+                    </div>
                 </div>
                 <div x-show="formPackaging.tipe === 'Lainnya'" class="space-y-2">
                     <label class="text-xs font-bold text-primary uppercase tracking-widest">Nama Tipe Kemasan Baru</label>
@@ -318,13 +332,27 @@
                         <input type="number" min="0" x-model="formPackaging.kapasitas_gram" :disabled="formPackaging.tipe === 'Stiker'" :placeholder="formPackaging.tipe === 'Stiker' ? '-' : 'Contoh: 200'" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all disabled:cursor-not-allowed disabled:text-muted-foreground" />
                     </div>
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-primary uppercase tracking-widest">Harga Satuan (Rp)</label>
-                        <input type="number" min="0" x-model="formPackaging.harga_satuan" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest">Tambah Stok Awal</label>
+                        <input type="number" min="0" x-model.number="formPackaging.stok_pcs" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: 100" />
                     </div>
                 </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-primary uppercase tracking-widest">Tambah Stok Awal (Pcs)</label>
-                    <input type="number" min="0" x-model.number="formPackaging.stok_pcs" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" placeholder="Contoh: 100" />
+                <div class="bg-muted/20 border border-border/40 rounded-xl p-4 space-y-4">
+                    <p class="text-xs font-bold text-primary uppercase tracking-widest">Kalkulator Pembantu Harga Satuan</p>
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div class="space-y-2">
+                            <label class="text-xs text-muted-foreground">Total Harga Pembelian (Rp)</label>
+                            <input type="number" min="0" x-model="formPackaging.harga_total_pembelian" class="w-full bg-background border border-border/60 rounded-xl px-3 py-2 text-sm font-medium text-primary focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Contoh: 6000" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs text-muted-foreground">Jumlah Qty Pembelian</label>
+                            <input type="number" min="1" x-model="formPackaging.jumlah_qty_pembelian" class="w-full bg-background border border-border/60 rounded-xl px-3 py-2 text-sm font-medium text-primary focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Contoh: 15" />
+                        </div>
+                    </div>
+                    <div class="space-y-2 pt-2 border-t border-border/30">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest">Harga Satuan Rill (Rp)</label>
+                        <input type="number" min="0" x-model="formPackaging.harga_satuan" class="w-full bg-muted/40 border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all" />
+                        <span class="text-[10px] text-muted-foreground">*Terisi otomatis jika kolom kalkulator diisi, namun tetap bisa diedit manual.</span>
+                    </div>
                 </div>
             </div>
 
@@ -376,7 +404,7 @@
             formBiaya: { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' },
             formGreenBean: { id: null, nama_biji: '', asal_kopi: '' },
             formRoastedBean: { id: null, nama_kopi: '', bentuk_akhir: '' },
-            formPackaging: { id: null, tipe: 'Pouch Alumunium', custom_tipe: '', nama_kemasan: '', kapasitas_gram: 0, harga_satuan: 0, stok_pcs: 0 },
+            formPackaging: { id: null, tipe: 'Pouch Alumunium', custom_tipe: '', nama_kemasan: '', kapasitas_gram: 0, satuan: 'pcs', harga_satuan: 0, harga_total_pembelian: '', jumlah_qty_pembelian: '', stok_pcs: 0 },
 
             dataBiaya: [
                 { id: 1, nama: 'Gas Elpiji 3Kg', kategori: 'Overhead', satuan: 'Tabung', harga: 20000 },
@@ -389,6 +417,16 @@
 
             init() {
                 this.fetchData();
+                this.$watch('formPackaging.harga_total_pembelian', () => this.calculateHargaSatuan());
+                this.$watch('formPackaging.jumlah_qty_pembelian', () => this.calculateHargaSatuan());
+            },
+
+            calculateHargaSatuan() {
+                const total = Number(this.formPackaging.harga_total_pembelian) || 0;
+                const qty = Number(this.formPackaging.jumlah_qty_pembelian) || 0;
+                if (qty > 0) {
+                    this.formPackaging.harga_satuan = Math.round(total / qty);
+                }
             },
 
             async fetchData() {
@@ -429,7 +467,7 @@
                 if(this.activeTab === 'biaya') this.formBiaya = { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' };
                 if(this.activeTab === 'greenbean') this.formGreenBean = { id: null, nama_biji: '', asal_kopi: '' };
                 if(this.activeTab === 'roastedbean') this.formRoastedBean = { id: null, nama_kopi: '', bentuk_akhir: '' };
-                if(this.activeTab === 'packaging') this.formPackaging = { id: null, tipe: 'Pouch Alumunium', custom_tipe: '', nama_kemasan: '', kapasitas_gram: 0, harga_satuan: 0, stok_pcs: 0 };
+                if(this.activeTab === 'packaging') this.formPackaging = { id: null, tipe: 'Pouch Alumunium', custom_tipe: '', nama_kemasan: '', kapasitas_gram: 0, satuan: 'pcs', harga_satuan: 0, harga_total_pembelian: '', jumlah_qty_pembelian: '', stok_pcs: 0 };
                 this.isModalOpen = true;
             },
 
@@ -461,7 +499,10 @@
                     custom_tipe: isCustomType ? item.tipe : '',
                     nama_kemasan: item.nama_kemasan,
                     kapasitas_gram: item.tipe === 'Stiker' ? 0 : item.kapasitas_gram,
+                    satuan: item.satuan || 'pcs',
                     harga_satuan: item.harga_satuan,
+                    harga_total_pembelian: item.harga_total_pembelian ?? '',
+                    jumlah_qty_pembelian: item.jumlah_qty_pembelian ?? '',
                     stok_pcs: item.stok_pcs ?? 0,
                 };
                 this.isModalOpen = true;
