@@ -14,11 +14,10 @@ class LogPekerjaApiController extends Controller
 {
     public function getActiveBatches()
     {
-        // Get batches created today
-        $today = Carbon::today();
+        // Get the latest 50 batches to allow logging older/recent batches
         $batches = RoastingBatch::with(['greenBean'])
-            ->whereDate('created_at', $today)
             ->orderBy('id', 'desc')
+            ->take(50)
             ->get();
             
         $formatted = $batches->map(function($batch) {
@@ -57,11 +56,10 @@ class LogPekerjaApiController extends Controller
 
     public function getHistory()
     {
-        $today = Carbon::today();
+        // Get the latest 20 logs to allow tracking recent history
         $logs = LogPekerja::with(['batch', 'batch.greenBean', 'komponenBiaya'])
-            ->whereDate('created_at', $today)
             ->orderBy('id', 'desc')
-            ->take(10)
+            ->take(20)
             ->get();
 
         $formatted = $logs->map(function($log) {
@@ -77,7 +75,7 @@ class LogPekerjaApiController extends Controller
                 'jumlah' => $log->jumlah_kerja,
                 'satuan' => $log->komponenBiaya->satuan ?? '',
                 'total_upah' => $log->total_upah,
-                'waktu' => $log->created_at->format('H:i'),
+                'waktu' => $log->created_at->format('d/m H:i'),
             ];
         });
 

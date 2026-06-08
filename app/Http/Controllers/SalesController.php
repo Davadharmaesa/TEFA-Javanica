@@ -89,8 +89,74 @@ class SalesController extends Controller
      */
     public function create()
     {
-        $roastedBeans = RoastedBean::all();
-        return view('sales.create', compact('roastedBeans'));
+        $finishedGoods = \App\Models\FinishedGood::with(['roastedBean', 'packaging'])->get();
+        
+        if ($finishedGoods->isEmpty()) {
+            $beans = RoastedBean::all();
+            $pouches = Packaging::where('tipe', 'like', '%Pouch%')->get();
+            if ($pouches->isEmpty()) {
+                $pouches = Packaging::all();
+            }
+            
+            $tempGoods = collect();
+            foreach ($beans as $bean) {
+                foreach ($pouches as $pouch) {
+                    // Coba cari HPP terbaru untuk roasted bean ini
+                    $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function($q) use ($bean) {
+                        $q->where('roasted_bean_id', $bean->id);
+                    })->latest()->first();
+                    
+                    $hppPerPcs = $latestHpp && $latestHpp->hasil_kemasan_pcs > 0 
+                        ? round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs) 
+                        : 0;
+                        
+                    if ($hppPerPcs <= 0) {
+                        $hppPerPcs = $pouch->harga_satuan * 10;
+                    }
+                    
+                    $suggestedPricePerPcs = $hppPerPcs > 0 ? round($hppPerPcs * 1.5) : 0;
+
+                    $tempGoods->push([
+                        'id' => null,
+                        'roasted_bean_id' => $bean->id,
+                        'nama' => $bean->nama_kopi . ' - ' . $pouch->nama_kemasan,
+                        'berat_gram' => $pouch->kapasitas_gram,
+                        'stok_pcs' => 0,
+                        'hpp_per_pcs' => $hppPerPcs,
+                        'harga_jual_per_pcs' => $suggestedPricePerPcs,
+                    ]);
+                }
+            }
+            $finishedGoods = $tempGoods;
+        } else {
+            $finishedGoods = $finishedGoods->map(function($item) {
+                $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function($q) use ($item) {
+                    $q->where('roasted_bean_id', $item->roasted_bean_id);
+                })->latest()->first();
+                
+                $hppPerPcs = $latestHpp && $latestHpp->hasil_kemasan_pcs > 0 
+                    ? round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs) 
+                    : 0;
+                    
+                if ($hppPerPcs <= 0 && $item->packaging) {
+                    $hppPerPcs = $item->packaging->harga_satuan * 10;
+                }
+                    
+                $suggestedPricePerPcs = $hppPerPcs > 0 ? round($hppPerPcs * 1.5) : 0;
+                
+                return [
+                    'id' => $item->id,
+                    'roasted_bean_id' => $item->roasted_bean_id,
+                    'nama' => ($item->roastedBean->nama_kopi ?? 'Kopi') . ' - ' . ($item->packaging->nama_kemasan ?? 'Kemasan'),
+                    'berat_gram' => $item->packaging->kapasitas_gram ?? 0,
+                    'stok_pcs' => $item->stok_pcs,
+                    'hpp_per_pcs' => $hppPerPcs,
+                    'harga_jual_per_pcs' => $suggestedPricePerPcs,
+                ];
+            });
+        }
+
+        return view('sales.create', compact('finishedGoods'));
     }
 
     /**

@@ -1,10 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'Kasir / Transaksi Baru - TEFA Javanica')
+@section('title', 'Pre-Order Baru - TEFA Javanica')
 
 @section('content')
-<div class="space-y-6 pb-12" x-data="posSystem()">
+<div class="space-y-6 pb-12" x-data="preOrderForm">
     
+    <!-- Tombol Kembali -->
+    <div>
+        <a href="{{ route('sales.index') }}" class="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors bg-card border border-border/40 rounded-xl px-4 py-2 shadow-sm hover:shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Kembali ke Daftar Penjualan
+        </a>
+    </div>
+
     <!-- Header Title -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-4">
         <div>
@@ -13,262 +21,170 @@
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
                 </span>
-                <span class="text-xs font-mono font-bold text-secondary uppercase tracking-widest">Sistem Kasir Aktif</span>
+                <span class="text-xs font-mono font-bold text-secondary uppercase tracking-widest">Sistem Online</span>
             </div>
-            <h1 class="text-3xl font-heading font-black text-primary tracking-tight">Terminal Penjualan</h1>
+            <h1 class="text-3xl font-heading font-black text-primary tracking-tight">Catat Pre-Order Baru</h1>
             <p class="text-muted-foreground font-sans text-sm mt-1">
-                Catat pesanan pelanggan dan kalkulasi pembayaran secara otomatis.
+                Catat pesanan baru produk jadi (Finished Goods) yang sudah siap jual berdasarkan HPP produk.
             </p>
+        </div>
+        <div class="text-right">
+            <p class="text-2xl font-mono font-black text-primary" x-text="currentTime"></p>
+            <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest" x-text="currentDate"></p>
         </div>
     </div>
 
-    <!-- Main POS Workspace -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <!-- KIRI: Pemilihan Produk & Keranjang (Spans 8 cols) -->
-        <div class="lg:col-span-8 space-y-6">
-            
-            <!-- Tambah Item Section -->
-            <div class="bg-card border border-border shadow-sm rounded-2xl p-5 relative overflow-hidden group">
-                <h3 class="text-sm font-bold text-primary uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                    Pilih Produk
-                </h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                    <!-- Dropdown Produk -->
-                    <div class="md:col-span-7 space-y-1.5">
-                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Produk Javanica</label>
-                        <select x-model="selectedProduct" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
-                            <option value="" disabled selected>-- Pilih Produk Jadi --</option>
-                            <template x-for="product in availableProducts" :key="product.id">
-                                <option :value="product.id" x-text="product.nama_kopi + ' - Rp ' + formatRupiah(product.harga_jual)"></option>
-                            </template>
-                        </select>
-                    </div>
-                    
-                    <!-- QTY -->
-                    <div class="md:col-span-3 space-y-1.5">
-                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Jumlah (Qty)</label>
-                        <input type="number" min="1" x-model="qty" placeholder="1" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-mono font-black text-center text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                    </div>
+    @if ($errors->any())
+        <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl font-bold text-sm">
+            <ul class="list-disc pl-5 space-y-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-                    <!-- Tombol Tambah -->
-                    <div class="md:col-span-2">
-                        <button @click="addToCart" :disabled="!selectedProduct || !qty" class="w-full bg-primary text-primary-foreground py-2.5 rounded-xl font-bold hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
-                            Tambah
-                        </button>
-                    </div>
+    <!-- Main Workspace -->
+    <form action="{{ route('sales.store') }}" method="POST" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        @csrf
+        
+        <!-- KIRI: Detail Pesanan (Spans 8 cols) -->
+        <div class="lg:col-span-8 bg-card border border-border shadow-sm rounded-2xl p-6 space-y-6">
+            <h3 class="text-sm font-bold text-primary uppercase tracking-widest flex items-center gap-2 border-b border-border/30 pb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Detail Produk & Pelanggan
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nama Pelanggan -->
+                <div class="space-y-1.5 md:col-span-2">
+                    <label for="customer_name" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Nama Pelanggan</label>
+                    <input type="text" name="customer_name" id="customer_name" required value="{{ old('customer_name') }}" placeholder="Contoh: Cafe Senja / Bapak Budi (Dosen)" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                </div>
+
+                <!-- Dropdown Produk Jadi (Finished Goods) -->
+                <div class="space-y-1.5">
+                    <label for="finished_good_id" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Produk Jadi (Kopi & Kemasan)</label>
+                    <select id="finished_good_id" name="finished_good_id" required x-model="selectedGoodId" @change="updateSelectedGood" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                        <option value="" disabled selected>-- Pilih Produk Jadi --</option>
+                        @foreach($finishedGoods as $good)
+                            <option value="{{ $good['roasted_bean_id'] }}-{{ $good['berat_gram'] }}" {{ old('finished_good_id') == ($good['roasted_bean_id'].'-'.$good['berat_gram']) ? 'selected' : '' }}>
+                                {{ $good['nama'] }} (Stok: {{ $good['stok_pcs'] }} Pcs)
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <!-- QTY Pcs -->
+                <div class="space-y-1.5">
+                    <label for="jumlah_pcs" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Jumlah Pesanan (Pcs)</label>
+                    <input type="number" min="1" id="jumlah_pcs" name="jumlah_pcs" required x-model.number="quantityPcs" @input="calculatePrices" placeholder="Contoh: 12" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
                 </div>
             </div>
 
-            <!-- Keranjang / Cart Table -->
-            <div class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden min-h-[300px] flex flex-col">
-                <div class="px-5 py-3 border-b border-border/50 bg-primary/5">
-                    <h3 class="text-sm font-bold text-primary uppercase tracking-widest">Keranjang Pesanan</h3>
+            <!-- Detail Kalkulasi Fisik & HPP -->
+            <template x-if="selectedGood">
+                <div class="bg-[#526B42]/5 border border-[#526B42]/20 rounded-xl p-4 space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-muted-foreground">Berat per Kemasan:</span>
+                        <span class="font-bold text-primary" x-text="selectedGood.berat_gram + ' Gram'"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-muted-foreground">Estimasi Berat Total:</span>
+                        <span class="font-bold text-primary" x-text="(quantityPcs * selectedGood.berat_gram).toLocaleString('id-ID') + ' Gram (' + ((quantityPcs * selectedGood.berat_gram)/1000).toFixed(2) + ' Kg)'"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-muted-foreground">HPP per Pcs (Terhitung):</span>
+                        <span class="font-bold text-primary" x-text="'Rp ' + selectedGood.hpp_per_pcs.toLocaleString('id-ID')"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-muted-foreground">Harga Jual Disarankan (+50%):</span>
+                        <span class="font-bold text-secondary" x-text="'Rp ' + selectedGood.harga_jual_per_pcs.toLocaleString('id-ID') + ' / Pcs'"></span>
+                    </div>
                 </div>
-                <div class="overflow-x-auto flex-1">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-muted/10 border-b border-border/50 text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
-                                <th class="p-3 pl-5">Nama Produk</th>
-                                <th class="p-3 text-center">Qty</th>
-                                <th class="p-3 text-right">Harga Satuan</th>
-                                <th class="p-3 text-right">Subtotal</th>
-                                <th class="p-3 text-center pr-5">Hapus</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-border/30">
-                            <template x-for="(item, index) in cart" :key="index">
-                                <tr class="hover:bg-muted/10 transition-colors">
-                                    <td class="p-3 pl-5 font-bold text-sm text-foreground" x-text="item.name"></td>
-                                    <td class="p-3 text-center font-mono font-bold text-primary text-sm" x-text="item.qty"></td>
-                                    <td class="p-3 text-right font-mono text-muted-foreground text-xs" x-text="'Rp ' + formatRupiah(item.price)"></td>
-                                    <td class="p-3 text-right font-mono font-black text-primary text-sm" x-text="'Rp ' + formatRupiah(item.subtotal)"></td>
-                                    <td class="p-3 text-center pr-5">
-                                        <button @click="removeFromCart(index)" class="p-1 text-red-500/70 hover:text-red-600 hover:bg-red-600/10 rounded transition-colors">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </template>
-                            <tr x-show="cart.length === 0">
-                                <td colspan="5" class="p-8 text-center text-muted-foreground font-medium italic text-xs">Keranjang masih kosong. Tambahkan produk di atas.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            </template>
+
+            <!-- Status Pengiriman -->
+            <div class="space-y-1.5">
+                <label for="status_pengiriman" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Status Pengiriman</label>
+                <select name="status_pengiriman" id="status_pengiriman" required class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                    <option value="Menunggu Konfirmasi" {{ old('status_pengiriman') === 'Menunggu Konfirmasi' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
+                    <option value="Diproses" {{ old('status_pengiriman') === 'Diproses' ? 'selected' : '' }}>Diproses</option>
+                    <option value="Siap Diambil" {{ old('status_pengiriman') === 'Siap Diambil' ? 'selected' : '' }}>Siap Diambil</option>
+                    <option value="Selesai" {{ old('status_pengiriman', 'Menunggu Konfirmasi') === 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                </select>
             </div>
         </div>
 
         <!-- KANAN: Panel Pembayaran (Spans 4 cols) -->
-        <div class="lg:col-span-4">
-            <form @submit.prevent="submitTransaction" class="bg-card border border-border shadow-lg shadow-black/5 rounded-2xl flex flex-col h-full overflow-hidden sticky top-6">
-                <div class="bg-primary px-5 py-4">
-                    <h2 class="font-heading font-black text-lg text-primary-foreground tracking-wide flex items-center gap-2">
-                        PEMBAYARAN
-                    </h2>
+        <div class="lg:col-span-4 bg-card border border-border shadow-lg rounded-2xl p-6 flex flex-col justify-between space-y-6">
+            <div class="space-y-6">
+                <h3 class="text-sm font-bold text-primary uppercase tracking-widest flex items-center gap-2 border-b border-border/30 pb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                    Informasi Pembayaran
+                </h3>
+
+                <!-- Hidden inputs agar kompatibel dengan Controller di backend -->
+                <input type="hidden" name="roasted_bean_id" :value="selectedGood ? selectedGood.roasted_bean_id : ''">
+                <input type="hidden" name="jumlah_gram_pesanan" :value="selectedGood ? quantityPcs * selectedGood.berat_gram : ''">
+                <input type="hidden" name="metode_pembayaran" value="lunas">
+                
+                <!-- Total Harga Jual (harga_jual_pesanan) -->
+                <div class="space-y-1.5">
+                    <label for="harga_jual_pesanan" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Harga Transaksi (Rp)</label>
+                    <input type="number" name="harga_jual_pesanan" id="harga_jual_pesanan" required x-model.number="totalPrice" placeholder="Total harga jual otomatis..." class="w-full bg-background border-2 border-border rounded-xl px-4 py-3.5 text-2xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
                 </div>
+            </div>
 
-                <div class="p-5 flex-1 flex flex-col space-y-5">
-                    
-                    <!-- Nama Pelanggan -->
-                    <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Nama Pelanggan (Opsional)</label>
-                        <input type="text" x-model="customerName" placeholder="Umum" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
-                    </div>
-
-                    <hr class="border-dashed border-border">
-
-                    <!-- Total Tagihan -->
-                    <div class="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
-                        <p class="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Total Tagihan</p>
-                        <p class="text-3xl font-black font-mono text-primary truncate" x-text="'Rp ' + formatRupiah(grandTotal)"></p>
-                    </div>
-
-                    <!-- Input Pembayaran/DP -->
-                    <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex justify-between">
-                            <span>Nominal Bayar / DP</span>
-                            <span class="text-accent" x-show="isDP">Status: DP</span>
-                            <span class="text-secondary" x-show="isLunas">Status: LUNAS</span>
-                        </label>
-                        <input type="number" min="0" x-model="amountPaid" placeholder="Ketik nominal..." required class="w-full bg-background border-2 border-border/80 rounded-xl px-4 py-3 text-xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-muted/50 placeholder:text-base placeholder:font-sans">
-                    </div>
-
-                    <!-- Kembalian / Sisa Tagihan -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-3 text-center transition-opacity" :class="isLunas ? 'opacity-100' : 'opacity-30'">
-                            <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mb-1">Kembalian</p>
-                            <p class="text-sm font-black font-mono text-secondary truncate" x-text="'Rp ' + formatRupiah(kembalian)"></p>
-                        </div>
-                        <div class="bg-accent/10 border border-accent/20 rounded-lg p-3 text-center transition-opacity" :class="isDP ? 'opacity-100' : 'opacity-30'">
-                            <p class="text-[9px] font-bold text-accent uppercase tracking-widest mb-1">Sisa Hutang</p>
-                            <p class="text-sm font-black font-mono text-accent truncate" x-text="'Rp ' + formatRupiah(sisaHutang)"></p>
-                        </div>
-                    </div>
-
-                    <div class="pt-4 mt-auto">
-                        <button type="submit" :disabled="loading || cart.length === 0 || !amountPaid" class="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-[0_10px_20px_rgba(200,80,50,0.15)] transition-all flex justify-center items-center gap-2 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <span x-show="!loading">Proses Transaksi</span>
-                            <span x-show="loading" class="animate-pulse">Memproses...</span>
-                        </button>
-                    </div>
-                </div>
-            </form>
+            <div class="pt-6 border-t border-border/30">
+                <button type="submit" class="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-md transition-all flex justify-center items-center gap-2 hover:-translate-y-0.5 active:translate-y-0">
+                    Proses Transaksi
+                </button>
+            </div>
         </div>
-    </div>
+    </form>
 </div>
 
 @push('scripts')
 <script>
     document.addEventListener('alpine:init', () => {
-        Alpine.data('posSystem', () => ({
-            // Variabel produk ini diinject dari backend Laravel kamu
-            availableProducts: @json($products ?? []),
-            
-            selectedProduct: '',
-            qty: '',
-            cart: [],
-            customerName: '',
-            amountPaid: '', // Menggunakan string kosong agar placeholder terlihat dan tidak ada nilai '0' default
-            loading: false,
+        Alpine.data('preOrderForm', () => ({
+            finishedGoods: @json($finishedGoods),
+            selectedGoodId: '{{ old('finished_good_id') }}',
+            selectedGood: null,
+            quantityPcs: {{ old('jumlah_pcs') !== null ? old('jumlah_pcs') : 'null' }},
+            totalPrice: null,
+            timeObj: new Date(),
 
-            // Hitung otomatis (Computed Properties)
-            get grandTotal() {
-                return this.cart.reduce((total, item) => total + item.subtotal, 0);
+            init() {
+                this.updateSelectedGood();
+                setInterval(() => { this.timeObj = new Date(); }, 1000);
             },
 
-            get nominalBayar() {
-                return parseFloat(this.amountPaid) || 0;
+            get currentTime() {
+                return this.timeObj.toLocaleTimeString('id-ID', { hour12: false });
             },
 
-            get isLunas() {
-                return this.nominalBayar >= this.grandTotal && this.grandTotal > 0;
+            get currentDate() {
+                return this.timeObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             },
 
-            get isDP() {
-                return this.nominalBayar > 0 && this.nominalBayar < this.grandTotal;
-            },
-
-            get kembalian() {
-                return this.isLunas ? this.nominalBayar - this.grandTotal : 0;
-            },
-
-            get sisaHutang() {
-                return this.isDP ? this.grandTotal - this.nominalBayar : 0;
-            },
-
-            // Aksi interaktif
-            addToCart() {
-                if (!this.selectedProduct || !this.qty) return;
-                
-                const product = this.availableProducts.find(p => p.id == this.selectedProduct);
-                const quantity = parseInt(this.qty);
-                
-                const existingIndex = this.cart.findIndex(item => item.product_id == product.id);
-                
-                if (existingIndex !== -1) {
-                    this.cart[existingIndex].qty += quantity;
-                    this.cart[existingIndex].subtotal = this.cart[existingIndex].qty * this.cart[existingIndex].price;
+            updateSelectedGood() {
+                if (this.selectedGoodId) {
+                    const [beanId, berat] = this.selectedGoodId.split('-');
+                    this.selectedGood = this.finishedGoods.find(g => g.roasted_bean_id == beanId && g.berat_gram == berat);
                 } else {
-                    this.cart.push({
-                        product_id: product.id,
-                        name: product.nama_kopi,
-                        price: product.harga_jual,
-                        qty: quantity,
-                        subtotal: product.harga_jual * quantity
-                    });
+                    this.selectedGood = null;
                 }
-                
-                this.selectedProduct = '';
-                this.qty = '';
+                this.calculatePrices();
             },
 
-            removeFromCart(index) {
-                this.cart.splice(index, 1);
-            },
-
-            // Fungsi submit ke database Laravel
-            async submitTransaction() {
-                if (this.cart.length === 0 || this.nominalBayar <= 0) return;
-                
-                this.loading = true;
-                
-                const payload = {
-                    customer_name: this.customerName,
-                    items: this.cart,
-                    total_amount: this.grandTotal,
-                    amount_paid: this.nominalBayar,
-                    payment_status: this.isLunas ? 'LUNAS' : 'DP'
-                };
-
-                try {
-                    const res = await fetch('/sales', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (res.ok) {
-                        window.location.href = '/sales'; // Kembali ke halaman index setelah sukses
-                    } else {
-                        alert('Gagal memproses transaksi. Silakan coba lagi.');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan jaringan.');
-                } finally {
-                    this.loading = false;
+            calculatePrices() {
+                if (this.selectedGood && this.quantityPcs) {
+                    this.totalPrice = this.quantityPcs * this.selectedGood.harga_jual_per_pcs;
+                } else {
+                    this.totalPrice = null;
                 }
-            },
-
-            formatRupiah(number) {
-                return new Intl.NumberFormat('id-ID').format(number);
             }
         }));
     });

@@ -22,7 +22,7 @@
         </div>
     </div>
 
-    <div class="flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50 max-w-4xl">
+    <div class="flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50 w-full">
         <button @click="activeTab = 'biaya'" 
             class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
             :class="activeTab === 'biaya' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
@@ -243,7 +243,7 @@
             <div x-show="activeTab === 'biaya'" class="space-y-5">
                 <div class="space-y-1.5">
                     <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Nama Biaya</label>
-                    <input type="text" x-model="formBiaya.nama" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="Contoh: Gas Elpiji 3Kg" />
+                    <input type="text" x-model="formBiaya.nama" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="Contoh: Penyusutan Mesin" />
                 </div>
                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div class="space-y-1.5">
@@ -293,7 +293,7 @@
                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div class="space-y-1.5">
                         <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Tipe Kemasan</label>
-                        <select x-model="formPackaging.tipe" @change="if (formPackaging.tipe === 'Stiker') { formPackaging.kapasitas_gram = ''; } if (formPackaging.tipe !== 'Lainnya') { formPackaging.custom_tipe = ''; }" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                        <select x-model="formPackaging.tipe" @change="if (formPackaging.tipe === 'Stiker') { formPackaging.kapasitas_gram = 0; } if (formPackaging.tipe !== 'Lainnya') { formPackaging.custom_tipe = ''; }" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
                             <template x-for="type in packagingTypeOptions" :key="type">
                                 <option :value="type" x-text="type"></option>
                             </template>
@@ -301,10 +301,10 @@
                     </div>
                     <div class="space-y-1.5">
                         <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Satuan Baru</label>
-                        <select x-model="formPackaging.satuan" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
-                            <option value="pcs">pcs</option>
-                            <option value="gram">gram</option>
-                            <option value="pack">pack</option>
+                        <select x-model="formPackaging.satuan" @change="if (formPackaging.satuan !== 'Lainnya') { formPackaging.custom_satuan = ''; }" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                            <template x-for="unit in packagingUnitOptions" :key="unit">
+                                <option :value="unit" x-text="unit"></option>
+                            </template>
                         </select>
                     </div>
                 </div>
@@ -312,6 +312,11 @@
                 <div x-show="formPackaging.tipe === 'Lainnya'" class="space-y-1.5">
                     <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Nama Tipe Kemasan Baru</label>
                     <input type="text" x-model="formPackaging.custom_tipe" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="Contoh: Kantong Kertas" />
+                </div>
+
+                <div x-show="formPackaging.satuan === 'Lainnya'" class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Nama Satuan Baru</label>
+                    <input type="text" x-model="formPackaging.custom_satuan" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="Contoh: lembar / roll / box" />
                 </div>
                 
                 <div class="space-y-1.5">
@@ -322,7 +327,7 @@
                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div class="space-y-1.5">
                         <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Kapasitas (Gram)</label>
-                        <input type="number" min="0" x-model="formPackaging.kapasitas_gram" :disabled="formPackaging.tipe === 'Stiker'" :placeholder="formPackaging.tipe === 'Stiker' ? '-' : 'Contoh: 200'" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all disabled:cursor-not-allowed disabled:bg-muted/50 disabled:text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                        <input type="number" min="0" x-model="formPackaging.kapasitas_gram" placeholder="Isi 0 jika non-pouch (stiker, kresek, dll)" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                     </div>
                     <div class="space-y-1.5">
                         <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Tambah Stok Awal</label>
@@ -399,7 +404,7 @@
             formBiaya: { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' },
             formGreenBean: { id: null, nama_biji: '', asal_kopi: '' },
             formRoastedBean: { id: null, nama_kopi: '', bentuk_akhir: '' },
-            formPackaging: { id: null, tipe: 'Pouch Alumunium', custom_tipe: '', nama_kemasan: '', kapasitas_gram: '', satuan: 'pcs', harga_satuan: '', harga_total_pembelian: '', jumlah_qty_pembelian: '', stok_pcs: '' },
+            formPackaging: { id: null, tipe: 'Pouch Alumunium', custom_tipe: '', nama_kemasan: '', kapasitas_gram: '', satuan: 'pcs', custom_satuan: '', harga_satuan: '', harga_total_pembelian: '', jumlah_qty_pembelian: '', stok_pcs: '' },
 
             dataBiaya: [
                 { id: 1, nama: 'Gas Elpiji 3Kg', kategori: 'Overhead', satuan: 'Tabung', harga: 20000 },
@@ -457,12 +462,21 @@
                 return [...baseTypes, ...customTypes, 'Lainnya'];
             },
 
+            get packagingUnitOptions() {
+                const baseUnits = ['pcs', 'gram', 'pack'];
+                const customUnits = [...new Set(this.dataPackaging
+                    .map(item => item.satuan)
+                    .filter(unit => unit && !baseUnits.includes(unit) && unit !== 'Lainnya'))];
+
+                return [...baseUnits, ...customUnits, 'Lainnya'];
+            },
+
             openModal() {
                 this.modalTitle = 'Tambah Master ' + this.getTabName();
                 if(this.activeTab === 'biaya') this.formBiaya = { id: null, nama: '', kategori: 'Overhead', satuan: '', harga: '' };
                 if(this.activeTab === 'greenbean') this.formGreenBean = { id: null, nama_biji: '', asal_kopi: '' };
                 if(this.activeTab === 'roastedbean') this.formRoastedBean = { id: null, nama_kopi: '', bentuk_akhir: '' };
-                if(this.activeTab === 'packaging') this.formPackaging = { id: null, tipe: 'Pouch Alumunium', custom_tipe: '', nama_kemasan: '', kapasitas_gram: '', satuan: 'pcs', harga_satuan: '', harga_total_pembelian: '', jumlah_qty_pembelian: '', stok_pcs: '' };
+                if(this.activeTab === 'packaging') this.formPackaging = { id: null, tipe: 'Pouch Alumunium', custom_tipe: '', nama_kemasan: '', kapasitas_gram: '', satuan: 'pcs', custom_satuan: '', harga_satuan: '', harga_total_pembelian: '', jumlah_qty_pembelian: '', stok_pcs: '' };
                 this.isModalOpen = true;
             },
 
@@ -487,14 +501,16 @@
             editPackaging(item) {
                 this.modalTitle = 'Edit Master Kemasan';
                 const isCustomType = item.tipe && !['Pouch Alumunium', 'Stiker'].includes(item.tipe);
+                const isCustomUnit = item.satuan && !['pcs', 'gram', 'pack'].includes(item.satuan);
 
                 this.formPackaging = {
                     id: item.id,
                     tipe: isCustomType ? 'Lainnya' : item.tipe,
                     custom_tipe: isCustomType ? item.tipe : '',
                     nama_kemasan: item.nama_kemasan,
-                    kapasitas_gram: item.tipe === 'Stiker' ? '' : item.kapasitas_gram,
-                    satuan: item.satuan || 'pcs',
+                    kapasitas_gram: item.kapasitas_gram ?? 0,
+                    satuan: isCustomUnit ? 'Lainnya' : (item.satuan || 'pcs'),
+                    custom_satuan: isCustomUnit ? item.satuan : '',
                     harga_satuan: item.harga_satuan,
                     harga_total_pembelian: item.harga_total_pembelian ?? '',
                     jumlah_qty_pembelian: item.jumlah_qty_pembelian ?? '',
@@ -580,19 +596,26 @@
                     const method = this.formPackaging.id ? 'PUT' : 'POST';
                     const url = this.formPackaging.id ? `/internal-api/master/packagings/${this.formPackaging.id}` : `/internal-api/master/packagings`;
                     const customTipe = this.formPackaging.tipe === 'Lainnya' ? this.formPackaging.custom_tipe.trim() : this.formPackaging.tipe;
+                    const customSatuan = this.formPackaging.satuan === 'Lainnya' ? this.formPackaging.custom_satuan.trim() : this.formPackaging.satuan;
 
                     if (this.formPackaging.tipe === 'Lainnya' && !customTipe) {
                         alert('Nama tipe kemasan wajib diisi ketika memilih Lainnya.');
+                        return;
+                    }
+                    if (this.formPackaging.satuan === 'Lainnya' && !customSatuan) {
+                        alert('Nama satuan baru wajib diisi ketika memilih Lainnya.');
                         return;
                     }
 
                     const payload = {
                         ...this.formPackaging,
                         tipe: customTipe,
-                        kapasitas_gram: this.formPackaging.tipe === 'Stiker' ? 0 : Number(this.formPackaging.kapasitas_gram || 0),
+                        satuan: customSatuan,
+                        kapasitas_gram: Number(this.formPackaging.kapasitas_gram || 0),
                         stok_pcs: Number(this.formPackaging.stok_pcs || 0),
                     };
                     delete payload.custom_tipe;
+                    delete payload.custom_satuan;
 
                     const res = await fetch(url, {
                         method: method,

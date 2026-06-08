@@ -1,9 +1,34 @@
-<div class="space-y-6">
-    <div class="flex flex-col gap-2">
-        <h1 class="text-3xl font-heading font-bold text-primary">Lab Operator Panel</h1>
-        <p class="text-muted-foreground font-sans">
-            Selamat datang, Pak {{ explode(' ', Auth::user()->name)[0] }}. Berikut status aktivitas mesin sangrai hari ini.
-        </p>
+<div class="space-y-6" x-data="operatorClock()">
+    <!-- Header Section (Sesuai Screenshot) -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-4">
+        <div>
+            <!-- Green Dot and SISTEM ONLINE -->
+            <div class="flex items-center gap-2 mb-1">
+                <span class="flex h-3 w-3 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
+                </span>
+                <span class="text-xs font-mono font-bold text-secondary uppercase tracking-widest text-[#526B42]">Sistem Online</span>
+            </div>
+            <!-- Title -->
+            <h1 class="text-3xl font-heading font-black text-primary tracking-tight">Beranda Operator Terminal</h1>
+            <!-- Subtitle -->
+            <p class="text-muted-foreground font-sans text-sm mt-1">
+                Pusat Kendali Mesin Sangrai & Pencatatan Inventaris Barang Jadi.
+            </p>
+        </div>
+        
+        <!-- Right side: Realtime Time & Date -->
+        <div class="text-left md:text-right">
+            <!-- Time -->
+            <p class="text-2xl font-mono font-black text-primary" x-text="currentTime">
+                {{ \Carbon\Carbon::now()->format('H.i.s') }}
+            </p>
+            <!-- Date -->
+            <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">
+                {{ Str::upper(\Carbon\Carbon::now()->translatedFormat('l, j F Y')) }}
+            </p>
+        </div>
     </div>
 
     <!-- Top Metrics Row -->
@@ -58,12 +83,13 @@
                         <span class="text-lg font-bold font-sans">%</span>
                     </div>
                 </div>
-                    <div class="p-2 border border-border text-primary rounded-md shadow-sm bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                    </div>
+                <div class="p-2 border border-border text-primary rounded-md shadow-sm bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <!-- Burnoff Trend Icon -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
             </div>
             <div class="flex items-center text-[11px] font-bold uppercase tracking-widest text-accent mt-2">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>
                 <span>Burnoff % <span class="text-muted-foreground">Kualitas Sangrai</span></span>
             </div>
         </div>
@@ -72,81 +98,81 @@
     <!-- Main Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
-        <!-- Left Side: Warning & Actions (Takes 2 columns) -->
+        <!-- Left Side: Warning & Actions -->
         <div class="lg:col-span-2 flex flex-col gap-6">
             
-            <!-- Warning/Safe Box -->
+            <!-- Warning Box -->
             @if($stok_menipis->isNotEmpty())
+                <div class="bg-red-50 dark:bg-[#3d211e] border border-red-200 dark:border-[#612b27] rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center gap-2 mb-4 text-red-600">
+                        <h3 class="text-xl font-bold">Perhatian Dibutuhkan</h3>
+                    </div>
 
-<!-- 🔴 MODE WARNING -->
-<div class="bg-red-50 dark:bg-[#3d211e] border border-red-200 dark:border-[#612b27] rounded-xl p-6 shadow-sm">
-    <div class="flex items-center gap-2 mb-4 text-red-600">
-        <h3 class="text-xl font-bold">Perhatian Dibutuhkan</h3>
-    </div>
+                    <h4 class="text-red-700 font-bold mb-4 text-sm">
+                        Stok Menipis (&lt; 5kg)
+                    </h4>
 
-    <h4 class="text-red-700 font-bold mb-4 text-sm">
-        Stok Menipis (&lt; 5kg)
-    </h4>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        @foreach($stok_menipis as $item)
-            <div class="bg-white border border-red-100 rounded-lg p-4 flex justify-between items-center">
-                <div>
-                    <p class="font-bold">{{ $item['name'] }}</p>
-                    <p class="text-xs uppercase">{{ $item['type'] }}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @foreach($stok_menipis as $item)
+                            <div class="bg-white border border-red-100 rounded-lg p-4 flex justify-between items-center">
+                                <div>
+                                    <p class="font-bold">{{ $item['name'] }}</p>
+                                    <p class="text-xs uppercase">{{ $item['type'] }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xl font-bold">{{ $item['amount'] }}</span>
+                                    <span class="text-sm">{{ $item['unit'] }}</span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-                <div class="text-right">
-                    <span class="text-xl font-bold">{{ $item['amount'] }}</span>
-                    <span class="text-sm">{{ $item['unit'] }}</span>
+            @else
+                <div class="bg-green-50 dark:bg-[#1f2e1f] border border-green-200 dark:border-[#2e4a2e] rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center gap-2 mb-4 text-green-700">
+                        <h3 class="text-xl font-bold">Monitor Bahan Baku</h3>
+                    </div>
+
+                    <h4 class="text-green-700 font-bold mb-2 text-sm">
+                        Kapasitas Produksi Optimal
+                    </h4>
+
+                    <div class="bg-white dark:bg-[#1a241a] border border-green-100 rounded-lg p-4 text-center">
+                        <p class="font-bold text-green-800">
+                            Seluruh jenis kopi di gudang tersedia melimpah!
+                        </p>
+                        <p class="text-sm text-green-700 mt-1">
+                            Siap dieksekusi oleh mesin roasting tanpa batas cadangan minimum.
+                        </p>
+                    </div>
                 </div>
-            </div>
-        @endforeach
-    </div>
-</div>
-
-@else
-
-<!-- 🟢 MODE AMAN -->
-<div class="bg-green-50 dark:bg-[#1f2e1f] border border-green-200 dark:border-[#2e4a2e] rounded-xl p-6 shadow-sm">
-    <div class="flex items-center gap-2 mb-4 text-green-700">
-        <h3 class="text-xl font-bold">Monitor Bahan Baku</h3>
-    </div>
-
-    <h4 class="text-green-700 font-bold mb-2 text-sm">
-        Kapasitas Produksi Optimal
-    </h4>
-
-    <div class="bg-white dark:bg-[#1a241a] border border-green-100 rounded-lg p-4 text-center">
-        <p class="font-bold text-green-800">
-            Seluruh jenis kopi di gudang tersedia melimpah!
-        </p>
-        <p class="text-sm text-green-700 mt-1">
-            Siap dieksekusi oleh mesin roasting tanpa batas cadangan minimum.
-        </p>
-    </div>
-</div>
-
-@endif
+            @endif
 
             <!-- Quick Actions Grid -->
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <a href="/production" class="bg-card hover:bg-muted border border-border rounded-xl p-5 flex flex-col items-center justify-center gap-3 transition shadow-sm text-primary group">
                     <div class="p-2 border border-border text-primary rounded-md bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-sm">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        <!-- Roasting/Flame Icon -->
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9.879z" />
+                        </svg>
                     </div>
-                    <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Panggang Baru</span>
+                    <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Roasting Baru</span>
                 </a>
                 <a href="/inventory" class="bg-card hover:bg-muted border border-border rounded-xl p-5 flex flex-col items-center justify-center gap-3 transition shadow-sm text-primary group">
                     <div class="p-2 border border-border text-primary rounded-md bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-sm">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16h16V8l-6-6"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                        <!-- Box/Warehouse Icon -->
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                     </div>
-                    <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Kelola Rak Gudang</span>
+                    <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Kelola Gudang</span>
                 </a>
-                <a href="/inventory" class="bg-card hover:bg-muted border border-border rounded-xl p-5 flex flex-col items-center justify-center gap-3 transition shadow-sm text-primary group">
+                <a href="/log-kerja" class="bg-card hover:bg-muted border border-border rounded-xl p-5 flex flex-col items-center justify-center gap-3 transition shadow-sm text-primary group">
                     <div class="p-2 border border-border text-primary rounded-md bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-sm">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 14h4v-4H3v4zM10 14h11v-4H10v4zM3 21h4v-4H3v4zM10 21h11v-4H10v4zM3 7h4V3H3v4zM10 7h11V3H10v4z"/></svg>
+                        <!-- Clipboard/Log Kerja Icon -->
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                     </div>
-                    <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Riwayat Distribusi</span>
+                    <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Log Kerja Pekerja</span>
                 </a>
             </div>
         </div>
@@ -181,3 +207,22 @@
 
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('operatorClock', () => ({
+            currentTime: '',
+            init() {
+                this.updateTime();
+                setInterval(() => this.updateTime(), 1000);
+            },
+            updateTime() {
+                const now = new Date();
+                const pad = (n) => String(n).padStart(2, '0');
+                this.currentTime = `${pad(now.getHours())}.${pad(now.getMinutes())}.${pad(now.getSeconds())}`;
+            }
+        }));
+    });
+</script>
+@endpush

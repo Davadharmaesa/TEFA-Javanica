@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
     // ------------------------------------------
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/internal-api/search', [\App\Http\Controllers\Api\SearchController::class, 'search'])->name('internal-api.search');
 
     Route::get('/setup-2fa', function () {
         return view('auth.setup-2fa');

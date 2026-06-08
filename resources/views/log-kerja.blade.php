@@ -17,7 +17,7 @@
             </div>
             <h1 class="text-3xl font-heading font-black text-primary tracking-tight">Terminal Log Pekerja</h1>
             <p class="text-muted-foreground font-sans text-sm mt-1">
-                Catat siapa saja yang terlibat dalam batch produksi hari ini untuk keperluan HPP & Honor.
+                Catat siapa saja yang terlibat dalam batch produksi terbaru untuk keperluan HPP & Honor.
             </p>
         </div>
         <div class="text-right">
@@ -43,7 +43,7 @@
                 <!-- Data Pokok -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Pilih ID Batch</label>
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Pilih ID Batch</label>
                         <select x-model="form.batch_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer" required>
                             <option value="" disabled selected>-- PILIH BATCH --</option>
                             <template x-for="batch in activeBatches" :key="batch.id">
@@ -52,7 +52,7 @@
                         </select>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Nama Pekerja</label>
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Nama Pekerja</label>
                         <input type="text" x-model="form.nama_pekerja" placeholder="Contoh: Budi, Siti" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" required />
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                 <!-- Custom Selectors -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-muted/20 p-5 rounded-xl border border-border/50 mt-2">
                     <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center justify-between">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm flex items-center justify-between">
                             Jenis Pekerjaan
                             <span class="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-black normal-case">Wajib Pilih</span>
                         </label>
@@ -73,7 +73,7 @@
                     </div>
                     
                     <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center justify-between">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm flex items-center justify-between">
                             Jumlah Kerja
                             <span class="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-black normal-case tracking-wider uppercase" x-text="'Satuan: ' + selectedSatuan"></span>
                         </label>
@@ -98,7 +98,7 @@
             <div class="bg-primary/5 border-b border-border/50 p-5 flex justify-between items-center z-10 relative overflow-hidden">
                 <div>
                     <h2 class="text-lg font-heading font-black text-primary tracking-tight">Log Pekerja Terkini</h2>
-                    <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Histori Operasional Hari Ini</p>
+                    <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Histori Operasional Terbaru</p>
                 </div>
                 <div class="bg-primary/10 text-primary p-2 rounded-xl border border-primary/20 relative z-10 flex flex-col items-center justify-center min-w-[50px]">
                     <span class="text-lg font-black font-mono leading-none" x-text="history.length"></span>
@@ -127,21 +127,22 @@
                                 <span class="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded border border-border/50 bg-muted/30 text-muted-foreground flex-shrink-0" x-text="log.waktu"></span>
                             </div>
                             
-                            <p class="font-sans font-bold text-foreground text-sm mb-3 truncate" x-text="log.nama_pekerja + ' (' + (log.role_pekerja || 'Pekerja') + ')'"></p>
+                            <p class="font-sans font-black text-primary text-xs mb-1 truncate" x-text="log.nama_pekerja"></p>
+                            <p class="font-sans font-medium text-primary/70 text-[10px] mb-3 truncate" x-text="'Role: ' + (log.role_pekerja || 'Pekerja Manual')"></p>
                             
                             <div class="grid grid-cols-2 gap-2 mb-3">
-                                <div class="bg-muted/30 border border-border/60 rounded-lg p-2 text-center">
-                                    <p class="text-[9px] text-muted-foreground font-black uppercase tracking-widest mb-0.5">Tugas</p>
-                                    <p class="text-xs font-black text-foreground truncate uppercase" x-text="log.tugas"></p>
+                                <div class="bg-muted/40 border border-border/60 rounded-lg p-2 text-center group-hover:bg-muted/60 transition-colors">
+                                    <p class="text-[9px] text-primary/60 font-black uppercase mb-0.5">Tugas</p>
+                                    <p class="text-xs font-bold text-primary/80 truncate text-ellipsis uppercase" x-text="log.tugas"></p>
                                 </div>
-                                <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-2 text-center">
-                                    <p class="text-[9px] text-secondary font-black uppercase tracking-widest mb-0.5">Upah Estimasi</p>
+                                <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-2 text-center group-hover:bg-secondary/20 transition-colors">
+                                    <p class="text-[9px] text-secondary/80 font-black uppercase mb-0.5">Upah Estimasi</p>
                                     <p class="text-xs font-black text-secondary font-mono" x-text="'Rp ' + formatRupiah(log.total_upah)"></p>
                                 </div>
                             </div>
                             
                             <div class="flex items-center gap-1.5 text-[10px] font-mono font-bold text-primary">
-                                <span class="bg-primary/10 text-primary px-2 py-0.5 border border-primary/20 rounded-md" x-text="'JML: ' + log.jumlah + ' ' + log.satuan"></span>
+                                <span class="bg-background px-1.5 py-0.5 border border-border/80 rounded" x-text="'JML: ' + log.jumlah + ' ' + log.satuan"></span>
                             </div>
                         </div>
                     </div>
@@ -153,7 +154,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         </div>
                         <p class="font-sans text-xs uppercase font-black tracking-widest text-muted-foreground">Log Kosong</p>
-                        <p class="text-[10px] text-muted-foreground/70 mt-2 max-w-[200px] leading-relaxed font-medium">Belum ada aktivitas pekerja yang terekam hari ini.</p>
+                        <p class="text-[10px] text-muted-foreground/70 mt-2 max-w-[200px] leading-relaxed font-medium">Belum ada aktivitas pekerja yang terekam.</p>
                     </div>
                 </template>
             </div>

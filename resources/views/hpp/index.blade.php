@@ -7,10 +7,21 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-4">
         <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="flex h-3 w-3 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
+                </span>
+                <span class="text-xs font-mono font-bold text-secondary uppercase tracking-widest">Sistem Online</span>
+            </div>
             <h1 class="text-3xl font-heading font-black text-primary tracking-tight">Kalkulator HPP Otomatis</h1>
             <p class="text-muted-foreground font-sans text-sm mt-1">
                 Hitung Harga Pokok Produksi secara dinamis berdasarkan durasi mesin dan output kemasan.
             </p>
+        </div>
+        <div class="text-right">
+            <p class="text-2xl font-mono font-black text-primary" x-text="currentTime"></p>
+            <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest" x-text="currentDate"></p>
         </div>
     </div>
 
@@ -97,7 +108,7 @@
                             Maksimum output dari batch & stok kemasan: <span class="font-bold text-secondary" x-text="getMaxPcs() + ' Pcs'"></span>
                         </p>
                         <p class="text-[10px] text-red-500 font-bold mt-1" x-show="form.selectedBatch && form.selectedPouch && getMaxPcs() > 0 && parseFloat(form.hasil_kemasan_pcs) > getMaxPcs()">
-                            Peringatan: Output melebihi kapasitas batch kopi atau stok bahan kemasan (Anti-Gravity Guard)!
+                            Peringatan: Output melebihi kapasitas batch kopi atau stok bahan kemasan 
                         </p>
                     </div>
                 </div>
@@ -129,7 +140,7 @@
                             <!-- Listrik -->
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
-                                    <p class="text-sm font-bold text-foreground">Biaya Operasional Mesin (Listrik & Gas)</p>
+                                    <p class="text-sm font-bold text-foreground">Biaya Operasional Mesin </p>
                                     <p class="text-[10px] text-muted-foreground">Durasi Total Kerja (Menit) × Tarif per Menit</p>
                                 </div>
                                 <p class="font-mono font-bold text-primary" x-text="formatRupiah(preview.biaya_listrik)"></p>
@@ -274,6 +285,19 @@
                 biaya_tenaga_kerja_batch: 0,
                 is_fallback_gaji: false,
                 max_output_pcs: 999999
+            },
+            timeObj: new Date(),
+
+            init() {
+                setInterval(() => { this.timeObj = new Date(); }, 1000);
+            },
+
+            get currentTime() {
+                return this.timeObj.toLocaleTimeString('id-ID', { hour12: false });
+            },
+
+            get currentDate() {
+                return this.timeObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             },
 
             formatRupiah(number) {

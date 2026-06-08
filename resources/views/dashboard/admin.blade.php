@@ -1,9 +1,34 @@
-<div class="space-y-6">
-    <div class="flex flex-col gap-2">
-        <h1 class="text-3xl font-heading font-bold text-primary">Beranda Eksekutif</h1>
-        <p class="text-muted-foreground font-sans">
-            Selamat datang, {{ Auth::user()->name }}. Berikut adalah ringkasan performa finansial dan operasional.
-        </p>
+<div class="space-y-6" x-data="adminClock()">
+    <!-- Header Section (Sesuai Screenshot) -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-4">
+        <div>
+            <!-- Green Dot and SISTEM ONLINE -->
+            <div class="flex items-center gap-2 mb-1">
+                <span class="flex h-3 w-3 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
+                </span>
+                <span class="text-xs font-mono font-bold text-secondary uppercase tracking-widest text-[#526B42]">Sistem Online</span>
+            </div>
+            <!-- Title -->
+            <h1 class="text-3xl font-heading font-black text-primary tracking-tight">Beranda PIC Eksekutif</h1>
+            <!-- Subtitle -->
+            <p class="text-muted-foreground font-sans text-sm mt-1">
+                Pusat Kendali Mesin Sangrai & Pencatatan Inventaris Barang Jadi.
+            </p>
+        </div>
+        
+        <!-- Right side: Realtime Time & Date -->
+        <div class="text-left md:text-right">
+            <!-- Time -->
+            <p class="text-2xl font-mono font-black text-primary" x-text="currentTime">
+                {{ \Carbon\Carbon::now()->format('H.i.s') }}
+            </p>
+            <!-- Date -->
+            <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">
+                {{ Str::upper(\Carbon\Carbon::now()->translatedFormat('l, j F Y')) }}
+            </p>
+        </div>
     </div>
 
     <!-- Top Metrics Row -->
@@ -59,7 +84,7 @@
                     </div>
                 </div>
                 <div class="p-2 border border-border text-primary rounded-md shadow-sm bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
             </div>
             <div class="flex items-center text-[11px] font-bold uppercase tracking-widest text-accent mt-2">
@@ -72,60 +97,55 @@
     <!-- Main Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
-        <!-- Left Side: Warning & Actions (Takes 2 columns) -->
+        <!-- Left Side: Warning & Actions -->
         <div class="lg:col-span-2 flex flex-col gap-6">
             
             <!-- Warning Box -->
             @if($has_warning)
-<!-- 🔴 MODE WARNING -->
-<div class="bg-red-50 dark:bg-[#3d211e] border border-red-200 dark:border-[#612b27] rounded-xl p-6 shadow-sm">
-    <div class="flex items-center gap-2 mb-4 text-red-600">
-        <h3 class="text-xl font-bold">Perhatian Dibutuhkan</h3>
-    </div>
+                <div class="bg-red-50 dark:bg-[#3d211e] border border-red-200 dark:border-[#612b27] rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center gap-2 mb-4 text-red-600">
+                        <h3 class="text-xl font-bold">Perhatian Dibutuhkan</h3>
+                    </div>
 
-    <h4 class="text-red-700 font-bold mb-4 text-sm">
-        Stok Menipis (&lt; 5kg)
-    </h4>
+                    <h4 class="text-red-700 font-bold mb-4 text-sm">
+                        Stok Menipis (&lt; 5kg)
+                    </h4>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        @foreach($stok_menipis as $item)
-            <div class="bg-white border border-red-100 rounded-lg p-4 flex justify-between items-center">
-                <div>
-                    <p class="font-bold">{{ $item['name'] }}</p>
-                    <p class="text-xs uppercase">{{ $item['type'] }}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @foreach($stok_menipis as $item)
+                            <div class="bg-white border border-red-100 rounded-lg p-4 flex justify-between items-center">
+                                <div>
+                                    <p class="font-bold">{{ $item['name'] }}</p>
+                                    <p class="text-xs uppercase">{{ $item['type'] }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xl font-bold">{{ $item['amount'] }}</span>
+                                    <span class="text-sm">{{ $item['unit'] }}</span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-                <div class="text-right">
-                    <span class="text-xl font-bold">{{ $item['amount'] }}</span>
-                    <span class="text-sm">{{ $item['unit'] }}</span>
+            @else
+                <div class="bg-green-50 dark:bg-[#1f2e1f] border border-green-200 dark:border-[#2e4a2e] rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center gap-2 mb-4 text-green-700">
+                        <h3 class="text-xl font-bold">Monitor Bahan Baku</h3>
+                    </div>
+
+                    <h4 class="text-green-700 font-bold mb-2 text-sm">
+                        Kapasitas Produksi Optimal
+                    </h4>
+
+                    <div class="bg-white dark:bg-[#1a241a] border border-green-100 rounded-lg p-4 text-center">
+                        <p class="font-bold text-green-800">
+                            Seluruh jenis kopi di gudang tersedia melimpah!
+                        </p>
+                        <p class="text-sm text-green-700 mt-1">
+                            Siap dieksekusi oleh mesin roasting tanpa batas cadangan minimum.
+                        </p>
+                    </div>
                 </div>
-            </div>
-        @endforeach
-    </div>
-</div>
-
-@else
-
-<!-- 🟢 MODE AMAN -->
-<div class="bg-green-50 dark:bg-[#1f2e1f] border border-green-200 dark:border-[#2e4a2e] rounded-xl p-6 shadow-sm">
-    <div class="flex items-center gap-2 mb-4 text-green-700">
-        <h3 class="text-xl font-bold">Monitor Bahan Baku</h3>
-    </div>
-
-    <h4 class="text-green-700 font-bold mb-2 text-sm">
-        Kapasitas Produksi Optimal
-    </h4>
-
-    <div class="bg-white dark:bg-[#1a241a] border border-green-100 rounded-lg p-4 text-center">
-        <p class="font-bold text-green-800">
-            Seluruh jenis kopi di gudang tersedia melimpah!
-        </p>
-        <p class="text-sm text-green-700 mt-1">
-            Siap dieksekusi oleh mesin roasting tanpa batas cadangan minimum.
-        </p>
-    </div>
-</div>
-
-@endif
+            @endif
 
             <!-- Quick Actions Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -135,17 +155,19 @@
                     </div>
                     <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Lihat Laba Rugi</span>
                 </a>
-                <a href="/pos" class="bg-card hover:bg-muted border border-border rounded-xl p-5 flex flex-col items-center justify-center gap-3 transition shadow-sm text-primary group">
+                <a href="/inventory" class="bg-card hover:bg-muted border border-border rounded-xl p-5 flex flex-col items-center justify-center gap-3 transition shadow-sm text-primary group">
                     <div class="p-2 border border-border text-primary rounded-md bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-sm">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        <!-- Box/Warehouse Icon -->
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                     </div>
-                    <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Buka Mesin Kasir</span>
+                    <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Kelola Gudang</span>
                 </a>
-                <a href="/settings" class="bg-card hover:bg-muted border border-border rounded-xl p-5 flex flex-col items-center justify-center gap-3 transition shadow-sm text-primary group">
+                <a href="/hpp-calculator" class="bg-card hover:bg-muted border border-border rounded-xl p-5 flex flex-col items-center justify-center gap-3 transition shadow-sm text-primary group">
                     <div class="p-2 border border-border text-primary rounded-md bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-sm">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+                        <!-- Calculator Icon -->
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                     </div>
-                    <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Sistem Pegawai</span>
+                    <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Kalkulator HPP</span>
                 </a>
                 <a href="/reports" class="bg-card hover:bg-muted border border-border rounded-xl p-5 flex flex-col items-center justify-center gap-3 transition shadow-sm text-primary group">
                     <div class="p-2 border border-border text-primary rounded-md bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-sm">
@@ -167,7 +189,7 @@
                 </div>
             </div>
             
-            <div class="flex-1 ">
+            <div class="flex-1 space-y-6 relative">
                 @foreach($recent_logs as $log)
                     <div class="relative flex items-start gap-4">
                         <div class="w-10 h-10 bg-card border border-border rounded-full flex items-center justify-center text-primary shrink-0 z-10 shadow-sm relative left-0.5 shadow-sm">
@@ -186,3 +208,22 @@
 
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('adminClock', () => ({
+            currentTime: '',
+            init() {
+                this.updateTime();
+                setInterval(() => this.updateTime(), 1000);
+            },
+            updateTime() {
+                const now = new Date();
+                const pad = (n) => String(n).padStart(2, '0');
+                this.currentTime = `${pad(now.getHours())}.${pad(now.getMinutes())}.${pad(now.getSeconds())}`;
+            }
+        }));
+    });
+</script>
+@endpush

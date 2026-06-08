@@ -48,10 +48,12 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
                 Proses Kemas
             </button>
+            @if(auth()->user() && strtolower(auth()->user()->role) === 'pic')
             <button x-show="activeTab === 'greenbean'" @click="openModal('add', activeTab)" class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 <span x-text="'Tambah Stok ' + getTabName()"></span>
             </button>
+            @endif
         </div>
     </div>
 
@@ -127,7 +129,9 @@
                         <th class="p-4 text-right">Harga Beli</th>
                         <th class="p-4 text-right">Stok</th>
                         <th class="p-4 text-center">Status</th>
+                        @if(auth()->user() && strtolower(auth()->user()->role) === 'pic')
                         <th class="p-4 text-center">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/30">
@@ -166,6 +170,7 @@
                                     </span>
                                 </template>
                             </td>
+                            @if(auth()->user() && strtolower(auth()->user()->role) === 'pic')
                             <td class="p-4 text-center">
                                 <div class="flex justify-center gap-1">
                                     <button @click="openModal('edit', 'greenbean', item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Koreksi Stok Fisik">
@@ -180,6 +185,7 @@
                                     </form>
                                 </div>
                             </td>
+                            @endif
                         </tr>
                     </template>
                 </tbody>
@@ -200,7 +206,9 @@
                         <th class="p-4 text-right">Stok (Kg)</th>
                         <th class="p-4 text-right">Sisa (Gram)</th>
                         <th class="p-4 text-center">Status</th>
+                        @if(auth()->user() && strtolower(auth()->user()->role) === 'pic')
                         <th class="p-4 text-center">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/30">
@@ -230,6 +238,7 @@
                                     <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Masuk Gudang
                                 </span>
                             </td>
+                            @if(auth()->user() && strtolower(auth()->user()->role) === 'pic')
                             <td class="p-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     <button @click="openModal('edit', 'roastedbean', item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Stok Batch">
@@ -244,6 +253,7 @@
                                     </form>
                                 </div>
                             </td>
+                            @endif
                         </tr>
                     </template>
                 </tbody>

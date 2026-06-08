@@ -38,7 +38,7 @@ class MasterDataApiController extends Controller
             'tipe' => ['required', 'string', 'max:255'],
             'nama_kemasan' => ['required', 'string', 'max:255', Rule::unique('packagings', 'nama_kemasan')->ignore($id)],
             'kapasitas_gram' => 'required|integer|min:0',
-            'satuan' => ['required', 'string', Rule::in(['gram', 'pcs', 'pack'])],
+            'satuan' => ['required', 'string', 'max:255'],
             'harga_satuan' => 'required|integer|min:0',
             'harga_total_pembelian' => 'nullable|integer|min:0',
             'jumlah_qty_pembelian' => 'nullable|integer|min:0',

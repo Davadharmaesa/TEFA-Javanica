@@ -338,7 +338,7 @@
                                 <span class="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded border border-border/50 bg-muted/30 text-muted-foreground flex-shrink-0" x-text="formatTime(batch.created_at)"></span>
                             </div>
                             
-                            <p class="font-sans font-black text-primary text-xs mb-1 truncate" x-text="batch.roasted_bean_nama || 'Produk'"></p>
+                            <p class="font-sans font-black text-primary text-xs mb-1 truncate" x-text="batch.roasted_bean?.nama_kopi || batch.roasted_bean?.nama || 'Produk'"></p>
                             <p class="font-sans font-medium text-primary/70 text-[10px] mb-3 truncate" x-text="'Dari: ' + (batch.green_bean?.nama_biji || 'Biji Mentah')"></p>
                             
                             <div class="grid grid-cols-3 gap-2 mb-3">
@@ -423,7 +423,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Produk Jadi</p>
-                            <p class="text-lg font-black text-primary" x-text="selectedBatch?.roasted_bean_nama || '-'"></p>
+                            <p class="text-lg font-black text-primary" x-text="selectedBatch?.roasted_bean?.nama_kopi || selectedBatch?.roasted_bean?.nama || '-'"></p>
                         </div>
                         <div>
                             <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Bahan Mentah</p>
