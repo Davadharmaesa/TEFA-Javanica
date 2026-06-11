@@ -37,8 +37,10 @@
             <div class="bg-card border border-border shadow-sm rounded-2xl overflow-hidden flex flex-col">
                 <div class="bg-primary px-5 py-4">
                     <h2 class="font-heading font-bold text-white flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
-                        Parameter Produksi
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>
+                        </svg>
+                    Parameter Produksi
                     </h2>
                 </div>
                 <div class="p-5 space-y-4">
@@ -150,7 +152,7 @@
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
                                     <p class="text-sm font-bold text-foreground">Overhead Lainnya & Penyusutan</p>
-                                    <p class="text-[10px] text-muted-foreground" x-text="'Membagi Biaya Overhead Standar (Rp' + formatRupiah(preview.biaya_overhead_lainnya_batch) + '/batch)'"></p>
+                                    <p class="text-[10px] text-muted-foreground" x-text="'Membagi Biaya Overhead Standar (' + formatRupiah(preview.biaya_overhead_lainnya_batch) + '/batch)'"></p>
                                     <template x-if="preview.overhead_list && preview.overhead_list.length > 0">
                                         <p class="text-[9px] text-secondary font-bold mt-0.5">Komponen: <span x-text="preview.overhead_list.join(', ')"></span></p>
                                     </template>
@@ -162,7 +164,7 @@
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
                                     <p class="text-sm font-bold text-foreground">Tenaga Kerja (Gaji & Roasting)</p>
-                                    <p class="text-[10px] text-muted-foreground" x-text="preview.is_fallback_gaji ? 'Membagi Upah Standar Master (Rp' + formatRupiah(preview.biaya_tenaga_kerja_batch) + '/batch)' : 'Membagi Upah dari Log Kerja Batch (Rp' + formatRupiah(preview.biaya_tenaga_kerja_batch) + ')'"></p>
+                                    <p class="text-[10px] text-muted-foreground" x-text="preview.is_fallback_gaji ? 'Membagi Upah Standar Master (' + formatRupiah(preview.biaya_tenaga_kerja_batch) + '/batch)' : 'Membagi Upah dari Log Kerja Batch (' + formatRupiah(preview.biaya_tenaga_kerja_batch) + ')'"></p>
                                     <template x-if="preview.pekerja_list && preview.pekerja_list.length > 0">
                                         <p class="text-[9px] text-secondary font-bold mt-0.5">Pekerja Terlibat: <span x-text="preview.pekerja_list.join(', ')"></span></p>
                                     </template>
@@ -174,7 +176,7 @@
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
                                     <p class="text-sm font-bold text-foreground">Modal Kemasan (Pouch + Stiker)</p>
-                                    <p class="text-[10px] text-muted-foreground" x-text="'Pcs × (Pouch: Rp' + formatRupiah(form.pouch_hpp) + ' + Stiker: Rp' + formatRupiah(form.sticker_hpp) + ')'"></p>
+                                    <p class="text-[10px] text-muted-foreground" x-text="'Pcs × (Pouch: ' + formatRupiah(form.pouch_hpp) + ' + Stiker: ' + formatRupiah(form.sticker_hpp) + ')'"></p>
                                 </div>
                                 <p class="font-mono font-bold text-primary" x-text="formatRupiah(preview.biaya_kemasan)"></p>
                             </div>

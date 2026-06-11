@@ -1,7 +1,7 @@
 <aside 
     x-init="$nextTick(() => { $el.classList.remove('sidebar-pre-collapsed') })"
     class="flex flex-col bg-card shadow-md h-full z-20 relative transition-all duration-300 ease-in-out border-r border-border w-64" 
-    :class="isCollapsed ? 'w-20' : 'w-64'"
+    :class="isCollapsed ? 'w-20' : 'w-56'"
 >
     <script>
         // Gunakan class FOUC temporer yang tidak berbenturan dengan class w-64/w-20 milik Alpine
@@ -45,7 +45,7 @@
     </button>
 
     <div class="flex items-center h-20 transition-all duration-300" :class="isCollapsed ? 'justify-center px-0' : 'px-6'">
-        <div class="flex items-center gap-3" :class="isCollapsed ? 'justify-center' : 'w-full'">
+        <div class="flex items-center transition-all duration-300" :class="isCollapsed ? 'justify-center gap-0' : 'w-full gap-3'">
             <div class="bg-primary text-white p-2 rounded-lg flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
             </div>
@@ -94,8 +94,8 @@
             <a 
                 href="{{ $item['href'] }}" 
                 @if($isActive) id="active-nav-item" @endif
-                class="flex items-center gap-3 py-2.5 rounded-md font-sans text-sm font-medium transition-all group {{ $isActive ? 'bg-secondary text-secondary-foreground shadow-sm' : 'text-primary hover:bg-muted hover:text-secondary' }}"
-                :class="isCollapsed ? 'px-2 justify-center' : 'px-3'"
+                class="flex items-center py-2.5 rounded-md font-sans text-sm font-medium transition-all group {{ $isActive ? 'bg-secondary text-secondary-foreground shadow-sm' : 'text-primary hover:bg-muted hover:text-secondary' }}"
+                :class="isCollapsed ? 'px-2 justify-center gap-0' : 'px-3 gap-3'"
             >
                 <div class="flex-shrink-0 {{ $isActive ? 'text-secondary-foreground' : 'text-muted-foreground group-hover:text-secondary' }}">
                     @if($item['icon'] === 'home')
@@ -115,7 +115,9 @@
                     @elseif($item['icon'] === 'settings')
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                     @elseif($item['icon'] === 'calculator')
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>
+                        </svg>
                     @elseif($item['icon'] === 'users-manage')
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
                     @endif
@@ -141,7 +143,7 @@
 
     <!-- Footer / User Profile -->
     <div class="p-3 space-y-3 overflow-hidden">
-        <div class="flex items-center gap-3 bg-background border border-border rounded-lg transition-all duration-300" :class="isCollapsed ? 'p-2 justify-center' : 'p-3'">
+        <div class="flex items-center bg-background border border-border rounded-lg transition-all duration-300" :class="isCollapsed ? 'p-2 justify-center gap-0' : 'p-3 gap-3'">
             <div class="p-1.5 bg-secondary/10 text-secondary rounded-full flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
@@ -155,8 +157,8 @@
             @csrf
             <button
                 type="submit"
-                class="w-full flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold text-red-600 bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                :class="isCollapsed ? 'px-2' : 'px-4'"
+                class="w-full flex items-center justify-center py-2 rounded-md text-sm font-bold text-red-600 bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                :class="isCollapsed ? 'px-2 gap-0' : 'px-4 gap-2'"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
                 <span class="transition-all duration-300 whitespace-nowrap overflow-hidden" :class="isCollapsed ? 'w-0 opacity-0' : 'opacity-100'">
