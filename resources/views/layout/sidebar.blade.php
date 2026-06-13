@@ -1,40 +1,18 @@
 <aside 
-    x-init="$nextTick(() => { $el.classList.remove('sidebar-pre-collapsed') })"
-    class="flex flex-col bg-card shadow-md h-full z-20 relative transition-all duration-300 ease-in-out border-r border-border w-64" 
-    :class="isCollapsed ? 'w-20' : 'w-64'"
+    x-init="$nextTick(() => { document.documentElement.classList.remove('sidebar-collapsed') })"
+    class="flex flex-col bg-card shadow-md h-full border-r border-border transition-all duration-300 ease-in-out fixed inset-y-0 left-0 z-50 transform md:relative md:translate-x-0 md:z-20 w-64" 
+    :class="{
+        'translate-x-0': isMobileOpen,
+        '-translate-x-full md:translate-x-0': !isMobileOpen,
+        'md:w-20 w-64': isCollapsed,
+        'w-64': !isCollapsed
+    }"
 >
-    <script>
-        // Gunakan class FOUC temporer yang tidak berbenturan dengan class w-64/w-20 milik Alpine
-        if (localStorage.getItem('sidebarCollapsed') === 'true') {
-            document.currentScript.parentElement.classList.add('sidebar-pre-collapsed');
-        }
-    </script>
 
-    <style>
-        /* Mencegah glitch teks meluber saat render pertama kali sebelum Alpine.js aktif */
-        aside.sidebar-pre-collapsed {
-            width: 5rem !important; /* Setara w-20 */
-        }
-        aside.sidebar-pre-collapsed h1,
-        aside.sidebar-pre-collapsed p.text-muted-foreground.font-mono,
-        aside.sidebar-pre-collapsed nav a span,
-        aside.sidebar-pre-collapsed div.flex-1.whitespace-nowrap,
-        aside.sidebar-pre-collapsed form button span {
-            display: none !important;
-        }
-        aside.sidebar-pre-collapsed nav a,
-        aside.sidebar-pre-collapsed div.p-3.space-y-3 > div,
-        aside.sidebar-pre-collapsed form button {
-            padding-left: 0.5rem !important;
-            padding-right: 0.5rem !important;
-            justify-content: center !important;
-        }
-    </style>
-
-    <!-- Toggle Button -->
+    <!-- Toggle Button (Desktop/Tablet only) -->
     <button 
-        @click="isCollapsed = !isCollapsed; localStorage.setItem('sidebarCollapsed', isCollapsed)"
-        class="absolute -right-3 top-8 bg-secondary text-secondary-foreground rounded-full p-1 shadow-md hover:bg-secondary/90 transition-transform hover:scale-110 z-30"
+        @click="isCollapsed = !isCollapsed; try { localStorage.setItem('sidebarCollapsed', isCollapsed) } catch (e) {}"
+        class="hidden md:block absolute -right-3 top-8 bg-secondary text-secondary-foreground rounded-full p-1 shadow-md hover:bg-secondary/90 transition-transform hover:scale-110 z-30"
     >
         <template x-if="isCollapsed">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
@@ -44,17 +22,30 @@
         </template>
     </button>
 
-    <div class="flex items-center h-20 transition-all duration-300" :class="isCollapsed ? 'justify-center px-0' : 'px-6'">
-        <div class="flex items-center gap-3" :class="isCollapsed ? 'justify-center' : 'w-full'">
+    <div class="flex items-center h-20 transition-all duration-300" :class="isCollapsed ? 'md:justify-center md:px-0 px-6' : 'px-6'">
+        <div class="flex items-center gap-3" :class="isCollapsed ? 'md:justify-center w-full' : 'w-full'">
             <div class="bg-primary text-white p-2 rounded-lg flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
             </div>
-            <div class="flex overflow-hidden transition-all duration-300" :class="isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'">
-                <div class="whitespace-nowrap">
-                    <h1 class="text-primary font-heading font-bold uppercase tracking-wider text-sm leading-tight">
-                        TEFA Javanica
-                    </h1>
-                    <p class="text-[10px] text-muted-foreground font-mono">Roastery Div.</p>
+            <div class="transition-all duration-300 flex-1" :class="isCollapsed ? 'md:hidden' : 'flex overflow-hidden w-full'">
+                <div class="whitespace-nowrap flex items-center justify-between w-full">
+                    <div>
+                        <h1 class="text-primary font-heading font-bold uppercase tracking-wider text-sm leading-tight">
+                            TEFA Javanica
+                        </h1>
+                        <p class="text-[10px] text-muted-foreground font-mono">Roastery Div.</p>
+                    </div>
+                    <!-- Close Button on Mobile Overlay -->
+                    <button 
+                        @click="isMobileOpen = false"
+                        class="md:hidden p-1.5 text-muted-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-colors focus:outline-none ml-2"
+                        aria-label="Close Sidebar"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -95,7 +86,7 @@
                 href="{{ $item['href'] }}" 
                 @if($isActive) id="active-nav-item" @endif
                 class="flex items-center gap-3 py-2.5 rounded-md font-sans text-sm font-medium transition-all group {{ $isActive ? 'bg-secondary text-secondary-foreground shadow-sm' : 'text-primary hover:bg-muted hover:text-secondary' }}"
-                :class="isCollapsed ? 'px-2 justify-center' : 'px-3'"
+                :class="isCollapsed ? 'md:px-2 md:justify-center px-3' : 'px-3'"
             >
                 <div class="flex-shrink-0 {{ $isActive ? 'text-secondary-foreground' : 'text-muted-foreground group-hover:text-secondary' }}">
                     @if($item['icon'] === 'home')
@@ -120,7 +111,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
                     @endif
                 </div>
-                <span class="transition-all duration-300 whitespace-nowrap overflow-hidden" :class="isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'">
+                <span class="transition-all duration-300 whitespace-nowrap overflow-hidden" :class="isCollapsed ? 'md:hidden' : ''">
                     {{ $item['name'] }}
                 </span>
             </a>
@@ -141,11 +132,11 @@
 
     <!-- Footer / User Profile -->
     <div class="p-3 space-y-3 overflow-hidden">
-        <div class="flex items-center gap-3 bg-background border border-border rounded-lg transition-all duration-300" :class="isCollapsed ? 'p-2 justify-center' : 'p-3'">
+        <div class="flex items-center gap-3 bg-background border border-border rounded-lg transition-all duration-300" :class="isCollapsed ? 'md:p-2 md:justify-center p-3' : 'p-3'">
             <div class="p-1.5 bg-secondary/10 text-secondary rounded-full flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
-            <div class="flex-1 overflow-hidden transition-all duration-300 whitespace-nowrap" :class="isCollapsed ? 'w-0 opacity-0 hidden' : 'opacity-100'">
+            <div class="flex-1 overflow-hidden transition-all duration-300 whitespace-nowrap" :class="isCollapsed ? 'md:hidden' : ''">
                 <p class="text-sm font-bold text-primary truncate">{{ Auth::user()->name }}</p>
                 <p class="text-xs text-muted-foreground font-mono truncate">{{ ucfirst(Auth::user()->role ?? 'Operator') }}</p>
             </div>
@@ -156,10 +147,10 @@
             <button
                 type="submit"
                 class="w-full flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold text-red-600 bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                :class="isCollapsed ? 'px-2' : 'px-4'"
+                :class="isCollapsed ? 'md:px-2 px-4' : 'px-4'"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-                <span class="transition-all duration-300 whitespace-nowrap overflow-hidden" :class="isCollapsed ? 'w-0 opacity-0' : 'opacity-100'">
+                <span class="transition-all duration-300 whitespace-nowrap overflow-hidden" :class="isCollapsed ? 'md:hidden' : ''">
                     Keluar
                 </span>
             </button>

@@ -1,5 +1,18 @@
-<header class="h-20 bg-card shadow-md flex items-center justify-between px-8 z-10 relative">
+<header class="h-20 bg-card shadow-md flex items-center justify-between px-4 sm:px-6 md:px-8 z-10 relative">
     <div class="flex items-center gap-4 flex-1">
+        <!-- Sidebar Toggle Menu Button (Mobile only) -->
+        <button 
+            @click="isMobileOpen = !isMobileOpen"
+            class="md:hidden p-2 -ml-2 text-muted-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-colors focus:outline-none flex-shrink-0"
+            aria-label="Toggle Sidebar"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" x2="20" y1="12" y2="12"></line>
+                <line x1="4" x2="20" y1="6" y2="6"></line>
+                <line x1="4" x2="20" y1="18" y2="18"></line>
+            </svg>
+        </button>
+
         <div class="relative w-96 hidden md:block group" x-data="{
             searchQuery: '',
             searchResults: [],
@@ -88,7 +101,7 @@
 
     <div class="flex items-center gap-6">
         <!-- Theme Toggle -->
-        <button @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light')" class="text-muted-foreground hover:text-primary transition-colors">
+        <button @click="darkMode = !darkMode; try { localStorage.setItem('theme', darkMode ? 'dark' : 'light') } catch(e) {}" class="text-muted-foreground hover:text-primary transition-colors">
             <svg x-show="!darkMode" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
             <svg x-show="darkMode" x-cloak xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1"/><path d="M12 20v1"/><path d="M3 12h1"/><path d="M20 12h1"/><path d="m18.364 5.636-.707.707"/><path d="m6.343 17.657-.707.707"/><path d="m5.636 5.636.707.707"/><path d="m17.657 17.657.707.707"/></svg>
         </button>

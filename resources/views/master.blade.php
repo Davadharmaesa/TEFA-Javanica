@@ -67,8 +67,8 @@
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-primary group-hover:text-secondary transition-colors" x-text="item.nama"></p>
                             </td>
-                            <td class="p-4">
-                                <span class="px-2.5 py-1 bg-secondary/10 text-secondary text-[10px] font-black rounded-full uppercase tracking-widest shadow-sm border border-secondary/20" x-text="item.kategori"></span>
+                            <td class="p-4 align-middle">
+                                <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-secondary/10 text-secondary text-[10px] font-black rounded-full uppercase tracking-wide shadow-sm border border-secondary/20" x-text="item.kategori"></span>
                             </td>
                             <td class="p-4 text-sm font-mono text-muted-foreground" x-text="item.satuan"></td>
                             <td class="p-4 text-right font-mono font-bold text-primary">
@@ -108,8 +108,8 @@
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-primary group-hover:text-secondary transition-colors" x-text="item.nama_biji"></p>
                             </td>
-                            <td class="p-4">
-                                <span class="px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-widest shadow-sm border border-accent/20" x-text="item.asal_kopi"></span>
+                            <td class="p-4 align-middle">
+                                <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-wide shadow-sm border border-accent/20" x-text="item.asal_kopi"></span>
                             </td>
                             <td class="p-4 text-right font-mono font-bold" :class="(item.stok_gram/1000) < 10 ? 'text-red-500' : 'text-primary'">
                                 <span x-text="(item.stok_gram / 1000).toFixed(1)"></span> Kg
@@ -148,8 +148,8 @@
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-primary group-hover:text-secondary transition-colors" x-text="item.nama_kopi"></p>
                             </td>
-                            <td class="p-4">
-                                <span class="px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-widest shadow-sm border border-primary/20" x-text="item.bentuk_akhir"></span>
+                            <td class="p-4 align-middle">
+                                <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-wide shadow-sm border border-primary/20" x-text="item.bentuk_akhir"></span>
                             </td>
                             <td class="p-4 text-right font-mono font-bold text-primary">
                                 <span x-text="(item.total_stok / 1000).toFixed(1)"></span> Kg
@@ -188,8 +188,8 @@
                 <tbody class="divide-y divide-border/30">
                     <template x-for="item in dataPackaging" :key="item.id">
                         <tr class="hover:bg-muted/10 transition-colors group">
-                            <td class="p-4 pl-6">
-                                <span class="px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-widest shadow-sm border border-accent/20" x-text="item.tipe"></span>
+                            <td class="p-4 pl-6 align-middle">
+                                <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-wide shadow-sm border border-accent/20" x-text="item.tipe"></span>
                             </td>
                             <td class="p-4">
                                 <p class="font-bold text-primary group-hover:text-secondary transition-colors" x-text="item.nama_kemasan"></p>

@@ -50,53 +50,49 @@
     @endif
 
     <!-- Statistics Summary Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <!-- Stat Card 1: Total Users -->
-        <div class="bg-card border border-border/40 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+        <div class="bg-card border border-border/40 rounded-2xl p-4 shadow-sm relative overflow-hidden group">
             <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
-            <div>
-                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Pengguna</p>
-                <p class="text-2xl font-black font-mono text-primary">{{ $totalUsers }} <span class="text-xs font-medium text-muted-foreground">User</span></p>
-            </div>
+            <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-wide leading-tight">Total Pengguna</p>
+            <p class="text-2xl font-black font-mono text-primary leading-none mt-1">{{ $totalUsers }}</p>
+            <p class="text-[10px] text-muted-foreground mt-0.5">User</p>
         </div>
 
         <!-- Stat Card 2: PIC -->
-        <div class="bg-card border border-border/40 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+        <div class="bg-card border border-border/40 rounded-2xl p-4 shadow-sm relative overflow-hidden group">
             <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div class="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
-            <div>
-                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Role PIC</p>
-                <p class="text-2xl font-black font-mono text-primary">{{ $totalPic }} <span class="text-xs font-medium text-muted-foreground">User</span></p>
-            </div>
+            <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-wide leading-tight">Role PIC</p>
+            <p class="text-2xl font-black font-mono text-primary leading-none mt-1">{{ $totalPic }}</p>
+            <p class="text-[10px] text-muted-foreground mt-0.5">User</p>
         </div>
 
         <!-- Stat Card 3: Operator -->
-        <div class="bg-card border border-border/40 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+        <div class="bg-card border border-border/40 rounded-2xl p-4 shadow-sm relative overflow-hidden group">
             <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-secondary to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            <div class="w-9 h-9 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
             </div>
-            <div>
-                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Role Operator</p>
-                <p class="text-2xl font-black font-mono text-primary">{{ $totalOperator }} <span class="text-xs font-medium text-muted-foreground">User</span></p>
-            </div>
+            <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-wide leading-tight">Role Operator</p>
+            <p class="text-2xl font-black font-mono text-primary leading-none mt-1">{{ $totalOperator }}</p>
+            <p class="text-[10px] text-muted-foreground mt-0.5">User</p>
         </div>
 
         <!-- Stat Card 4: Mahasiswa Magang -->
-        <div class="bg-card border border-border/40 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+        <div class="bg-card border border-border/40 rounded-2xl p-4 shadow-sm relative overflow-hidden group">
             <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2.5 3 6 3s6-1 6-3v-5"/></svg>
+            <div class="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center text-accent mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2.5 3 6 3s6-1 6-3v-5"/></svg>
             </div>
-            <div>
-                <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Role Magang</p>
-                <p class="text-2xl font-black font-mono text-primary">{{ $totalMagang }} <span class="text-xs font-medium text-muted-foreground">User</span></p>
-            </div>
+            <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-wide leading-tight">Role Magang</p>
+            <p class="text-2xl font-black font-mono text-primary leading-none mt-1">{{ $totalMagang }}</p>
+            <p class="text-[10px] text-muted-foreground mt-0.5">User</p>
         </div>
     </div>
 

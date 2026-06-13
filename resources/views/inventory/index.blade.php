@@ -143,8 +143,8 @@
                             <td class="p-4">
                                 <p class="font-bold text-primary" x-text="item.nama"></p>
                             </td>
-                            <td class="p-4">
-                                <span class="px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-widest" x-text="item.kategori"></span>
+                            <td class="p-4 align-middle">
+                                <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-wide" x-text="item.kategori"></span>
                             </td>
                             <td class="p-4 text-sm font-mono text-muted-foreground" x-text="item.tanggal_beli"></td>
                             <td class="p-4 text-right font-mono font-bold text-primary">
@@ -220,8 +220,8 @@
                             <td class="p-4">
                                 <p class="font-bold text-primary" x-text="item.nama"></p>
                             </td>
-                            <td class="p-4">
-                                <span class="px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-widest" x-text="item.bentuk"></span>
+                            <td class="p-4 align-middle">
+                                <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-wide" x-text="item.bentuk"></span>
                             </td>
                             <td class="p-4">
                                 <p class="text-xs font-bold text-muted-foreground">Roast: <span x-text="item.tanggal_roasting"></span></p>
