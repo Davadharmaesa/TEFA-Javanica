@@ -102,7 +102,7 @@
             <h2 class="text-lg font-heading font-bold text-primary">Daftar Pengguna Aktif</h2>
             <p class="text-xs text-muted-foreground mt-1">Daftar lengkap pengguna yang berhak login ke sistem TEFA Javanica.</p>
         </div>
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto hidden md:block">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
@@ -182,11 +182,77 @@
                 </tbody>
             </table>
         </div>
+        <!-- Mobile Card List for Users -->
+        <div class="grid grid-cols-1 gap-4 p-4 md:hidden bg-muted/10">
+            @foreach($users as $user)
+                <div class="bg-card border border-border/40 rounded-xl p-4 space-y-3 shadow-sm relative">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0 uppercase border border-primary/20">
+                            {{ substr($user->name, 0, 2) }}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <h4 class="font-bold text-foreground truncate text-sm">{{ $user->name }}</h4>
+                                @if($user->role === 'PIC')
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 border border-red-500/20">
+                                        PIC
+                                    </span>
+                                @elseif($user->role === 'Operator')
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-secondary/10 text-secondary border border-secondary/20">
+                                        OPERATOR
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-accent/10 text-accent border border-accent/20">
+                                        MAGANG
+                                    </span>
+                                @endif
+                            </div>
+                            <p class="text-xs font-mono text-muted-foreground truncate mt-0.5">{{ $user->email }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center text-xs border-t border-border/20 pt-2.5">
+                        <div>
+                            <p class="text-[10px] text-muted-foreground font-semibold">Terdaftar Sejak</p>
+                            <p class="text-[11px] font-mono text-foreground mt-0.5">{{ $user->created_at->format('d M Y - H:i') }}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            @if(auth()->id() === $user->id)
+                                <span class="inline-flex text-[9px] font-black uppercase tracking-widest bg-secondary/20 text-secondary px-1.5 py-0.5 rounded leading-none mr-1">Aktif</span>
+                            @endif
+                            <!-- Edit button -->
+                            <button 
+                                @click="openEditModal({{ json_encode($user) }})" 
+                                class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" 
+                                title="Ubah Profil / Password User"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+
+                            <!-- Delete button -->
+                            @if(auth()->id() !== $user->id)
+                                <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda benar-benar yakin ingin menghapus user ini? Akun tersebut tidak akan dapat digunakan lagi.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus User">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                    </button>
+                                </form>
+                            @else
+                                <button class="p-1.5 text-muted-foreground/30 cursor-not-allowed" title="Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif" disabled>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
     </div>
 
     <!-- Modal Form Tambah/Edit User -->
-    <div x-show="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
-        <div @click.away="isModalOpen = false" class="bg-card w-full max-w-lg rounded-2xl shadow-xl border border-border/40 p-6 relative overflow-hidden">
+    <div x-show="isModalOpen" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" style="display: none;" x-transition>
+        <div @click.away="isModalOpen = false" class="bg-card w-full max-w-lg rounded-2xl shadow-xl border border-border/40 p-6 relative overflow-hidden my-auto">
             <!-- Modal Header -->
             <div class="flex justify-between items-center mb-6 border-b border-border/50 pb-4">
                 <h2 class="text-xl font-heading font-bold text-primary flex items-center gap-2">

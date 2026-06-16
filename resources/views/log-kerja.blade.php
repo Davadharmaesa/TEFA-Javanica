@@ -112,7 +112,7 @@
                     <div class="bg-card border-l-4 border-l-secondary border border-border rounded-xl p-4 shadow-sm group hover:bg-muted/10 transition-colors relative overflow-hidden">
                         
                         <!-- Action Buttons -->
-                        <div class="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div class="absolute top-3 right-3 flex gap-1 md:opacity-0 group-hover:opacity-100 opacity-100 transition-opacity">
                             <button @click="editLog(log)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Log">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                             </button>

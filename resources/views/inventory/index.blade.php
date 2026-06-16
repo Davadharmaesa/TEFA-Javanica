@@ -97,29 +97,29 @@
     <!-- Tabs Navigation -->
     <div class="flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50">
         <button @click="activeTab = 'greenbean'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 md:min-w-[150px] py-2.5 px-2 md:py-3 md:px-4 rounded-lg font-bold text-xs md:text-sm transition-all duration-300 flex justify-center items-center gap-2"
             :class="activeTab === 'greenbean' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-45 12 12)"><rect x="5" y="3" width="14" height="18" rx="7"/><path d="M12 3c-1.5 3 1.5 6 0 9s-1.5 6 0 9"/></g></svg>
-            Green Bean
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><g transform="rotate(-45 12 12)"><rect x="5" y="3" width="14" height="18" rx="7"/><path d="M12 3c-1.5 3 1.5 6 0 9s-1.5 6 0 9"/></g></svg>
+            <span class="truncate">Green Bean</span>
         </button>
         <button @click="activeTab = 'roastedbean'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 md:min-w-[150px] py-2.5 px-2 md:py-3 md:px-4 rounded-lg font-bold text-xs md:text-sm transition-all duration-300 flex justify-center items-center gap-2"
             :class="activeTab === 'roastedbean' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
-            Roasted Bean
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
+            <span class="truncate">Roasted Bean</span>
         </button>
         <button @click="activeTab = 'produk'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 md:min-w-[150px] py-2.5 px-2 md:py-3 md:px-4 rounded-lg font-bold text-xs md:text-sm transition-all duration-300 flex justify-center items-center gap-2"
             :class="activeTab === 'produk' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            Produk Kemasan
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span class="truncate">Produk Kemasan</span>
         </button>
     </div>
 
     <!-- Tab Content: Green Bean -->
     <div x-show="activeTab === 'greenbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="hidden md:table w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4">Kode Batch</th>
@@ -191,12 +191,76 @@
                 </tbody>
             </table>
         </div>
+        <!-- Mobile Card List View -->
+        <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
+            <template x-for="item in dataGreenBean" :key="item.id">
+                <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] font-mono text-muted-foreground block" x-text="item.kode"></span>
+                            <h4 class="font-bold text-primary text-sm mt-0.5" x-text="item.nama"></h4>
+                        </div>
+                        <span class="px-2 py-0.5 bg-accent/10 text-accent text-[9px] font-black rounded-full uppercase tracking-wider" x-text="item.kategori"></span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-xs border-y border-border/20 py-2">
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Tanggal Masuk</span>
+                            <span class="font-mono font-medium text-foreground" x-text="item.tanggal_beli"></span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Harga Beli</span>
+                            <span class="font-mono font-bold text-primary" x-text="'Rp ' + formatRupiah(item.harga_beli) + '/Kg'"></span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Stok Saat Ini</span>
+                            <span class="font-mono font-bold" :class="item.stok <= 0 ? 'text-red-500' : 'text-primary'" x-text="item.stok + ' Kg'"></span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Status</span>
+                            <template x-if="item.stok > 5">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-green-600">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Aman
+                                </span>
+                            </template>
+                            <template x-if="item.stok > 0 && item.stok <= 5">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-yellow-600">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-yellow-600"></span> Menipis
+                                </span>
+                            </template>
+                            <template x-if="item.stok <= 0">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-600">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Habis
+                                </span>
+                            </template>
+                        </div>
+                    </div>
+
+                    @if(auth()->user() && strtolower(auth()->user()->role) === 'pic')
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button @click="openModal('edit', 'greenbean', item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Koreksi
+                        </button>
+                        <form :action="'/inventory/green-bean/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data stok Green Bean ini?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8B3A3A] bg-[#8B3A3A]/5 hover:bg-[#8B3A3A]/10 rounded-lg transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                Hapus
+                            </button>
+                        </form>
+                    </div>
+                    @endif
+                </div>
+            </template>
+        </div>
     </div>
 
     <!-- Tab Content: Roasted Bean -->
     <div x-show="activeTab === 'roastedbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="hidden md:table w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4">ID / Kode Batch</th>
@@ -259,6 +323,62 @@
                 </tbody>
             </table>
         </div>
+        <!-- Mobile Card List View -->
+        <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
+            <template x-for="item in dataRoastingBatches" :key="item.id">
+                <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] font-mono text-muted-foreground block" x-text="item.kode"></span>
+                            <h4 class="font-bold text-primary text-sm mt-0.5" x-text="item.nama"></h4>
+                        </div>
+                        <span class="px-2 py-0.5 bg-primary/10 text-primary text-[9px] font-black rounded-full uppercase tracking-wider" x-text="item.bentuk"></span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-xs border-y border-border/20 py-2">
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Roast Date</span>
+                            <span class="font-mono font-bold text-foreground text-[10px]" x-text="item.tanggal_roasting"></span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Expired Date</span>
+                            <span class="font-mono font-bold text-red-500 text-[10px]" x-text="item.tanggal_expire"></span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Stok (Kg)</span>
+                            <span class="font-mono font-black text-primary" x-text="item.stok"></span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Sisa (Gram)</span>
+                            <span class="font-mono font-black text-yellow-600" x-text="item.sisa_stok + ' g'"></span>
+                        </div>
+                        <div class="col-span-2">
+                            <span class="text-[10px] text-muted-foreground block">Status</span>
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-green-600">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Masuk Gudang
+                            </span>
+                        </div>
+                    </div>
+
+                    @if(auth()->user() && strtolower(auth()->user()->role) === 'pic')
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button @click="openModal('edit', 'roastedbean', item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Koreksi
+                        </button>
+                        <form :action="'/inventory/roasted-bean/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data Batch Roasting ini? Total stok Gudang juga akan otomatis berkurang.');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8B3A3A] bg-[#8B3A3A]/5 hover:bg-[#8B3A3A]/10 rounded-lg transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                Hapus
+                            </button>
+                        </form>
+                    </div>
+                    @endif
+                </div>
+            </template>
+        </div>
     </div>
 
     <!-- Tab Content: Produk Kemasan -->
@@ -271,7 +391,7 @@
                 <p class="text-xs text-muted-foreground mt-1">Stok kopi yang sudah dibungkus dan siap dipasarkan.</p>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="hidden md:table w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                             <th class="p-4">Nama Produk (Kopi & Kemasan)</th>
@@ -295,6 +415,18 @@
                     </tbody>
                 </table>
             </div>
+            <!-- Mobile Card List View -->
+            <div class="grid grid-cols-1 gap-3 p-4 md:hidden">
+                <template x-for="item in dataFinishedGoods" :key="item.id">
+                    <div class="bg-background border border-border/50 rounded-xl p-4 flex justify-between items-center shadow-sm">
+                        <p class="font-bold text-primary text-sm" x-text="item.nama"></p>
+                        <p class="font-mono font-bold text-primary text-sm" x-text="item.stok + ' Pcs'"></p>
+                    </div>
+                </template>
+                <div x-show="dataFinishedGoods.length === 0" class="p-6 text-center text-muted-foreground italic text-xs">
+                    Belum ada Kopi Siap Jual. Gunakan menu 'Proses Kemas'.
+                </div>
+            </div>
         </div>
 
         <!-- Tabel Kemasan Kosong -->
@@ -304,7 +436,7 @@
                 <p class="text-xs text-muted-foreground mt-1">Stok material kemasan yang belum diisi.</p>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="hidden md:table w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                             <th class="p-4">Nama Kemasan Kosong</th>
@@ -326,13 +458,25 @@
                     </tbody>
                 </table>
             </div>
+            <!-- Mobile Card List View -->
+            <div class="grid grid-cols-1 gap-3 p-4 md:hidden">
+                <template x-for="item in dataProduk" :key="item.id">
+                    <div class="bg-background border border-border/50 rounded-xl p-4 flex justify-between items-center shadow-sm">
+                        <div>
+                            <p class="font-bold text-primary text-sm" x-text="item.nama"></p>
+                            <p class="text-[10px] text-muted-foreground mt-0.5" x-text="item.tipe"></p>
+                        </div>
+                        <p class="font-mono font-bold text-primary text-sm" x-text="item.stok + ' Pcs'"></p>
+                    </div>
+                </template>
+            </div>
         </div>
     </div>
 
     <!-- Riwayat Pengadaan dihapus sesuai permintaan evaluasi -->
 
     <!-- Modal Tambah/Edit Green Bean -->
-    <div x-show="isModalOpen && activeTab === 'greenbean'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+    <div x-show="isModalOpen && activeTab === 'greenbean'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style="display: none;" x-transition>
         <div @click.away="isModalOpen = false" class="bg-card w-full max-w-lg rounded-2xl shadow-xl border border-border/40 p-6">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-heading font-bold text-primary" x-text="isEditMode ? 'Edit Green Bean' : 'Tambah Green Bean'"></h2>
@@ -397,7 +541,7 @@
     </div>
 
     <!-- Modal Tambah/Edit Roasted Bean -->
-    <div x-show="isModalOpen && activeTab === 'roastedbean'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+    <div x-show="isModalOpen && activeTab === 'roastedbean'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style="display: none;" x-transition>
         <div @click.away="isModalOpen = false" class="bg-card w-full max-w-lg rounded-2xl shadow-xl border border-border/40 p-6">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-heading font-bold text-primary" x-text="isEditMode ? 'Edit Roasted Bean' : 'Tambah Roasted Bean'"></h2>
@@ -413,7 +557,7 @@
                         <p class="text-xs text-primary font-bold uppercase tracking-widest mb-1">Detail Batch (Hanya Koreksi Stok)</p>
                         <p class="text-lg font-black text-foreground" x-text="formData.nama + ' - ' + formData.bentuk"></p>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1">Koreksi Stok (Gram)</label>
                             <input type="number" min="0" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" name="total_stok" x-model="formData.stok_raw" placeholder="Contoh: 15000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
@@ -433,7 +577,7 @@
     </div>
 
     <!-- Modal Tambah/Edit Produk Kemasan -->
-    <div x-show="isModalOpen && activeTab === 'produk'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+    <div x-show="isModalOpen && activeTab === 'produk'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style="display: none;" x-transition>
         <div @click.away="isModalOpen = false" class="bg-card w-full max-w-lg rounded-2xl shadow-xl border border-border/40 p-6">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-heading font-bold text-primary" x-text="isEditMode ? 'Edit Produk Kemasan' : 'Tambah Produk Kemasan'"></h2>
@@ -453,7 +597,7 @@
                     <input type="hidden" name="nama_kemasan" x-model="formData.nama">
                     <input type="hidden" name="tipe" x-model="formData.tipe">
                     
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1">Koreksi Stok (Pcs)</label>
                             <input type="number" min="0" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" name="stok_pcs" x-model="formData.stok" placeholder="Contoh: 100" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
@@ -472,7 +616,7 @@
         </div>
     </div>
     <!-- Modal Proses Pengemasan -->
-    <div x-show="isPackModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+    <div x-show="isPackModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style="display: none;" x-transition>
         <div @click.away="isPackModalOpen = false" class="bg-card w-full max-w-lg rounded-2xl shadow-xl border border-border/40 p-6">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-heading font-bold text-primary flex items-center gap-2">
@@ -511,7 +655,7 @@
                         </template>
                     </select>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-foreground mb-1">Stok Diambil (Gram)</label>
                         <input type="number" min="0" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" x-model="packForm.jumlah_stok_digunakan_gram" placeholder="Contoh: 2500" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">

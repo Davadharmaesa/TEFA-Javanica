@@ -110,21 +110,21 @@
     <!-- Report Section Navigation -->
     <div class="print:hidden flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50">
         <button @click="activeSection = 'keuangan'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 text-xs px-2 py-2.5 md:min-w-[150px] md:text-sm md:py-3 md:px-4 rounded-lg font-bold transition-all duration-300 flex justify-center items-center gap-1.5"
             :class="activeSection === 'keuangan' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
             Keuangan
         </button>
         <button @click="activeSection = 'greenbean'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 text-xs px-2 py-2.5 md:min-w-[150px] md:text-sm md:py-3 md:px-4 rounded-lg font-bold transition-all duration-300 flex justify-center items-center gap-1.5"
             :class="activeSection === 'greenbean' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-45 12 12)"><rect x="5" y="3" width="14" height="18" rx="7"/><path d="M12 3c-1.5 3 1.5 6 0 9s-1.5 6 0 9"/></g></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-45 12 12)"><rect x="5" y="3" width="14" height="18" rx="7"/><path d="M12 3c-1.5 3 1.5 6 0 9s-1.5 6 0 9"/></g></svg>
             Green Bean
         </button>
         <button @click="activeSection = 'roastedbean'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 text-xs px-2 py-2.5 md:min-w-[150px] md:text-sm md:py-3 md:px-4 rounded-lg font-bold transition-all duration-300 flex justify-center items-center gap-1.5"
             :class="activeSection === 'roastedbean' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
             Roasted Bean
         </button>
     </div>
@@ -132,15 +132,15 @@
     <!-- Tabs Navigation -->
     <div x-show="activeSection === 'keuangan'" class="print:hidden flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50">
         <button @click="activeTab = 'labarugi'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 text-xs px-2 py-2.5 md:min-w-[150px] md:text-sm md:py-3 md:px-4 rounded-lg font-bold transition-all duration-300 flex justify-center items-center gap-1.5"
             :class="activeTab === 'labarugi' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
             Laba / Rugi
         </button>
         <button @click="activeTab = 'aruskas'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 text-xs px-2 py-2.5 md:min-w-[150px] md:text-sm md:py-3 md:px-4 rounded-lg font-bold transition-all duration-300 flex justify-center items-center gap-1.5"
             :class="activeTab === 'aruskas' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8a2 2 0 0 0 2-2v-3.5c0-1.19.68-2.32 1.77-2.8l.64-.28a2.5 2.5 0 0 0 0-4.58l-.64-.28C18.68 7.08 18 5.95 18 4.76V3a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v1.76c0 1.19-.68 2.32-1.77 2.8l-.64.28a2.5 2.5 0 0 0 0 4.58l.64.28c1.09.48 1.77 1.61 1.77 2.8V19a2 2 0 0 0 2 2Z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8a2 2 0 0 0 2-2v-3.5c0-1.19.68-2.32 1.77-2.8l.64-.28a2.5 2.5 0 0 0 0-4.58l-.64-.28C18.68 7.08 18 5.95 18 4.76V3a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v1.76c0 1.19-.68 2.32-1.77 2.8l-.64.28a2.5 2.5 0 0 0 0 4.58l.64.28c1.09.48 1.77 1.61 1.77 2.8V19a2 2 0 0 0 2 2Z"/></svg>
             Arus Kas (Cash Flow)
         </button>
     </div>
@@ -151,7 +151,7 @@
             <h2 class="text-xl font-heading font-bold text-white">Laporan Green Bean</h2>
             <p class="text-sm text-white/80">Periode: {{ \Carbon\Carbon::parse($start)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($end)->translatedFormat('d F Y') }}</p>
         </div>
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto hidden md:block print:block">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
@@ -179,6 +179,33 @@
                 </tbody>
             </table>
         </div>
+        <!-- Mobile Card List for Green Bean Report -->
+        <div class="grid grid-cols-1 gap-4 p-4 md:hidden print:hidden bg-muted/10">
+            @forelse($greenBeanStockEntries as $stock)
+                <div class="bg-card border border-border/40 rounded-xl p-4 space-y-3 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-foreground text-sm">{{ $stock->greenBean?->nama_biji ?? 'Tidak diketahui' }}</h4>
+                            <p class="text-[11px] text-muted-foreground font-mono mt-0.5">{{ $stock->tanggal_beli }}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs border-t border-border/20 pt-2">
+                        <div>
+                            <p class="text-muted-foreground font-semibold">Supplier/Asal</p>
+                            <p class="font-medium text-foreground">{{ $stock->greenBean?->asal_kopi ?? '-' }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-muted-foreground font-semibold">Qty Masuk / Sisa</p>
+                            <p class="font-mono font-bold text-foreground">
+                                {{ number_format($stock->stok_gram / 1000, 2, ',', '.') }} Kg
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-6 text-sm text-muted-foreground">Tidak ada data Green Bean untuk periode ini.</div>
+            @endforelse
+        </div>
     </div>
 
     <!-- Roasted Bean Report -->
@@ -187,7 +214,7 @@
             <h2 class="text-xl font-heading font-bold text-white">Laporan Roasted Bean</h2>
             <p class="text-sm text-white/80">Periode: {{ \Carbon\Carbon::parse($start)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($end)->translatedFormat('d F Y') }}</p>
         </div>
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto hidden md:block print:block">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
@@ -214,6 +241,34 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+        <!-- Mobile Card List for Roasted Bean Report -->
+        <div class="grid grid-cols-1 gap-4 p-4 md:hidden print:hidden bg-muted/10">
+            @forelse($roastingBatchEntries as $batch)
+                <div class="bg-card border border-border/40 rounded-xl p-4 space-y-3 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-foreground text-sm">{{ $batch->kode_batch }}</h4>
+                            <p class="text-[11px] text-muted-foreground font-mono mt-0.5">{{ $batch->tanggal_roasting }}</p>
+                        </div>
+                        <span class="px-2 py-0.5 bg-secondary/10 text-secondary border border-secondary/20 text-[10px] font-bold rounded-full">
+                            {{ $batch->profil_sangrai }}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs border-t border-border/20 pt-2">
+                        <div>
+                            <p class="text-muted-foreground font-semibold">Operator</p>
+                            <p class="font-medium text-foreground">{{ $batch->user?->name ?? 'Operator tidak diketahui' }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-muted-foreground font-semibold">Hasil Roasting</p>
+                            <p class="font-mono font-bold text-foreground">{{ number_format($batch->berat_matang_bersih, 2, ',', '.') }} Kg</p>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-6 text-sm text-muted-foreground">Tidak ada data Roasted Bean untuk periode ini.</div>
+            @endforelse
         </div>
     </div>
 
@@ -320,8 +375,8 @@
                 <p class="text-2xl font-mono font-black text-white">Rp 24.550.000</p>
             </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[600px]">
+        <div class="overflow-x-auto hidden md:block print:block">
+            <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4">Tanggal</th>
@@ -391,6 +446,127 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+        <!-- Mobile Card List for Arus Kas (Cash Flow) -->
+        <div class="grid grid-cols-1 gap-4 p-4 md:hidden print:hidden bg-muted/10">
+            <!-- Saldo Awal Bulan -->
+            <div class="bg-card border border-border/40 rounded-xl p-4 space-y-3 shadow-sm">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="font-bold text-foreground text-sm">Saldo Awal Bulan</h4>
+                        <p class="text-[11px] text-muted-foreground font-mono mt-0.5">01 Mei 2026</p>
+                    </div>
+                    <span class="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] font-bold rounded-full uppercase tracking-wider border border-border">
+                        Sistem
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs border-t border-border/20 pt-2.5">
+                    <div>
+                        <p class="text-muted-foreground font-semibold">Nominal</p>
+                        <p class="font-mono font-medium text-foreground">-</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-muted-foreground font-semibold">Saldo Kas</p>
+                        <p class="font-mono font-bold text-primary">Rp 18.350.000</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pengadaan Green Bean -->
+            <div class="bg-card border border-border/40 rounded-xl p-4 space-y-3 shadow-sm">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="font-bold text-foreground text-sm">Pengadaan Green Bean</h4>
+                        <p class="text-xs text-muted-foreground mt-0.5">Invoice: PGD-0009 - Robusta Dampit</p>
+                        <p class="text-[11px] text-muted-foreground font-mono mt-0.5">02 Mei 2026</p>
+                    </div>
+                    <span class="px-2 py-0.5 bg-red-500/10 text-red-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-red-500/20">
+                        Keluar
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs border-t border-border/20 pt-2.5">
+                    <div>
+                        <p class="text-muted-foreground font-semibold">Nominal</p>
+                        <p class="font-mono font-bold text-red-500">-Rp 3.500.000</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-muted-foreground font-semibold">Saldo Kas</p>
+                        <p class="font-mono font-bold text-primary">Rp 14.850.000</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Penjualan Retail (POS) -->
+            <div class="bg-card border border-border/40 rounded-xl p-4 space-y-3 shadow-sm">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="font-bold text-foreground text-sm">Penjualan Retail (POS)</h4>
+                        <p class="text-xs text-muted-foreground mt-0.5">Invoice: INV-202605-001</p>
+                        <p class="text-[11px] text-muted-foreground font-mono mt-0.5">05 Mei 2026</p>
+                    </div>
+                    <span class="px-2 py-0.5 bg-green-500/10 text-green-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-green-500/20">
+                        Masuk
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs border-t border-border/20 pt-2.5">
+                    <div>
+                        <p class="text-muted-foreground font-semibold">Nominal</p>
+                        <p class="font-mono font-bold text-green-600">+Rp 1.200.000</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-muted-foreground font-semibold">Saldo Kas</p>
+                        <p class="font-mono font-bold text-primary">Rp 16.050.000</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pembayaran Upah Roaster -->
+            <div class="bg-card border border-border/40 rounded-xl p-4 space-y-3 shadow-sm">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="font-bold text-foreground text-sm">Pembayaran Upah Roaster</h4>
+                        <p class="text-xs text-muted-foreground mt-0.5">10 Batch Roasting x Rp 15.000</p>
+                        <p class="text-[11px] text-muted-foreground font-mono mt-0.5">10 Mei 2026</p>
+                    </div>
+                    <span class="px-2 py-0.5 bg-red-500/10 text-red-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-red-500/20">
+                        Keluar
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs border-t border-border/20 pt-2.5">
+                    <div>
+                        <p class="text-muted-foreground font-semibold">Nominal</p>
+                        <p class="font-mono font-bold text-red-500">-Rp 150.000</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-muted-foreground font-semibold">Saldo Kas</p>
+                        <p class="font-mono font-bold text-primary">Rp 15.900.000</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Penjualan Grosir -->
+            <div class="bg-card border border-border/40 rounded-xl p-4 space-y-3 shadow-sm">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="font-bold text-foreground text-sm">Penjualan Grosir</h4>
+                        <p class="text-xs text-muted-foreground mt-0.5">Invoice: INV-202605-002 (Cafe XYZ)</p>
+                        <p class="text-[11px] text-muted-foreground font-mono mt-0.5">15 Mei 2026</p>
+                    </div>
+                    <span class="px-2 py-0.5 bg-green-500/10 text-green-600 text-[10px] font-bold rounded-full uppercase tracking-wider border border-green-500/20">
+                        Masuk
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs border-t border-border/20 pt-2.5">
+                    <div>
+                        <p class="text-muted-foreground font-semibold">Nominal</p>
+                        <p class="font-mono font-bold text-green-600">+Rp 8.650.000</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-muted-foreground font-semibold">Saldo Kas</p>
+                        <p class="font-mono font-bold text-primary">Rp 24.550.000</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -1,5 +1,6 @@
 <header class="h-20 bg-card shadow-md flex items-center justify-between px-4 sm:px-6 md:px-8 z-10 relative">
     <div class="flex items-center gap-4 flex-1">
+<<<<<<< Updated upstream
         <!-- Sidebar Toggle Menu Button (Mobile only) -->
         <button 
             @click="isMobileOpen = !isMobileOpen"
@@ -11,6 +12,11 @@
                 <line x1="4" x2="20" y1="6" y2="6"></line>
                 <line x1="4" x2="20" y1="18" y2="18"></line>
             </svg>
+=======
+        <!-- Hamburger Menu Button (mobile only) -->
+        <button @click="mobileSidebarOpen = true" class="md:hidden text-muted-foreground hover:text-primary transition-colors p-1.5 hover:bg-muted/50 rounded-xl" title="Buka Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+>>>>>>> Stashed changes
         </button>
 
         <div class="relative w-96 hidden md:block group" x-data="{

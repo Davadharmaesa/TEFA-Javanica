@@ -24,34 +24,34 @@
 
     <div class="flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50 w-full">
         <button @click="activeTab = 'biaya'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 md:min-w-[150px] py-2.5 px-2 md:py-3 md:px-4 rounded-lg font-bold text-xs md:text-sm transition-all duration-300 flex justify-center items-center gap-2"
             :class="activeTab === 'biaya' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            Komponen Biaya
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span class="truncate">Komponen Biaya</span>
         </button>
         <button @click="activeTab = 'greenbean'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 md:min-w-[150px] py-2.5 px-2 md:py-3 md:px-4 rounded-lg font-bold text-xs md:text-sm transition-all duration-300 flex justify-center items-center gap-2"
             :class="activeTab === 'greenbean' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-45 12 12)"><rect x="5" y="3" width="14" height="18" rx="7"/><path d="M12 3c-1.5 3 1.5 6 0 9s-1.5 6 0 9"/></g></svg>
-            Green Bean
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><g transform="rotate(-45 12 12)"><rect x="5" y="3" width="14" height="18" rx="7"/><path d="M12 3c-1.5 3 1.5 6 0 9s-1.5 6 0 9"/></g></svg>
+            <span class="truncate">Green Bean</span>
         </button>
         <button @click="activeTab = 'roastedbean'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 md:min-w-[150px] py-2.5 px-2 md:py-3 md:px-4 rounded-lg font-bold text-xs md:text-sm transition-all duration-300 flex justify-center items-center gap-2"
             :class="activeTab === 'roastedbean' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
-            Roasted Bean
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
+            <span class="truncate">Roasted Bean</span>
         </button>
         <button @click="activeTab = 'packaging'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 md:min-w-[150px] py-2.5 px-2 md:py-3 md:px-4 rounded-lg font-bold text-xs md:text-sm transition-all duration-300 flex justify-center items-center gap-2"
             :class="activeTab === 'packaging' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            Kemasan
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span class="truncate">Kemasan</span>
         </button>
     </div>
 
     <div x-show="activeTab === 'biaya'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="hidden md:table w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4 pl-6">Nama Biaya</th>
@@ -89,11 +89,44 @@
                 </tbody>
             </table>
         </div>
+        <!-- Mobile Card List View -->
+        <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
+            <template x-for="item in dataBiaya" :key="item.id">
+                <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-primary text-sm" x-text="item.nama"></h4>
+                        <span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-black rounded-full uppercase tracking-wider" x-text="item.kategori"></span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-xs border-y border-border/20 py-2">
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Satuan</span>
+                            <span class="font-mono text-muted-foreground text-xs" x-text="item.satuan"></span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Harga Standar</span>
+                            <span class="font-mono font-bold text-primary" x-text="'Rp ' + formatRupiah(item.harga)"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button @click="editBiaya(item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Ubah
+                        </button>
+                        <button @click="openDeleteModal(item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8B3A3A] bg-[#8B3A3A]/5 hover:bg-[#8B3A3A]/10 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
     </div>
 
     <div x-show="activeTab === 'greenbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="hidden md:table w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4 pl-6">Nama Biji Mentah</th>
@@ -129,11 +162,40 @@
                 </tbody>
             </table>
         </div>
+        <!-- Mobile Card List View -->
+        <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
+            <template x-for="item in dataGreenBean" :key="item.id">
+                <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-primary text-sm" x-text="item.nama_biji"></h4>
+                        <span class="px-2 py-0.5 bg-accent/10 text-accent text-[9px] font-black rounded-full uppercase tracking-wider" x-text="item.asal_kopi"></span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-xs border-y border-border/20 py-2">
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Total Stok</span>
+                            <span class="font-mono font-bold" :class="(item.stok_gram/1000) < 10 ? 'text-red-500' : 'text-primary'" x-text="(item.stok_gram / 1000).toFixed(1) + ' Kg'"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button @click="editGreenBean(item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Ubah
+                        </button>
+                        <button @click="openDeleteModal(item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8B3A3A] bg-[#8B3A3A]/5 hover:bg-[#8B3A3A]/10 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
     </div>
 
     <div x-show="activeTab === 'roastedbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="hidden md:table w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4 pl-6">Nama Produk Jadi</th>
@@ -169,11 +231,40 @@
                 </tbody>
             </table>
         </div>
+        <!-- Mobile Card List View -->
+        <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
+            <template x-for="item in dataRoastedBean" :key="item.id">
+                <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-primary text-sm" x-text="item.nama_kopi"></h4>
+                        <span class="px-2 py-0.5 bg-primary/10 text-primary text-[9px] font-black rounded-full uppercase tracking-wider" x-text="item.bentuk_akhir"></span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-xs border-y border-border/20 py-2">
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Total Stok</span>
+                            <span class="font-mono font-bold text-primary" x-text="(item.total_stok / 1000).toFixed(1) + ' Kg'"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button @click="editRoastedBean(item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Ubah
+                        </button>
+                        <button @click="openDeleteModal(item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8B3A3A] bg-[#8B3A3A]/5 hover:bg-[#8B3A3A]/10 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
     </div>
 
     <div x-show="activeTab === 'packaging'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="hidden md:table w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4 pl-6">Tipe</th>
@@ -220,6 +311,46 @@
                     </template>
                 </tbody>
             </table>
+        </div>
+        <!-- Mobile Card List View -->
+        <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
+            <template x-for="item in dataPackaging" :key="item.id">
+                <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-primary text-sm" x-text="item.nama_kemasan"></h4>
+                            <span class="text-[10px] text-muted-foreground mt-0.5 block" x-text="'Kapasitas: ' + (item.tipe === 'Stiker' ? '-' : item.kapasitas_gram + 'g')"></span>
+                        </div>
+                        <span class="px-2 py-0.5 bg-accent/10 text-accent text-[9px] font-black rounded-full uppercase tracking-wider" x-text="item.tipe"></span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-xs border-y border-border/20 py-2">
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Satuan</span>
+                            <span class="font-mono text-muted-foreground text-xs uppercase" x-text="item.satuan || 'pcs'"></span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Harga Satuan</span>
+                            <span class="font-mono font-bold text-primary" x-text="'Rp ' + formatRupiah(item.harga_satuan)"></span>
+                        </div>
+                        <div class="col-span-2">
+                            <span class="text-[10px] text-muted-foreground block">Stok Saat Ini</span>
+                            <span class="font-mono font-bold" :class="item.stok_pcs < 50 ? 'text-red-500' : 'text-primary'" x-text="item.stok_pcs + ' ' + (item.satuan || 'pcs')"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button @click="editPackaging(item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Ubah
+                        </button>
+                        <button @click="openDeleteModal(item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8B3A3A] bg-[#8B3A3A]/5 hover:bg-[#8B3A3A]/10 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+            </template>
         </div>
     </div>
 

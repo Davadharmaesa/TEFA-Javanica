@@ -1,12 +1,24 @@
+<!-- Backdrop Gelap Mobile -->
+<div 
+    x-show="mobileSidebarOpen" 
+    x-cloak 
+    @click="mobileSidebarOpen = false" 
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 md:hidden transition-opacity duration-300"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-300"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+></div>
+
 <aside 
-    x-init="$nextTick(() => { document.documentElement.classList.remove('sidebar-collapsed') })"
-    class="flex flex-col bg-card shadow-md h-full border-r border-border transition-all duration-300 ease-in-out fixed inset-y-0 left-0 z-50 transform md:relative md:translate-x-0 md:z-20 w-64" 
-    :class="{
-        'translate-x-0': isMobileOpen,
-        '-translate-x-full md:translate-x-0': !isMobileOpen,
-        'md:w-20 w-64': isCollapsed,
-        'w-64': !isCollapsed
-    }"
+    x-init="$nextTick(() => { $el.classList.remove('sidebar-pre-collapsed') })"
+    class="flex flex-col bg-card shadow-md h-full z-40 fixed inset-y-0 left-0 md:relative md:translate-x-0 transition-all duration-300 ease-in-out border-r border-border w-64 md:flex-shrink-0" 
+    :class="[
+        isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0', 
+        isCollapsed ? 'md:w-20' : 'md:w-56'
+    ]"
 >
 
     <!-- Toggle Button (Desktop/Tablet only) -->
@@ -22,14 +34,14 @@
         </template>
     </button>
 
-    <div class="flex items-center h-20 transition-all duration-300" :class="isCollapsed ? 'md:justify-center md:px-0 px-6' : 'px-6'">
-        <div class="flex items-center gap-3" :class="isCollapsed ? 'md:justify-center w-full' : 'w-full'">
-            <div class="bg-primary text-white p-2 rounded-lg flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
-            </div>
-            <div class="transition-all duration-300 flex-1" :class="isCollapsed ? 'md:hidden' : 'flex overflow-hidden w-full'">
-                <div class="whitespace-nowrap flex items-center justify-between w-full">
-                    <div>
+    <div class="flex items-center h-20 transition-all duration-300" :class="isCollapsed ? 'justify-center px-0' : 'px-6'">
+        <div class="flex items-center transition-all duration-300" :class="isCollapsed ? 'justify-center gap-0' : 'w-full gap-3 justify-between'">
+            <div class="flex items-center gap-3">
+                <div class="bg-primary text-white p-2 rounded-lg flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
+                </div>
+                <div class="flex overflow-hidden transition-all duration-300" :class="isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'">
+                    <div class="whitespace-nowrap">
                         <h1 class="text-primary font-heading font-bold uppercase tracking-wider text-sm leading-tight">
                             TEFA Javanica
                         </h1>
@@ -48,6 +60,10 @@
                     </button>
                 </div>
             </div>
+            <!-- Tombol Tutup (mobile only) -->
+            <button @click="mobileSidebarOpen = false" class="md:hidden text-muted-foreground hover:text-primary transition-colors p-1.5 hover:bg-muted/50 rounded-xl" title="Tutup Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
         </div>
     </div>
 

@@ -32,24 +32,24 @@
     <div class="flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50 max-w-xl">
         <button 
             @click="activeTab = 'internal'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 md:min-w-[150px] py-2.5 px-2 md:py-3 md:px-4 rounded-lg font-bold text-xs md:text-sm transition-all duration-300 flex justify-center items-center gap-2"
             :class="activeTab === 'internal' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'"
         >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Internal (Kampus)
-            <span class="ml-2 inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-[10px] font-black"
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span class="truncate">Internal (Kampus)</span>
+            <span class="ml-1 inline-flex items-center justify-center rounded-full px-1.5 py-0.5 text-[9px] font-black shrink-0"
                 :class="activeTab === 'internal' ? 'bg-primary/10 text-primary' : 'bg-muted-foreground/20 text-muted-foreground'">
                 {{ count($internalOrders ?? []) }}
             </span>
         </button>
         <button 
             @click="activeTab = 'external'" 
-            class="flex-1 min-w-[150px] py-3 px-4 rounded-lg font-bold text-sm transition-all duration-300 flex justify-center items-center gap-2"
+            class="flex-1 min-w-0 md:min-w-[150px] py-2.5 px-2 md:py-3 md:px-4 rounded-lg font-bold text-xs md:text-sm transition-all duration-300 flex justify-center items-center gap-2"
             :class="activeTab === 'external' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'"
         >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            Eksternal (Publik)
-            <span class="ml-2 inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-[10px] font-black"
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span class="truncate">Eksternal (Publik)</span>
+            <span class="ml-1 inline-flex items-center justify-center rounded-full px-1.5 py-0.5 text-[9px] font-black shrink-0"
                 :class="activeTab === 'external' ? 'bg-primary/10 text-primary' : 'bg-muted-foreground/20 text-muted-foreground'">
                 {{ count($externalOrders ?? []) }}
             </span>
@@ -64,7 +64,7 @@
             </div>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="hidden md:table w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4 pl-6">ID Pesanan</th>
@@ -143,6 +143,73 @@
                 </tbody>
             </table>
         </div>
+        <!-- Mobile Card List View -->
+        <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
+            @forelse($internalOrders ?? [] as $order)
+                <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] font-mono text-muted-foreground block">#{{ $order['id'] }}</span>
+                            <h4 class="font-bold text-primary text-sm mt-0.5">{{ $order['customer_name'] }}</h4>
+                        </div>
+                        <span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-black rounded-full uppercase tracking-wider">{{ $order['status'] }}</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-xs border-y border-border/20 py-2">
+                        <div class="col-span-2">
+                            <span class="text-[10px] text-muted-foreground block">Item & Qty</span>
+                            <span class="font-bold text-foreground">{{ $order['item'] }}</span>
+                            <span class="font-mono text-muted-foreground text-[10px] block">{{ number_format($order['qty']) }} Gram</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Total Harga</span>
+                            <span class="font-mono font-bold text-primary">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Target Selesai</span>
+                            <span class="font-mono font-medium text-muted-foreground">{{ \Carbon\Carbon::parse($order['target_date'])->format('d M Y') }}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Status Bayar</span>
+                            @if($order['payment_status'] == 'Lunas')
+                                <span class="inline-flex rounded-full bg-secondary/10 px-2 py-0.5 text-[9px] font-black uppercase text-secondary">Lunas</span>
+                            @elseif(str_contains($order['payment_status'], 'DP'))
+                                <span class="inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[9px] font-black uppercase text-accent">{{ $order['payment_status'] }}</span>
+                            @else
+                                <span class="inline-flex rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-black uppercase text-red-600">{{ $order['payment_status'] }}</span>
+                            @endif
+                        </div>
+                        @if(isset($order['pickup_status']))
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Status Pengambilan</span>
+                            @if($order['pickup_status'] == 'Belum Diambil')
+                                <span class="inline-flex rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-black uppercase text-red-600">Belum Diambil</span>
+                            @else
+                                <span class="inline-flex rounded-full bg-green-500/10 px-2 py-0.5 text-[9px] font-black uppercase text-green-600">Sudah Diambil</span>
+                            @endif
+                        </div>
+                        @endif
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Edit
+                        </button>
+                        <form action="#" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8B3A3A] bg-[#8B3A3A]/5 hover:bg-[#8B3A3A]/10 rounded-lg transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                Batal
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @empty
+                <p class="p-6 text-center text-muted-foreground font-medium italic text-xs">Belum ada pesanan pre-order internal.</p>
+            @endforelse
+        </div>
     </div>
 
     <div x-show="activeTab === 'external'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
@@ -153,7 +220,7 @@
             </div>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="hidden md:table w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4 pl-6">ID Pesanan</th>
@@ -221,6 +288,63 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+        <!-- Mobile Card List View -->
+        <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
+            @forelse($externalOrders ?? [] as $order)
+                <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] font-mono text-muted-foreground block">#{{ $order['id'] }}</span>
+                            <h4 class="font-bold text-primary text-sm mt-0.5">{{ $order['customer_name'] }}</h4>
+                        </div>
+                        <span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-black rounded-full uppercase tracking-wider">{{ $order['status'] }}</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-xs border-y border-border/20 py-2">
+                        <div class="col-span-2">
+                            <span class="text-[10px] text-muted-foreground block">Item & Qty</span>
+                            <span class="font-bold text-foreground">{{ $order['item'] }}</span>
+                            <span class="font-mono text-muted-foreground text-[10px] block">{{ number_format($order['qty']) }} Gram</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Total Harga</span>
+                            <span class="font-mono font-bold text-primary">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Target Selesai</span>
+                            <span class="font-mono font-medium text-muted-foreground">{{ \Carbon\Carbon::parse($order['target_date'])->format('d M Y') }}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-muted-foreground block">Status Bayar</span>
+                            @if($order['payment_status'] == 'Lunas')
+                                <span class="inline-flex rounded-full bg-secondary/10 px-2 py-0.5 text-[9px] font-black uppercase text-secondary">Lunas</span>
+                            @elseif(str_contains($order['payment_status'], 'DP'))
+                                <span class="inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[9px] font-black uppercase text-accent">{{ $order['payment_status'] }}</span>
+                            @else
+                                <span class="inline-flex rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-black uppercase text-red-600">{{ $order['payment_status'] }}</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Edit
+                        </button>
+                        <form action="#" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8B3A3A] bg-[#8B3A3A]/5 hover:bg-[#8B3A3A]/10 rounded-lg transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                Batal
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @empty
+                <p class="p-6 text-center text-muted-foreground font-medium italic text-xs">Belum ada pesanan pre-order eksternal.</p>
+            @endforelse
         </div>
     </div>
 </div>
