@@ -118,6 +118,14 @@ class RoastingApiController extends Controller
                 }
             }
 
+            // Trigger WA low stock notification (non-blocking / error handled)
+            try {
+                $waService = new \App\Services\WhatsappService();
+                $waService->checkAndNotifyLowStock($greenBean->id);
+            } catch (\Exception $ex) {
+                \Log::warning("Failed to run low stock WA check: " . $ex->getMessage());
+            }
+
             // 3. Ambil Roasted Bean
             $roastedBean = RoastedBean::findOrFail($validated['roasted_bean_id']);
 

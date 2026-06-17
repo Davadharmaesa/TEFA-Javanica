@@ -153,13 +153,30 @@ class InventoryController extends Controller
             'tanggal_beli' => $tanggalBeli,
         ]);
         
+        // Trigger WA low stock notification
+        try {
+            $waService = new \App\Services\WhatsappService();
+            $waService->checkAndNotifyLowStock($stock->green_bean_id);
+        } catch (\Exception $ex) {
+            \Log::warning("Failed to run low stock WA check on update: " . $ex->getMessage());
+        }
+        
         return redirect()->route('inventory.index')->with('success', 'Data Stok Green Bean berhasil diperbarui!');
     }
 
     public function destroyGreenBean($id)
     {
         $stock = \App\Models\GreenBeanStock::findOrFail($id);
+        $greenBeanId = $stock->green_bean_id;
         $stock->delete();
+
+        // Trigger WA low stock notification
+        try {
+            $waService = new \App\Services\WhatsappService();
+            $waService->checkAndNotifyLowStock($greenBeanId);
+        } catch (\Exception $ex) {
+            \Log::warning("Failed to run low stock WA check on delete: " . $ex->getMessage());
+        }
 
         return redirect()->route('inventory.index')->with('success', 'Data Stok Green Bean berhasil dihapus!');
     }

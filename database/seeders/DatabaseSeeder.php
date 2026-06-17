@@ -69,8 +69,8 @@ class DatabaseSeeder extends Seeder
         \App\Models\Biaya::create([
             'nama' => 'Gas Elpiji 3Kg',
             'kategori' => 'Overhead',
-            'satuan' => 'Tabung',
-            'harga' => 20000,
+            'satuan' => 'Batch',
+            'harga' => 1500,
         ]);
         \App\Models\Biaya::create([
             'nama' => 'Listrik Mesin',
@@ -82,7 +82,7 @@ class DatabaseSeeder extends Seeder
             'nama' => 'Penyusutan Mesin',
             'kategori' => 'Overhead',
             'satuan' => 'Batch',
-            'harga' => 10000,
+            'harga' => 2000,
         ]);
         \App\Models\Biaya::create([
             'nama' => 'Upah Roaster',

@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'whatsapp' => [
+        'url' => env('WA_GATEWAY_URL', 'http://localhost:3000'),
+        'api_key' => env('WA_GATEWAY_API_KEY', ''),
+        'recipient' => env('WA_NOTIFICATION_NUMBER', ''),
+    ],
+
 ];
