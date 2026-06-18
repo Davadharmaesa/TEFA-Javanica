@@ -33,7 +33,7 @@ class PesananKeluarController extends Controller
             'harga_jual_pesanan' => 'required|integer|min:0',
             'status_pembayaran' => 'nullable|string',
             'status_pengiriman' => 'nullable|string',
-            'metode_pembayaran' => 'nullable|string|in:lunas,dp',
+            'metode_pembayaran' => 'nullable|string|in:lunas,dp,belum_bayar',
             'nominal_dp' => 'nullable|integer|min:0',
             'tanggal_bayar_dp' => 'nullable|date',
             'batas_waktu_pembayaran' => 'nullable|date',
@@ -114,8 +114,14 @@ class PesananKeluarController extends Controller
             if ($metode === 'dp' && $nominalDp) {
                 $sisa = max(0, $total - $nominalDp);
                 $statusPembayaran = $sisa === 0 ? 'lunas' : 'dp';
+            } elseif ($metode === 'belum_bayar') {
+                $sisa = $total;
+                $statusPembayaran = 'belum_bayar';
+                $nominalDp = 0;
             } else {
                 $statusPembayaran = $validated['status_pembayaran'] ?? 'lunas';
+                $sisa = 0;
+                $nominalDp = 0;
             }
 
             // Create pesanan keluar record

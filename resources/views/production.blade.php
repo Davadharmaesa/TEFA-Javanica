@@ -205,19 +205,19 @@
                     <div class="relative z-10 flex flex-col gap-4">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div class="space-y-2">
-                                <label class="text-[9px] font-black text-primary uppercase tracking-widest bg-muted px-2 py-1 rounded inline-block">1. Gudang (Kg)</label>
+                                <label class="text-[9px] font-black text-primary uppercase tracking-widest bg-muted px-2 py-1 rounded inline-block">1. Dari Gudang (Kg)</label>
                                 <input type="number" min="0.01" step="0.01" x-model="form.berat_mentah_gudang" @wheel="$event.target.blur()" class="w-full bg-white rounded-lg border-2 border-border/80 px-3 py-2 text-xl md:text-2xl text-primary font-black font-mono focus:outline-none focus:border-primary transition-all placeholder:text-muted/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="0.00" required />
                             </div>
                             <div class="space-y-2">
-                                <label class="text-[9px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2 py-1 rounded inline-block">2. Sortasi (Kg)</label>
+                                <label class="text-[9px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2 py-1 rounded inline-block">2. Masuk Mesin (Kg)</label>
                                 <input type="number" min="0.01" step="0.01" :max="form.berat_mentah_gudang" x-model="form.berat_mentah_sortasi" @wheel="$event.target.blur()" class="w-full bg-white rounded-lg border-2 border-primary/40 px-3 py-2 text-xl md:text-2xl text-primary font-black font-mono focus:outline-none focus:border-primary transition-all placeholder:text-muted/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="0.00" required />
                             </div>
                             <div class="space-y-2">
-                                <label class="text-[9px] font-black text-accent uppercase tracking-widest bg-accent/10 px-2 py-1 rounded inline-block">3. Kotor (Kg)</label>
+                                <label class="text-[9px] font-black text-accent uppercase tracking-widest bg-accent/10 px-2 py-1 rounded inline-block">3. Keluar Mesin (Kg)</label>
                                 <input type="number" min="0.01" step="0.01" :max="form.berat_mentah_sortasi" x-model="form.berat_matang_kotor" @wheel="$event.target.blur()" class="w-full bg-white rounded-lg border-2 border-accent/40 px-3 py-2 text-xl md:text-2xl text-accent font-black font-mono focus:outline-none focus:border-accent transition-all placeholder:text-muted/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="0.00" required />
                             </div>
                             <div class="space-y-2">
-                                <label class="text-[9px] font-black text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded inline-block">4. Bersih (Kg)</label>
+                                <label class="text-[9px] font-black text-secondary uppercase tracking-widest bg-secondary/10 px-2 py-1 rounded inline-block">4. Siap Kemas (Kg)</label>
                                 <input type="number" 
                                        min="0.01" 
                                        step="0.01" 
@@ -319,7 +319,7 @@
             <div class="bg-card border-b border-border p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex justify-between items-center z-10 relative overflow-hidden">
                 <div class="absolute right-0 top-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
                 <div>
-                    <h2 class="text-lg font-heading font-black text-primary tracking-tight">Log Mesin Terkini</h2>
+                    <h2 class="text-lg font-heading font-black text-primary tracking-tight">Riwayat Roasting Terkini</h2>
                     <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Histori Operasional Shift</p>
                 </div>
                 <div class="bg-primary/10 text-primary p-2 rounded-xl shadow-inner border border-primary/20 relative z-10 flex flex-col items-center justify-center">

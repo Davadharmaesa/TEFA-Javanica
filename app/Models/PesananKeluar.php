@@ -16,8 +16,10 @@ class PesananKeluar extends Model
     protected $fillable = [
         'user_id',
         'roasted_bean_id',
+        'packaging_id',
         'nama_pesanan',
         'jumlah_gram_pesanan',
+        'jumlah_pcs',
         'harga_jual_pesanan',
         'tanggal_pesanan',
         'total_pembayaran',
@@ -42,6 +44,11 @@ class PesananKeluar extends Model
     public function roastedBean()
     {
         return $this->belongsTo(RoastedBean::class, 'roasted_bean_id');
+    }
+
+    public function packaging()
+    {
+        return $this->belongsTo(Packaging::class, 'packaging_id');
     }
 
     public function user()

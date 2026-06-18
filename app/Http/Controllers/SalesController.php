@@ -7,6 +7,7 @@ use App\Models\RoastedBean;
 use App\Models\RoastingBatch;
 use App\Models\PesananKeluar;
 use App\Models\RoastedBeanStock;
+use App\Models\Packaging;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,15 +19,34 @@ class SalesController extends Controller
     public function index()
     {
         // Load actual completed sales from database
-        $orders = PesananKeluar::with('roastedBean')->orderBy('created_at', 'desc')->get()->map(function($order) {
+        $orders = PesananKeluar::with(['roastedBean', 'packaging'])->orderBy('created_at', 'desc')->get()->map(function($order) {
+            $itemName = $order->roastedBean ? $order->roastedBean->nama_kopi : 'Kopi';
+            if ($order->packaging) {
+                $itemName .= ' - ' . $order->packaging->nama_kemasan . ' (' . $order->packaging->kapasitas_gram . 'g)';
+            }
+
+            // Normalisasi status pembayaran ke label berformat cantik
+            $payStatus = strtolower($order->status_pembayaran);
+            if ($payStatus === 'lunas') {
+                $paymentStatusDisplay = 'Lunas';
+            } elseif ($payStatus === 'dp') {
+                $paymentStatusDisplay = 'DP';
+                if ($order->nominal_dp) {
+                    $paymentStatusDisplay .= ' (Rp ' . number_format($order->nominal_dp, 0, ',', '.') . ')';
+                }
+            } else {
+                $paymentStatusDisplay = 'Belum Bayar';
+            }
+
             return [
                 'id' => 'PO-OUT-' . str_pad($order->id, 3, '0', STR_PAD_LEFT),
                 'customer_name' => $order->nama_pesanan,
-                'item' => $order->roastedBean ? $order->roastedBean->nama_kopi : 'Kopi',
+                'item' => $itemName,
                 'qty' => $order->jumlah_gram_pesanan,
+                'qty_pcs' => $order->jumlah_pcs,
                 'total_price' => $order->harga_jual_pesanan,
                 'status' => $order->status_pengiriman,
-                'payment_status' => $order->status_pembayaran,
+                'payment_status' => $paymentStatusDisplay,
                 'pickup_status' => $order->status_pengambilan ?? 'Belum Diambil',
                 'target_date' => $order->tanggal_pesanan,
                 'created_at' => $order->created_at->toDateTimeString()
@@ -52,9 +72,11 @@ class SalesController extends Controller
                     'customer_name' => 'Bapak Budi (Dosen TI)',
                     'item' => 'Arabica Ijen Roasting Medium (200g)',
                     'qty' => 1000,
+                    'qty_pcs' => 5,
                     'total_price' => 250000,
                     'status' => 'Menunggu Konfirmasi',
                     'payment_status' => 'Belum Bayar',
+                    'pickup_status' => 'Belum Diambil',
                     'target_date' => '2026-05-02',
                     'created_at' => '2026-04-29 09:00:00'
                 ]
@@ -65,9 +87,11 @@ class SalesController extends Controller
                     'customer_name' => 'Cafe Senja, Banyuwangi',
                     'item' => 'Espresso Blend (1kg)',
                     'qty' => 10000,
+                    'qty_pcs' => 10,
                     'total_price' => 1500000,
                     'status' => 'Siap Diambil',
-                    'payment_status' => 'DP (50%)',
+                    'payment_status' => 'DP (Rp 500.000)',
+                    'pickup_status' => 'Belum Diambil',
                     'target_date' => '2026-04-29',
                     'created_at' => '2026-04-25 10:15:00'
                 ]
@@ -170,14 +194,44 @@ class SalesController extends Controller
             'jumlah_gram_pesanan' => 'required|integer|min:1',
             'harga_jual_pesanan' => 'required|integer|min:0',
             'status_pengiriman' => 'required|string',
-            'metode_pembayaran' => 'nullable|string|in:lunas,dp',
+            'finished_good_id' => 'nullable|string',
+            'jumlah_pcs' => 'nullable|integer|min:1',
+            'tanggal_pesanan' => 'nullable|date',
+            'metode_pembayaran' => 'nullable|string|in:lunas,dp,belum_bayar',
             'nominal_dp' => 'nullable|integer|min:0',
             'tanggal_bayar_dp' => 'nullable|date',
             'batas_waktu_pembayaran' => 'nullable|date',
+            'status_pengambilan' => 'nullable|string|in:Belum Diambil,Sudah Diambil',
         ]);
 
         $roastedBean = RoastedBean::findOrFail($validated['roasted_bean_id']);
         $requestedGram = $validated['jumlah_gram_pesanan'];
+
+        // Resolve packaging_id from finished_good_id
+        $packagingId = null;
+        $jumlahPcs = $validated['jumlah_pcs'] ?? null;
+
+        if (!empty($validated['finished_good_id'])) {
+            $parts = explode('-', $validated['finished_good_id']);
+            $roastedBeanId = $parts[0] ?? null;
+            $beratGram = $parts[1] ?? null;
+
+            if ($roastedBeanId && $beratGram) {
+                $finishedGood = \App\Models\FinishedGood::where('roasted_bean_id', $roastedBeanId)
+                    ->whereHas('packaging', function($query) use ($beratGram) {
+                        $query->where('kapasitas_gram', $beratGram);
+                    })->first();
+                
+                if ($finishedGood) {
+                    $packagingId = $finishedGood->packaging_id;
+                } else {
+                    $pouch = \App\Models\Packaging::where('kapasitas_gram', $beratGram)->first();
+                    if ($pouch) {
+                        $packagingId = $pouch->id;
+                    }
+                }
+            }
+        }
 
         try {
             DB::beginTransaction();
@@ -244,27 +298,35 @@ class SalesController extends Controller
             if ($metode === 'dp' && $nominalDp) {
                 $sisa = max(0, $total - $nominalDp);
                 $statusPembayaran = $sisa === 0 ? 'lunas' : 'dp';
+            } elseif ($metode === 'belum_bayar') {
+                $sisa = $total;
+                $statusPembayaran = 'belum_bayar';
+                $nominalDp = 0;
             } else {
                 $statusPembayaran = 'lunas';
+                $sisa = 0;
+                $nominalDp = 0;
             }
 
             // Create pesanan keluar record
             PesananKeluar::create([
                 'user_id' => Auth::id() ?? 1,
                 'roasted_bean_id' => $roastedBean->id,
+                'packaging_id' => $packagingId,
                 'nama_pesanan' => $validated['customer_name'],
                 'jumlah_gram_pesanan' => $validated['jumlah_gram_pesanan'],
+                'jumlah_pcs' => $jumlahPcs,
                 'harga_jual_pesanan' => $validated['harga_jual_pesanan'],
-                'tanggal_pesanan' => date('Y-m-d'),
+                'tanggal_pesanan' => $validated['tanggal_pesanan'] ?? date('Y-m-d'),
                 'total_pembayaran' => $total,
                 'status_pembayaran' => $statusPembayaran,
                 'status_pengiriman' => $validated['status_pengiriman'],
                 'metode_pembayaran' => $metode,
                 'nominal_dp' => $nominalDp,
                 'sisa_pembayaran' => $sisa,
-                'tanggal_bayar_dp' => $validated['tanggal_bayar_dp'] ?? null,
+                'tanggal_bayar_dp' => $validated['tanggal_bayar_dp'] ?? ($metode === 'dp' ? date('Y-m-d') : null),
                 'batas_waktu_pembayaran' => $validated['batas_waktu_pembayaran'] ?? null,
-                'status_pengambilan' => 'Belum Diambil',
+                'status_pengambilan' => $validated['status_pengambilan'] ?? 'Belum Diambil',
             ]);
 
             DB::commit();

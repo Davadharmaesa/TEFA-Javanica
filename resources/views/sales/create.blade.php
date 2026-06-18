@@ -104,15 +104,30 @@
                 </div>
             </template>
 
-            <!-- Status Pengiriman -->
-            <div class="space-y-1.5">
-                <label for="status_pengiriman" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Status Pengiriman</label>
-                <select name="status_pengiriman" id="status_pengiriman" required class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
-                    <option value="Menunggu Konfirmasi" {{ old('status_pengiriman') === 'Menunggu Konfirmasi' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
-                    <option value="Diproses" {{ old('status_pengiriman') === 'Diproses' ? 'selected' : '' }}>Diproses</option>
-                    <option value="Siap Diambil" {{ old('status_pengiriman') === 'Siap Diambil' ? 'selected' : '' }}>Siap Diambil</option>
-                    <option value="Selesai" {{ old('status_pengiriman', 'Menunggu Konfirmasi') === 'Selesai' ? 'selected' : '' }}>Selesai</option>
-                </select>
+            <!-- Status Pengiriman, Status Pengambilan, & Target Selesai -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="space-y-1.5">
+                    <label for="status_pengiriman" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Status Pengiriman</label>
+                    <select name="status_pengiriman" id="status_pengiriman" required class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                        <option value="Menunggu Konfirmasi" {{ old('status_pengiriman') === 'Menunggu Konfirmasi' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
+                        <option value="Diproses" {{ old('status_pengiriman') === 'Diproses' ? 'selected' : '' }}>Diproses</option>
+                        <option value="Siap Diambil" {{ old('status_pengiriman') === 'Siap Diambil' ? 'selected' : '' }}>Siap Diambil</option>
+                        <option value="Selesai" {{ old('status_pengiriman', 'Menunggu Konfirmasi') === 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="status_pengambilan" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Status Pengambilan</label>
+                    <select name="status_pengambilan" id="status_pengambilan" required class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                        <option value="Belum Diambil" {{ old('status_pengambilan', 'Belum Diambil') === 'Belum Diambil' ? 'selected' : '' }}>Belum Diambil</option>
+                        <option value="Sudah Diambil" {{ old('status_pengambilan') === 'Sudah Diambil' ? 'selected' : '' }}>Sudah Diambil</option>
+                    </select>
+                </div>
+                
+                <div class="space-y-1.5">
+                    <label for="tanggal_pesanan" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Target Selesai / Pengambilan</label>
+                    <input type="date" name="tanggal_pesanan" id="tanggal_pesanan" required value="{{ old('tanggal_pesanan', now()->toDateString()) }}" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                </div>
             </div>
         </div>
 
@@ -127,12 +142,33 @@
                 <!-- Hidden inputs agar kompatibel dengan Controller di backend -->
                 <input type="hidden" name="roasted_bean_id" :value="selectedGood ? selectedGood.roasted_bean_id : ''">
                 <input type="hidden" name="jumlah_gram_pesanan" :value="selectedGood ? quantityPcs * selectedGood.berat_gram : ''">
-                <input type="hidden" name="metode_pembayaran" value="lunas">
                 
+                <!-- Pemilih Metode Pembayaran -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Metode Pembayaran</label>
+                    <div class="grid grid-cols-2 gap-1 bg-muted/40 p-1 rounded-xl border border-border/50">
+                        <button type="button" @click="paymentMethod = 'lunas'" :class="paymentMethod === 'lunas' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider">Lunas</button>
+                        <button type="button" @click="paymentMethod = 'belum_bayar'" :class="paymentMethod === 'belum_bayar' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider">Belum Bayar</button>
+                    </div>
+                    <input type="hidden" name="metode_pembayaran" :value="paymentMethod">
+                </div>
+
                 <!-- Total Harga Jual (harga_jual_pesanan) -->
                 <div class="space-y-1.5">
                     <label for="harga_jual_pesanan" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Harga Transaksi (Rp)</label>
                     <input type="number" name="harga_jual_pesanan" id="harga_jual_pesanan" required x-model.number="totalPrice" placeholder="Total harga jual otomatis..." class="w-full bg-background border-2 border-border rounded-xl px-4 py-3.5 text-2xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                </div>
+
+                <!-- Sisa Pembayaran (Hanya jika Belum Bayar) -->
+                <div x-show="paymentMethod === 'belum_bayar'" x-transition class="space-y-1.5" style="display: none;">
+                    <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Sisa Pembayaran (Rp)</label>
+                    <div class="w-full bg-muted/20 border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-muted-foreground" x-text="'Rp ' + (sisaPembayaran || 0).toLocaleString('id-ID')"></div>
+                </div>
+
+                <!-- Batas Waktu Pembayaran (Hanya jika Belum Bayar) -->
+                <div x-show="paymentMethod === 'belum_bayar'" x-transition class="space-y-1.5" style="display: none;">
+                    <label for="batas_waktu_pembayaran" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Batas Waktu Pembayaran</label>
+                    <input type="date" name="batas_waktu_pembayaran" id="batas_waktu_pembayaran" :required="paymentMethod === 'belum_bayar'" value="{{ old('batas_waktu_pembayaran') }}" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
                 </div>
             </div>
 
@@ -155,6 +191,7 @@
             quantityPcs: {{ old('jumlah_pcs') !== null ? old('jumlah_pcs') : 'null' }},
             totalPrice: null,
             timeObj: new Date(),
+            paymentMethod: '{{ old('metode_pembayaran', 'lunas') }}',
 
             init() {
                 this.updateSelectedGood();
@@ -167,6 +204,13 @@
 
             get currentDate() {
                 return this.timeObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            },
+
+            get sisaPembayaran() {
+                if (this.paymentMethod === 'belum_bayar' && this.totalPrice) {
+                    return this.totalPrice;
+                }
+                return 0;
             },
 
             updateSelectedGood() {

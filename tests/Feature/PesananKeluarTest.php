@@ -264,4 +264,44 @@ class PesananKeluarTest extends TestCase
             'sisa_pembayaran' => 60000,
         ]);
     }
+
+    /**
+     * Test that pre-order sale with 'belum_bayar' payment method works.
+     */
+    public function test_pre_order_sales_supports_unpaid_status(): void
+    {
+        $user = User::factory()->create(['role' => 'PIC']);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Robusta Gayo',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 1000,
+            'satuan_dasar' => 'gram',
+            'tanggal_roasting' => '2026-05-25',
+            'tanggal_expire' => '2026-06-25',
+            'sisa_stok' => 0,
+        ]);
+
+        $response = $this->actingAs($user)->post('/sales/store', [
+            'customer_name' => 'Customer Unpaid',
+            'roasted_bean_id' => $roastedBean->id,
+            'jumlah_gram_pesanan' => 500,
+            'harga_jual_pesanan' => 100000,
+            'status_pengiriman' => 'Diproses',
+            'metode_pembayaran' => 'belum_bayar',
+            'batas_waktu_pembayaran' => '2026-06-20',
+            'status_pengambilan' => 'Belum Diambil',
+        ]);
+
+        $response->assertRedirect('/sales');
+
+        $this->assertDatabaseHas('pesanan_keluar', [
+            'nama_pesanan' => 'Customer Unpaid',
+            'status_pembayaran' => 'belum_bayar',
+            'nominal_dp' => 0,
+            'sisa_pembayaran' => 100000,
+            'status_pengambilan' => 'Belum Diambil',
+            'status_pengiriman' => 'Diproses',
+        ]);
+    }
 }

@@ -68,12 +68,13 @@
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4 pl-6">ID Pesanan</th>
-                        <th class="p-4">Pelanggan</th>
-                        <th class="p-4">Item & Qty</th>
-                        <th class="p-4 text-right">Total Harga</th>
-                        <th class="p-4">Target Selesai</th>
-                        <th class="p-4 text-center">Status Bayar</th>
-                        <th class="p-4 text-center">Status Pesanan</th>
+                        <th class="p-4">Nama Pelanggan</th>
+                        <th class="p-4">Produk Jadi & Jumlah</th>
+                        <th class="p-4 text-right">Total Transaksi</th>
+                        <th class="p-4 text-center">Target Selesai / Pengambilan</th>
+                        <th class="p-4 text-center">Status Pembayaran</th>
+                        <th class="p-4 text-center">Status Pengiriman</th>
+                        <th class="p-4 text-center">Status Pengambilan</th>
                         <th class="p-4 text-center pr-6">Aksi</th>
                     </tr>
                 </thead>
@@ -84,29 +85,25 @@
                             <td class="p-4 font-bold text-primary">{{ $order['customer_name'] }}</td>
                             <td class="p-4">
                                 <div class="font-bold text-foreground">{{ $order['item'] }}</div>
-                                <div class="text-xs text-muted-foreground mt-0.5 font-mono font-medium">{{ number_format($order['qty']) }} Gram</div>
+                                <div class="text-xs text-muted-foreground mt-0.5 font-mono font-medium">
+                                    @if(isset($order['qty_pcs']) && $order['qty_pcs'] > 0)
+                                        {{ number_format($order['qty_pcs']) }} Pcs ({{ number_format($order['qty']) }} Gram)
+                                    @else
+                                        {{ number_format($order['qty']) }} Gram
+                                    @endif
+                                </div>
                             </td>
                             <td class="p-4 text-right font-mono font-black text-primary">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</td>
-                            <td class="p-4 text-sm font-mono font-medium text-muted-foreground">
+                            <td class="p-4 text-center text-sm font-mono font-medium text-muted-foreground">
                                 {{ \Carbon\Carbon::parse($order['target_date'])->format('d M Y') }}
                             </td>
                             <td class="p-4 text-center">
-                                @if($order['payment_status'] == 'Lunas')
+                                @if(strtolower($order['payment_status']) == 'lunas')
                                     <span class="inline-flex items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">Lunas</span>
-                                @elseif(str_contains($order['payment_status'], 'DP'))
+                                @elseif(str_contains(strtolower($order['payment_status']), 'dp'))
                                     <span class="inline-flex items-center justify-center rounded-full bg-accent/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-accent">{{ $order['payment_status'] }}</span>
                                 @else
                                     <span class="inline-flex items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">{{ $order['payment_status'] }}</span>
-                                @endif
-                                
-                                @if(isset($order['pickup_status']))
-                                    <div class="text-xs mt-1">
-                                        @if($order['pickup_status'] == 'Belum Diambil')
-                                            <span class="inline-flex items-center justify-center rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-red-600">Belum Diambil</span>
-                                        @else
-                                            <span class="inline-flex items-center justify-center rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-green-600">Sudah Diambil</span>
-                                        @endif
-                                    </div>
                                 @endif
                             </td>
                             <td class="p-4 text-center">
@@ -118,6 +115,13 @@
                                     <span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary">{{ $order['status'] }}</span>
                                 @else
                                     <span class="inline-flex items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">{{ $order['status'] }}</span>
+                                @endif
+                            </td>
+                            <td class="p-4 text-center">
+                                @if($order['pickup_status'] == 'Belum Diambil')
+                                    <span class="inline-flex items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">Belum Diambil</span>
+                                @else
+                                    <span class="inline-flex items-center justify-center rounded-full bg-green-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-green-600">Sudah Diambil</span>
                                 @endif
                             </td>
                             <td class="p-4 text-center pr-6">
@@ -137,7 +141,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="p-8 text-center text-muted-foreground font-medium italic">Belum ada pesanan pre-order internal.</td>
+                            <td colspan="9" class="p-8 text-center text-muted-foreground font-medium italic">Belum ada pesanan pre-order internal.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -159,7 +163,13 @@
                         <div class="col-span-2">
                             <span class="text-[10px] text-muted-foreground block">Item & Qty</span>
                             <span class="font-bold text-foreground">{{ $order['item'] }}</span>
-                            <span class="font-mono text-muted-foreground text-[10px] block">{{ number_format($order['qty']) }} Gram</span>
+                            <span class="font-mono text-muted-foreground text-[10px] block">
+                                @if(isset($order['qty_pcs']) && $order['qty_pcs'] > 0)
+                                    {{ number_format($order['qty_pcs']) }} Pcs ({{ number_format($order['qty']) }} Gram)
+                                @else
+                                    {{ number_format($order['qty']) }} Gram
+                                @endif
+                            </span>
                         </div>
                         <div>
                             <span class="text-[10px] text-muted-foreground block">Total Harga</span>
@@ -171,9 +181,9 @@
                         </div>
                         <div>
                             <span class="text-[10px] text-muted-foreground block">Status Bayar</span>
-                            @if($order['payment_status'] == 'Lunas')
+                            @if(strtolower($order['payment_status']) == 'lunas')
                                 <span class="inline-flex rounded-full bg-secondary/10 px-2 py-0.5 text-[9px] font-black uppercase text-secondary">Lunas</span>
-                            @elseif(str_contains($order['payment_status'], 'DP'))
+                            @elseif(str_contains(strtolower($order['payment_status']), 'dp'))
                                 <span class="inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[9px] font-black uppercase text-accent">{{ $order['payment_status'] }}</span>
                             @else
                                 <span class="inline-flex rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-black uppercase text-red-600">{{ $order['payment_status'] }}</span>
@@ -224,12 +234,13 @@
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4 pl-6">ID Pesanan</th>
-                        <th class="p-4">Pelanggan</th>
-                        <th class="p-4">Item & Qty</th>
-                        <th class="p-4 text-right">Total Harga</th>
-                        <th class="p-4">Target Selesai</th>
-                        <th class="p-4 text-center">Status Bayar</th>
-                        <th class="p-4 text-center">Status Pesanan</th>
+                        <th class="p-4">Nama Pelanggan</th>
+                        <th class="p-4">Produk Jadi & Jumlah</th>
+                        <th class="p-4 text-right">Total Transaksi</th>
+                        <th class="p-4 text-center">Target Selesai / Pengambilan</th>
+                        <th class="p-4 text-center">Status Pembayaran</th>
+                        <th class="p-4 text-center">Status Pengiriman</th>
+                        <th class="p-4 text-center">Status Pengambilan</th>
                         <th class="p-4 text-center pr-6">Aksi</th>
                     </tr>
                 </thead>
@@ -240,16 +251,22 @@
                             <td class="p-4 font-bold text-primary">{{ $order['customer_name'] }}</td>
                             <td class="p-4">
                                 <div class="font-bold text-foreground">{{ $order['item'] }}</div>
-                                <div class="text-xs text-muted-foreground mt-0.5 font-mono font-medium">{{ number_format($order['qty']) }} Gram</div>
+                                <div class="text-xs text-muted-foreground mt-0.5 font-mono font-medium">
+                                    @if(isset($order['qty_pcs']) && $order['qty_pcs'] > 0)
+                                        {{ number_format($order['qty_pcs']) }} Pcs ({{ number_format($order['qty']) }} Gram)
+                                    @else
+                                        {{ number_format($order['qty']) }} Gram
+                                    @endif
+                                </div>
                             </td>
                             <td class="p-4 text-right font-mono font-black text-primary">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</td>
-                            <td class="p-4 text-sm font-mono font-medium text-muted-foreground">
+                            <td class="p-4 text-center text-sm font-mono font-medium text-muted-foreground">
                                 {{ \Carbon\Carbon::parse($order['target_date'])->format('d M Y') }}
                             </td>
                             <td class="p-4 text-center">
-                                @if($order['payment_status'] == 'Lunas')
+                                @if(strtolower($order['payment_status']) == 'lunas')
                                     <span class="inline-flex items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">Lunas</span>
-                                @elseif(str_contains($order['payment_status'], 'DP'))
+                                @elseif(str_contains(strtolower($order['payment_status']), 'dp'))
                                     <span class="inline-flex items-center justify-center rounded-full bg-accent/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-accent">{{ $order['payment_status'] }}</span>
                                 @else
                                     <span class="inline-flex items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">{{ $order['payment_status'] }}</span>
@@ -264,6 +281,13 @@
                                     <span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary">{{ $order['status'] }}</span>
                                 @else
                                     <span class="inline-flex items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">{{ $order['status'] }}</span>
+                                @endif
+                            </td>
+                            <td class="p-4 text-center">
+                                @if($order['pickup_status'] == 'Belum Diambil')
+                                    <span class="inline-flex items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">Belum Diambil</span>
+                                @else
+                                    <span class="inline-flex items-center justify-center rounded-full bg-green-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-green-600">Sudah Diambil</span>
                                 @endif
                             </td>
                             <td class="p-4 text-center pr-6">
@@ -283,7 +307,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="p-8 text-center text-muted-foreground font-medium italic">Belum ada pesanan pre-order eksternal.</td>
+                            <td colspan="9" class="p-8 text-center text-muted-foreground font-medium italic">Belum ada pesanan pre-order eksternal.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -305,7 +329,13 @@
                         <div class="col-span-2">
                             <span class="text-[10px] text-muted-foreground block">Item & Qty</span>
                             <span class="font-bold text-foreground">{{ $order['item'] }}</span>
-                            <span class="font-mono text-muted-foreground text-[10px] block">{{ number_format($order['qty']) }} Gram</span>
+                            <span class="font-mono text-muted-foreground text-[10px] block">
+                                @if(isset($order['qty_pcs']) && $order['qty_pcs'] > 0)
+                                    {{ number_format($order['qty_pcs']) }} Pcs ({{ number_format($order['qty']) }} Gram)
+                                @else
+                                    {{ number_format($order['qty']) }} Gram
+                                @endif
+                            </span>
                         </div>
                         <div>
                             <span class="text-[10px] text-muted-foreground block">Total Harga</span>
@@ -317,9 +347,9 @@
                         </div>
                         <div>
                             <span class="text-[10px] text-muted-foreground block">Status Bayar</span>
-                            @if($order['payment_status'] == 'Lunas')
+                            @if(strtolower($order['payment_status']) == 'lunas')
                                 <span class="inline-flex rounded-full bg-secondary/10 px-2 py-0.5 text-[9px] font-black uppercase text-secondary">Lunas</span>
-                            @elseif(str_contains($order['payment_status'], 'DP'))
+                            @elseif(str_contains(strtolower($order['payment_status']), 'dp'))
                                 <span class="inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[9px] font-black uppercase text-accent">{{ $order['payment_status'] }}</span>
                             @else
                                 <span class="inline-flex rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-black uppercase text-red-600">{{ $order['payment_status'] }}</span>

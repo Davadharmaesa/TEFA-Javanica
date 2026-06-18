@@ -76,7 +76,7 @@
             $navItems = [
                 ['name' => 'Beranda', 'path' => 'dashboard', 'href' => route('dashboard'), 'icon' => 'home'],
                 ['name' => 'Roasting', 'path' => 'production', 'href' => '/production', 'icon' => 'coffee'],
-                ['name' => 'Log Pekerja', 'path' => 'log-kerja', 'href' => '/log-kerja', 'icon' => 'users'],
+                ['name' => 'Catatan Kerja', 'path' => 'log-kerja', 'href' => '/log-kerja', 'icon' => 'users'],
                 ['name' => 'Gudang', 'path' => 'inventory', 'href' => '/inventory', 'icon' => 'package'],
             ];
 

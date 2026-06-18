@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Log Tenaga Kerja - TEFA Javanica')
+@section('title', 'Catatan Kerja - TEFA Javanica')
 
 @section('content')
 <div x-data="logKerja()" class="space-y-6 pb-12">
@@ -15,7 +15,7 @@
                 </span>
                 <span class="text-xs font-mono font-bold text-secondary uppercase tracking-widest">Sistem Online</span>
             </div>
-            <h1 class="text-3xl font-heading font-black text-primary tracking-tight">Terminal Log Pekerja</h1>
+            <h1 class="text-3xl font-heading font-black text-primary tracking-tight">Terminal Catatan Kerja</h1>
             <p class="text-muted-foreground font-sans text-sm mt-1">
                 Catat siapa saja yang terlibat dalam batch produksi terbaru untuk keperluan HPP & Honor.
             </p>
@@ -97,7 +97,7 @@
         <div class="lg:col-span-5 bg-card border border-border shadow-sm rounded-2xl p-0 flex flex-col overflow-hidden">
             <div class="bg-primary/5 border-b border-border/50 p-5 flex justify-between items-center z-10 relative overflow-hidden">
                 <div>
-                    <h2 class="text-lg font-heading font-black text-primary tracking-tight">Log Pekerja Terkini</h2>
+                    <h2 class="text-lg font-heading font-black text-primary tracking-tight">Catatan Kerja Terkini</h2>
                     <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Histori Operasional Terbaru</p>
                 </div>
                 <div class="bg-primary/10 text-primary p-2 rounded-xl border border-primary/20 relative z-10 flex flex-col items-center justify-center min-w-[50px]">
@@ -153,8 +153,8 @@
                         <div class="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center mb-4 ring-4 ring-muted/10 text-muted-foreground">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         </div>
-                        <p class="font-sans text-xs uppercase font-black tracking-widest text-muted-foreground">Log Kosong</p>
-                        <p class="text-[10px] text-muted-foreground/70 mt-2 max-w-[200px] leading-relaxed font-medium">Belum ada aktivitas pekerja yang terekam.</p>
+                        <p class="font-sans text-xs uppercase font-black tracking-widest text-muted-foreground">Catatan Kosong</p>
+                        <p class="text-[10px] text-muted-foreground/70 mt-2 max-w-[200px] leading-relaxed font-medium">Belum ada catatan kerja yang terekam.</p>
                     </div>
                 </template>
             </div>
@@ -254,7 +254,7 @@
                         await this.fetchData();
                         this.cancelEdit();
                     } else {
-                        alert(this.editMode ? 'Gagal memperbarui log pekerja.' : 'Gagal mencatat log pekerja.');
+                        alert(this.editMode ? 'Gagal memperbarui catatan kerja.' : 'Gagal mencatat catatan kerja.');
                     }
                 } catch (e) {
                     alert('Terjadi kesalahan.');
