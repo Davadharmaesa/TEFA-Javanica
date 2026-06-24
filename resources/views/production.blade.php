@@ -587,9 +587,9 @@
                         return;
                     }
                     const val = parseInt(value);
-                    if (val < 30) this.form.profil_sangrai = 'Light Roast';
-                    else if (val >= 30 && val < 120) this.form.profil_sangrai = 'Medium Roast';
-                    else if (val >= 120) this.form.profil_sangrai = 'Dark Roast';
+                    if (val < 90) this.form.profil_sangrai = 'Light Roast';
+                    else if (val >= 90 && val <= 120) this.form.profil_sangrai = 'Medium Roast';
+                    else if (val > 120) this.form.profil_sangrai = 'Dark Roast';
 
                     // Warning Batas Maksimum Development (Pendekatan 1)
                     if (val > 240) {
