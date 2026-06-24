@@ -105,22 +105,27 @@
 
                 <!-- Parameter Waktu (Di bawah Bahan Mentah & Kode Batch) -->
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Parameter Waktu Roasting</label>
-                    <div class="grid grid-cols-3 gap-4 bg-muted/30 border border-border/60 rounded-xl p-3 shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]">
+                    <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Parameter Roasting</label>
+                    <div class="grid grid-cols-4 gap-4 bg-muted/30 border border-border/60 rounded-xl p-3 shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]">
                         <!-- Input A: Masa Pre-heating -->
                         <div class="space-y-1.5">
-                            <label class="block text-[10px] font-black text-muted-foreground uppercase tracking-wider text-center">Pre-Heat (Menit)</label>
+                            <label class="block text-[10px] font-black text-muted-foreground uppercase tracking-wider text-center">Pre-Heat (Mnt)</label>
                             <input type="number" min="0" step="1" x-model="form.durasi_pre_heating" @wheel="$event.target.blur()" class="w-full bg-white border border-border/60 rounded-lg px-3 py-2 text-sm font-black font-mono text-center text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="-" required />
                         </div>
                         <!-- Input B: Menit First Crack -->
                         <div class="space-y-1.5">
-                            <label class="block text-[10px] font-black text-muted-foreground uppercase tracking-wider text-center">First Crack (Menit)</label>
+                            <label class="block text-[10px] font-black text-muted-foreground uppercase tracking-wider text-center">FC (Mnt)</label>
                             <input type="number" step="0.01" min="0.1" x-model="form.waktu_first_crack" @wheel="$event.target.blur()" class="w-full bg-white border border-border/60 rounded-lg px-3 py-2 text-sm font-black font-mono text-center text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="9" required />
                         </div>
                         <!-- Input C: Detik Dev (Tahan) -->
                         <div class="space-y-1.5">
-                            <label class="block text-[10px] font-black text-muted-foreground uppercase tracking-wider text-center">Development (Detik)</label>
+                            <label class="block text-[10px] font-black text-muted-foreground uppercase tracking-wider text-center">Dev (Dtk)</label>
                             <input type="number" min="0" x-model="form.waktu_development" @wheel="$event.target.blur()" class="w-full bg-white border border-border/60 rounded-lg px-3 py-2 text-sm font-black font-mono text-center text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="45" required />
+                        </div>
+                        <!-- Input D: Suhu Roasting -->
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-black text-muted-foreground uppercase tracking-wider text-center">Suhu (°C)</label>
+                            <input type="number" min="0" x-model="form.suhu" @wheel="$event.target.blur()" class="w-full bg-white border border-border/60 rounded-lg px-3 py-2 text-sm font-black font-mono text-center text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="200" required />
                         </div>
                     </div>
 
@@ -347,8 +352,8 @@
                                     <p class="text-xs font-bold text-primary/80 truncate text-ellipsis" x-text="batch.profil_sangrai || 'Profil'"></p>
                                 </div>
                                 <div class="bg-muted/40 border border-border/60 rounded-lg p-2 text-center group-hover:bg-muted/60 transition-colors">
-                                    <p class="text-[9px] text-primary/60 font-black uppercase mb-0.5">PH / FC / Dev / Roast</p>
-                                    <p class="text-[10px] font-bold text-primary/80 truncate" x-text="(batch.durasi_pre_heating ? batch.durasi_pre_heating : '0') + 'm / ' + (batch.waktu_first_crack ? parseFloat(batch.waktu_first_crack).toFixed(1) : '-') + 'm / ' + (batch.waktu_development !== null ? batch.waktu_development : '-') + 's (' + (batch.durasi_roasting ? parseFloat(batch.durasi_roasting).toFixed(1) : '-') + 'm)'"></p>
+                                    <p class="text-[9px] text-primary/60 font-black uppercase mb-0.5">PH / FC / Dev / Suhu / Roast</p>
+                                    <p class="text-[10px] font-bold text-primary/80 truncate" x-text="(batch.durasi_pre_heating ? batch.durasi_pre_heating : '0') + 'm / ' + (batch.waktu_first_crack ? parseFloat(batch.waktu_first_crack).toFixed(1) : '-') + 'm / ' + (batch.waktu_development !== null ? batch.waktu_development : '-') + 's @ ' + (batch.suhu ? batch.suhu : '-') + '°C (' + (batch.durasi_roasting ? parseFloat(batch.durasi_roasting).toFixed(1) : '-') + 'm)'"></p>
                                 </div>
                                 <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-2 text-center group-hover:bg-secondary/20 transition-colors">
                                     <p class="text-[9px] text-secondary/80 font-black uppercase mb-0.5">Total Susut</p>
@@ -433,7 +438,7 @@
                 </div>
 
                 <!-- Profil Sangrai & Waktu -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="bg-muted/30 rounded-2xl p-5 border border-border/60">
                         <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Profil Sangrai</p>
                         <p class="text-2xl font-black text-primary" x-text="selectedBatch?.profil_sangrai || '-'"></p>
@@ -452,6 +457,12 @@
                         <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Development</p>
                         <p class="text-2xl font-black text-primary font-mono" x-text="selectedBatch?.waktu_development !== null ? selectedBatch.waktu_development + 's' : '-'"></p>
                         <p class="text-[10px] text-muted-foreground mt-2">Fase Pengembangan</p>
+                    </div>
+
+                    <div class="bg-muted/30 rounded-2xl p-5 border border-border/60">
+                        <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Suhu Akhir</p>
+                        <p class="text-2xl font-black text-primary font-mono" x-text="selectedBatch?.suhu !== null ? selectedBatch.suhu + '°C' : '-'"></p>
+                        <p class="text-[10px] text-muted-foreground mt-2">Suhu Akhir Roasting</p>
                     </div>
                 </div>
 
@@ -559,7 +570,7 @@
             history: [],
             stats: { target_tercapai: 0, rata_susut: 0, total_batch: 0 },
             loading: false,
-            form: { green_bean_id: '', roasted_bean_id: '', kode_batch: '', durasi_pre_heating: '', profil_sangrai: '', waktu_first_crack: '', waktu_development: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' },
+            form: { green_bean_id: '', roasted_bean_id: '', kode_batch: '', durasi_pre_heating: '', profil_sangrai: '', waktu_first_crack: '', waktu_development: '', suhu: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' },
             toast: { show: false, msg: '', type: 'success' },
             timeObj: new Date(),
             modalOpen: false,
@@ -730,6 +741,7 @@
                         waktu_first_crack: this.form.waktu_first_crack,
                         waktu_development: this.form.waktu_development,
                         durasi_pre_heating: this.form.durasi_pre_heating,
+                        suhu: this.form.suhu,
                         profil_sangrai: this.form.profil_sangrai,
                         berat_mentah_gudang: this.form.berat_mentah_gudang,
                         berat_mentah_sortasi: this.form.berat_mentah_sortasi,
@@ -758,7 +770,7 @@
                     
                     this.fetchData(); // Refresh history dari server
                     this.showToast(`Log ${this.form.kode_batch} berhasil direkam ke Database.`, 'success');
-                    this.form = { green_bean_id: '', roasted_bean_id: '', kode_batch: '', durasi_pre_heating: '', profil_sangrai: '', waktu_first_crack: '', waktu_development: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' };
+                    this.form = { green_bean_id: '', roasted_bean_id: '', kode_batch: '', durasi_pre_heating: '', profil_sangrai: '', waktu_first_crack: '', waktu_development: '', suhu: '', berat_mentah_gudang: '', berat_mentah_sortasi: '', berat_matang_kotor: '', berat_matang_bersih: '' };
                     this.generateBatchCode();
                 } catch (e) {
                     this.showToast(e.message || "Gagal melakukan post", 'error');

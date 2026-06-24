@@ -48,9 +48,34 @@ Route::middleware(['auth'])->group(function () {
             return view('log-kerja');
         })->name('log_kerja.index');
 
-        // Inventory (Operator cuma bisa lihat, PIC bisa edit)
+        // Inventory (PIC & Operator bisa lihat dan edit)
         Route::prefix('inventory')->name('inventory.')->group(function () {
             Route::get('/', [\App\Http\Controllers\InventoryController::class, 'index'])->name('index');
+            Route::post('/green-bean', [\App\Http\Controllers\InventoryController::class, 'storeGreenBean'])->name('store-green-bean');
+            Route::put('/green-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'updateGreenBean'])->name('update-green-bean');
+            Route::delete('/green-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyGreenBean'])->name('destroy-green-bean');
+
+            Route::post('/roasted-bean', [\App\Http\Controllers\InventoryController::class, 'storeRoastedBean'])->name('store-roasted-bean');
+            Route::put('/roasted-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'updateRoastedBean'])->name('update-roasted-bean');
+            Route::delete('/roasted-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyRoastedBean'])->name('destroy-roasted-bean');
+
+            Route::post('/packaging', [\App\Http\Controllers\InventoryController::class, 'storePackaging'])->name('store-packaging');
+            Route::put('/packaging/{id}', [\App\Http\Controllers\InventoryController::class, 'updatePackaging'])->name('update-packaging');
+            Route::delete('/packaging/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyPackaging'])->name('destroy-packaging');
+        });
+
+        // Sales (PIC & Operator)
+        Route::prefix('sales')->name('sales.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\SalesController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\SalesController::class, 'create'])->name('create');
+            Route::post('/store', [\App\Http\Controllers\SalesController::class, 'store'])->name('store');
+        });
+
+        // Internal API: Kasir Timbangan Dinamis
+        Route::prefix('internal-api/sales')->group(function () {
+            Route::post('/cashier', [\App\Http\Controllers\SalesController::class, 'storeCashierSale']);
+            Route::get('/cashier/history', [\App\Http\Controllers\SalesController::class, 'getCashierHistory']);
+            Route::get('/cashier/roasted-beans', [\App\Http\Controllers\SalesController::class, 'getRoastedBeansStock']);
         });
 
         // INTERNAL API KHUSUS PRODUKSI (ROASTING & LOG PEKERJA)
@@ -97,39 +122,6 @@ Route::middleware(['auth'])->group(function () {
 
 
         // Route production sudah dipindah ke shared area di atas
-
-            // ------------------------------------------
-            // MODUL GUDANG (INVENTORY)
-            // ------------------------------------------
-            Route::prefix('inventory')->name('inventory.')->group(function () {
-                // Route GET / dipindah ke shared area agar Operator bisa lihat
-
-                Route::post('/green-bean', [\App\Http\Controllers\InventoryController::class, 'storeGreenBean'])->name('store-green-bean');
-                Route::put('/green-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'updateGreenBean'])->name('update-green-bean');
-                Route::delete('/green-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyGreenBean'])->name('destroy-green-bean');
-
-                Route::post('/roasted-bean', [\App\Http\Controllers\InventoryController::class, 'storeRoastedBean'])->name('store-roasted-bean');
-                Route::put('/roasted-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'updateRoastedBean'])->name('update-roasted-bean');
-                Route::delete('/roasted-bean/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyRoastedBean'])->name('destroy-roasted-bean');
-
-                Route::post('/packaging', [\App\Http\Controllers\InventoryController::class, 'storePackaging'])->name('store-packaging');
-                Route::put('/packaging/{id}', [\App\Http\Controllers\InventoryController::class, 'updatePackaging'])->name('update-packaging');
-                Route::delete('/packaging/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyPackaging'])->name('destroy-packaging');
-            });
-
-            // Sales
-            Route::prefix('sales')->name('sales.')->group(function () {
-                Route::get('/', [\App\Http\Controllers\SalesController::class, 'index'])->name('index');
-                Route::get('/create', [\App\Http\Controllers\SalesController::class, 'create'])->name('create');
-                Route::post('/store', [\App\Http\Controllers\SalesController::class, 'store'])->name('store');
-            });
-
-            // Internal API: Kasir Timbangan Dinamis
-            Route::prefix('internal-api/sales')->group(function () {
-                Route::post('/cashier', [\App\Http\Controllers\SalesController::class, 'storeCashierSale']);
-                Route::get('/cashier/history', [\App\Http\Controllers\SalesController::class, 'getCashierHistory']);
-                Route::get('/cashier/roasted-beans', [\App\Http\Controllers\SalesController::class, 'getRoastedBeansStock']);
-            });
 
             // Reports
             Route::prefix('reports')->name('reports.')->group(function () {

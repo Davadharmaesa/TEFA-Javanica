@@ -113,6 +113,20 @@
                             Peringatan: Output melebihi kapasitas batch kopi atau stok bahan kemasan 
                         </p>
                     </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-primary mb-1">Margin Keuntungan per Pcs (Rp)</label>
+                        <input type="number"
+                               min="0"
+                               step="1"
+                               x-model="form.margin_keuntungan" 
+                               @wheel="$event.target.blur()" 
+                               class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                               placeholder="Contoh: 15000">
+                        <p class="text-[10px] text-red-500 font-bold mt-1" x-show="preview.hpp_per_pcs > 0 && form.margin_keuntungan !== '' && parseFloat(form.margin_keuntungan) < parseFloat(preview.hpp_per_pcs)">
+                            ⚠️ Peringatan: Margin Keuntungan lebih rendah daripada HPP per Pcs
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -183,10 +197,14 @@
                         </div>
                     </div>
 
-                    <div class="mt-6 pt-4 border-t border-dashed border-border flex justify-between items-end">
+                    <div class="mt-6 pt-4 border-t border-dashed border-border flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                         <div>
                             <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest">HPP Per Pcs Target</p>
                             <p class="text-3xl font-black font-mono text-secondary"><span x-text="formatRupiah(preview.hpp_per_pcs)"></span></p>
+                        </div>
+                        <div x-show="preview.hpp_per_pcs > 0 && form.margin_keuntungan !== ''" class="text-left">
+                            <p class="text-xs font-bold text-muted-foreground uppercase tracking-widest">Harga Jual Target</p>
+                            <p class="text-3xl font-black font-mono text-primary"><span x-text="formatRupiah(parseFloat(preview.hpp_per_pcs || 0) + parseFloat(form.margin_keuntungan || 0))"></span></p>
                         </div>
                         <div class="text-right">
                             <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total HPP Keseluruhan</p>
@@ -273,7 +291,8 @@
                 pouch_stock: 999999,
                 sticker_hpp: 0,
                 sticker_stock: 999999,
-                hasil_kemasan_pcs: ''
+                hasil_kemasan_pcs: '',
+                margin_keuntungan: ''
             },
             preview: {
                 biaya_bahan_baku: 0,

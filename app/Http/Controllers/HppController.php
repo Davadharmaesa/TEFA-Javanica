@@ -101,7 +101,7 @@ class HppController extends Controller
             $is_fallback_gaji = true;
             $biayaTenagaKerjaBatch = Biaya::where('kategori', 'Tenaga Kerja')->sum('harga') ?? 15000;
         }
-        $biayaGaji = $biayaTenagaKerjaBatch * $share;
+        $biayaGaji = $biayaTenagaKerjaBatch;
         
         // Kemasan: Pouch + Stiker
         $biayaKemasan = ($pouch_hpp + $sticker_hpp) * $hasil_kemasan_pcs;

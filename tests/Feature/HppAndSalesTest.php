@@ -79,7 +79,7 @@ class HppAndSalesTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonPath('biaya_gaji', 12500)
+            ->assertJsonPath('biaya_gaji', 20500)
             ->assertJsonPath('biaya_kemasan', 37500);
 
         $data = $response->json();

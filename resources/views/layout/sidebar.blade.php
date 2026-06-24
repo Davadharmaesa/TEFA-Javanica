@@ -72,7 +72,7 @@
         @php
             $role = strtolower(Auth::user()->role ?? 'operator');
             
-            // Menu Dasar (Bisa diakses siapapun, termasuk Pak Deka)
+            // Menu Dasar (Bisa diakses siapapun)
             $navItems = [
                 ['name' => 'Beranda', 'path' => 'dashboard', 'href' => route('dashboard'), 'icon' => 'home'],
                 ['name' => 'Roasting', 'path' => 'production', 'href' => '/production', 'icon' => 'coffee'],
@@ -80,19 +80,19 @@
                 ['name' => 'Gudang', 'path' => 'inventory', 'href' => '/inventory', 'icon' => 'package'],
             ];
 
-            // Filter Khusus: Jika bukan Operator/Mahasiswa, buka akses menu Akuntansi & Manajerial
-            if (!in_array($role, ['operator'])) {
+            // Penjualan bisa diakses oleh PIC dan Operator (Pak Deka)
+            if (in_array($role, ['pic', 'operator'])) {
+                $navItems[] = ['name' => 'Penjualan', 'path' => 'sales', 'href' => '/sales', 'icon' => 'shopping-cart'];
+            }
+
+            // Menu Akuntansi & Manajerial khusus PIC
+            if ($role === 'pic') {
                 $navItems = array_merge($navItems, [
                     ['name' => 'Kalkulator HPP', 'path' => 'hpp-calculator', 'href' => '/hpp-calculator', 'icon' => 'calculator'],
                     ['name' => 'Master Data', 'path' => 'master', 'href' => '/master', 'icon' => 'database'],
-                    ['name' => 'Penjualan', 'path' => 'sales', 'href' => '/sales', 'icon' => 'shopping-cart'],
                     ['name' => 'Laporan', 'path' => 'reports', 'href' => '/reports', 'icon' => 'file-text'],
+                    ['name' => 'Kelola User', 'path' => 'users', 'href' => '/users', 'icon' => 'users-manage'],
                 ]);
-            }
-
-            // Kelola User khusus PIC
-            if ($role === 'pic') {
-                $navItems[] = ['name' => 'Kelola User', 'path' => 'users', 'href' => '/users', 'icon' => 'users-manage'];
             }
         @endphp
 

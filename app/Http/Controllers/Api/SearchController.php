@@ -21,7 +21,6 @@ class SearchController extends Controller
 
         $results = [];
 
-        // 1. Menu Pintas & Halaman Utama
         $pages = [
             ['title' => 'Beranda', 'url' => '/dashboard', 'desc' => 'Kembali ke ringkasan utama sistem', 'role' => 'all'],
             ['title' => 'Roasting & Produksi', 'url' => '/production', 'desc' => 'Mulai batch sangrai & proses kemas baru', 'role' => 'all'],
@@ -29,14 +28,17 @@ class SearchController extends Controller
             ['title' => 'Gudang & Inventaris', 'url' => '/inventory', 'desc' => 'Lihat ketersediaan bahan baku & produk jadi', 'role' => 'all'],
             ['title' => 'Kalkulator HPP', 'url' => '/hpp-calculator', 'desc' => 'Hitung Harga Pokok Produksi produk', 'role' => 'pic'],
             ['title' => 'Master Data', 'url' => '/master', 'desc' => 'Kelola harga bahan dasar & biaya operasional', 'role' => 'pic'],
-            ['title' => 'Catat Penjualan (Pre-Order)', 'url' => '/sales/create', 'desc' => 'Pencatatan order keluar baru', 'role' => 'pic'],
-            ['title' => 'Daftar Penjualan', 'url' => '/sales', 'desc' => 'Riwayat transaksi & status pengiriman', 'role' => 'pic'],
+            ['title' => 'Catat Penjualan (Pre-Order)', 'url' => '/sales/create', 'desc' => 'Pencatatan order keluar baru', 'role' => 'sales'],
+            ['title' => 'Daftar Penjualan', 'url' => '/sales', 'desc' => 'Riwayat transaksi & status pengiriman', 'role' => 'sales'],
             ['title' => 'Laporan Laba Rugi', 'url' => '/reports', 'desc' => 'Grafik keuntungan & margin bersih', 'role' => 'pic'],
             ['title' => 'Kelola Pengguna', 'url' => '/users', 'desc' => 'Manajemen user login & role staff', 'role' => 'pic'],
         ];
 
         foreach ($pages as $page) {
-            if ($page['role'] !== 'all' && $role !== 'pic') {
+            if ($page['role'] === 'pic' && $role !== 'pic') {
+                continue;
+            }
+            if ($page['role'] === 'sales' && !in_array($role, ['pic', 'operator'])) {
                 continue;
             }
             if (empty($query) || str_contains(strtolower($page['title']), strtolower($query)) || str_contains(strtolower($page['desc']), strtolower($query))) {
