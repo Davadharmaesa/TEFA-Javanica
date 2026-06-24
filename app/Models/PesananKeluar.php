@@ -31,7 +31,8 @@ class PesananKeluar extends Model
         'tanggal_bayar_dp',
         'tanggal_pelunasan',
         'batas_waktu_pembayaran',
-        'status_pengambilan'
+        'status_pengambilan',
+        'tipe_pesanan',
     ];
 
     protected $casts = [

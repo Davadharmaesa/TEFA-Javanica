@@ -78,6 +78,16 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: hsl(var(--muted)); border-radius: 10px; }
 
+        /* Sembunyikan spinner bawaan browser untuk input type="number" */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
         /* ====================================================
            Anti-FOUC: State sidebar collapsed sebelum Alpine.js aktif
            Diterapkan via class pada <html> yang di-set di <head>

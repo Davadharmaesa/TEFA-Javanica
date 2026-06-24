@@ -119,7 +119,19 @@
     <!-- Tab Content: Green Bean -->
     <div x-show="activeTab === 'greenbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
         <div class="overflow-x-auto">
-            <table class="hidden md:table w-full text-left border-collapse">
+            <table class="hidden md:table w-full text-left border-collapse table-fixed">
+                <colgroup>
+                    <col class="w-28">
+                    <col>
+                    <col class="w-28">
+                    <col class="w-32">
+                    <col class="w-36">
+                    <col class="w-28">
+                    <col class="w-28">
+                    @if(auth()->user() && in_array(strtolower(auth()->user()->role), ['pic', 'operator']))
+                    <col class="w-20">
+                    @endif
+                </colgroup>
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4">Kode Batch</th>
@@ -260,7 +272,19 @@
     <!-- Tab Content: Roasted Bean -->
     <div x-show="activeTab === 'roastedbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
         <div class="overflow-x-auto">
-            <table class="hidden md:table w-full text-left border-collapse">
+            <table class="hidden md:table w-full text-left border-collapse table-fixed">
+                <colgroup>
+                    <col class="w-28">
+                    <col>
+                    <col class="w-28">
+                    <col class="w-36">
+                    <col class="w-24">
+                    <col class="w-24">
+                    <col class="w-32">
+                    @if(auth()->user() && in_array(strtolower(auth()->user()->role), ['pic', 'operator']))
+                    <col class="w-20">
+                    @endif
+                </colgroup>
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4">ID / Kode Batch</th>
@@ -391,11 +415,17 @@
                 <p class="text-xs text-muted-foreground mt-1">Stok kopi yang sudah dibungkus dan siap dipasarkan.</p>
             </div>
             <div class="overflow-x-auto">
-                <table class="hidden md:table w-full text-left border-collapse">
+                <table class="hidden md:table w-full text-left border-collapse table-fixed">
+                    <colgroup>
+                        <col class="w-3/5">
+                        <col class="w-1/5">
+                        <col class="w-1/5">
+                    </colgroup>
                     <thead>
                         <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                             <th class="p-4">Nama Produk (Kopi & Kemasan)</th>
                             <th class="p-4 text-right">Stok (Pcs)</th>
+                            <th class="p-4 text-center">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border/30">
@@ -404,8 +434,25 @@
                                 <td class="p-4">
                                     <p class="font-bold text-primary" x-text="item.nama"></p>
                                 </td>
-                                <td class="p-4 text-right font-mono font-bold text-primary">
-                                    <span x-text="item.stok"></span>
+                                <td class="p-4 text-right font-mono font-bold" :class="item.stok <= 0 ? 'text-red-500' : 'text-primary'">
+                                    <span x-text="item.stok"></span> <span class="text-xs font-medium text-muted-foreground">Pcs</span>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <template x-if="item.stok > 10">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-600">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Aman
+                                        </span>
+                                    </template>
+                                    <template x-if="item.stok > 0 && item.stok <= 10">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-500/10 text-yellow-600">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-600"></span> Menipis
+                                        </span>
+                                    </template>
+                                    <template x-if="item.stok <= 0">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-600">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Habis
+                                        </span>
+                                    </template>
                                 </td>
                             </tr>
                         </template>
@@ -416,11 +463,31 @@
                 </table>
             </div>
             <!-- Mobile Card List View -->
-            <div class="grid grid-cols-1 gap-3 p-4 md:hidden">
+            <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
                 <template x-for="item in dataFinishedGoods" :key="item.id">
-                    <div class="bg-background border border-border/50 rounded-xl p-4 flex justify-between items-center shadow-sm">
-                        <p class="font-bold text-primary text-sm" x-text="item.nama"></p>
-                        <p class="font-mono font-bold text-primary text-sm" x-text="item.stok + ' Pcs'"></p>
+                    <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <p class="font-bold text-primary text-sm" x-text="item.nama"></p>
+                            <template x-if="item.stok > 10">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-green-600">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Aman
+                                </span>
+                            </template>
+                            <template x-if="item.stok > 0 && item.stok <= 10">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-yellow-600">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-yellow-600"></span> Menipis
+                                </span>
+                            </template>
+                            <template x-if="item.stok <= 0">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-600">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Habis
+                                </span>
+                            </template>
+                        </div>
+                        <div class="border-t border-border/20 pt-2">
+                            <span class="text-[10px] text-muted-foreground block">Stok Saat Ini</span>
+                            <span class="font-mono font-bold text-sm" :class="item.stok <= 0 ? 'text-red-500' : 'text-primary'" x-text="item.stok + ' Pcs'"></span>
+                        </div>
                     </div>
                 </template>
                 <div x-show="dataFinishedGoods.length === 0" class="p-6 text-center text-muted-foreground italic text-xs">
@@ -436,11 +503,25 @@
                 <p class="text-xs text-muted-foreground mt-1">Stok material kemasan yang belum diisi.</p>
             </div>
             <div class="overflow-x-auto">
-                <table class="hidden md:table w-full text-left border-collapse">
+                <table class="hidden md:table w-full text-left border-collapse table-fixed">
+                    <colgroup>
+                        <col class="w-[40%]">
+                        <col class="w-[20%]">
+                        <col class="w-[14%]">
+                        <col class="w-[16%]">
+                        @if(auth()->user() && in_array(strtolower(auth()->user()->role), ['pic', 'operator']))
+                        <col class="w-[10%]">
+                        @endif
+                    </colgroup>
                     <thead>
                         <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                             <th class="p-4">Nama Kemasan Kosong</th>
+                            <th class="p-4">Tipe</th>
                             <th class="p-4 text-right">Stok (Pcs)</th>
+                            <th class="p-4 text-center">Status</th>
+                            @if(auth()->user() && in_array(strtolower(auth()->user()->role), ['pic', 'operator']))
+                            <th class="p-4 text-center">Aksi</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border/30">
@@ -448,25 +529,81 @@
                             <tr class="hover:bg-muted/10 transition-colors group">
                                 <td class="p-4">
                                     <p class="font-bold text-primary" x-text="item.nama"></p>
-                                    <p class="text-xs text-muted-foreground" x-text="item.tipe"></p>
                                 </td>
-                                <td class="p-4 text-right font-mono font-bold text-primary">
-                                    <span x-text="item.stok"></span>
+                                <td class="p-4 align-middle">
+                                    <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-wide" x-text="item.tipe"></span>
                                 </td>
+                                <td class="p-4 text-right font-mono font-bold" :class="item.stok <= 0 ? 'text-red-500' : 'text-primary'">
+                                    <span x-text="item.stok"></span> <span class="text-xs font-medium text-muted-foreground">Pcs</span>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <template x-if="item.stok > 10">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-600">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Aman
+                                        </span>
+                                    </template>
+                                    <template x-if="item.stok > 0 && item.stok <= 10">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-500/10 text-yellow-600">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-600"></span> Menipis
+                                        </span>
+                                    </template>
+                                    <template x-if="item.stok <= 0">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-600">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Habis
+                                        </span>
+                                    </template>
+                                </td>
+                                @if(auth()->user() && in_array(strtolower(auth()->user()->role), ['pic', 'operator']))
+                                <td class="p-4 text-center">
+                                    <div class="flex justify-center gap-1">
+                                        <button @click="openModal('edit', 'produk', item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Koreksi Stok Kemasan">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                                @endif
                             </tr>
                         </template>
                     </tbody>
                 </table>
             </div>
             <!-- Mobile Card List View -->
-            <div class="grid grid-cols-1 gap-3 p-4 md:hidden">
+            <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
                 <template x-for="item in dataProduk" :key="item.id">
-                    <div class="bg-background border border-border/50 rounded-xl p-4 flex justify-between items-center shadow-sm">
-                        <div>
-                            <p class="font-bold text-primary text-sm" x-text="item.nama"></p>
-                            <p class="text-[10px] text-muted-foreground mt-0.5" x-text="item.tipe"></p>
+                    <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="px-2 py-0.5 bg-accent/10 text-accent text-[9px] font-black rounded-full uppercase tracking-wider" x-text="item.tipe"></span>
+                                <p class="font-bold text-primary text-sm mt-1" x-text="item.nama"></p>
+                            </div>
+                            <template x-if="item.stok > 10">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-green-600">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Aman
+                                </span>
+                            </template>
+                            <template x-if="item.stok > 0 && item.stok <= 10">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-yellow-600">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-yellow-600"></span> Menipis
+                                </span>
+                            </template>
+                            <template x-if="item.stok <= 0">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-600">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Habis
+                                </span>
+                            </template>
                         </div>
-                        <p class="font-mono font-bold text-primary text-sm" x-text="item.stok + ' Pcs'"></p>
+                        <div class="border-t border-border/20 pt-2">
+                            <span class="text-[10px] text-muted-foreground block">Stok Saat Ini</span>
+                            <span class="font-mono font-bold text-sm" :class="item.stok <= 0 ? 'text-red-500' : 'text-primary'" x-text="item.stok + ' Pcs'"></span>
+                        </div>
+                        @if(auth()->user() && in_array(strtolower(auth()->user()->role), ['pic', 'operator']))
+                        <div class="flex justify-end pt-1">
+                            <button @click="openModal('edit', 'produk', item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                Koreksi
+                            </button>
+                        </div>
+                        @endif
                     </div>
                 </template>
             </div>
@@ -714,7 +851,7 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('gudangData', () => ({
-            activeTab: 'greenbean',
+            activeTab: new URLSearchParams(window.location.search).get('tab') || 'greenbean',
             isModalOpen: false,
             isEditMode: false,
             editId: null,
@@ -809,7 +946,11 @@
                         this.isPackModalOpen = false;
                         const qty = data.data.hasil_kemasan_pcs;
                         this.showToast(`Berhasil! ${qty} kemasan ditambahkan. Sisa residu: ${data.data.sisa_gram_dicatat} gram.`, 'success');
-                        setTimeout(() => window.location.reload(), 2500);
+                        setTimeout(() => {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set('tab', 'produk');
+                            window.location.href = url.toString();
+                        }, 2500);
                     } else {
                         this.showToast('Gagal: ' + data.message, 'error');
                     }

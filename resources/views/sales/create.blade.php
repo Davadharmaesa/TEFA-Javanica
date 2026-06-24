@@ -62,6 +62,26 @@
                     <input type="text" name="customer_name" id="customer_name" required value="{{ old('customer_name') }}" placeholder="Contoh: Cafe Senja / Bapak Budi (Dosen)" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
                 </div>
 
+                <!-- Tipe Pesanan -->
+                <div class="space-y-1.5 md:col-span-2">
+                    <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tipe Pesanan</label>
+                    <div class="grid grid-cols-2 gap-1 bg-muted/40 p-1 rounded-xl border border-border/50 max-w-xs">
+                        <button type="button" @click="tipePesanan = 'internal'" :class="tipePesanan === 'internal' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2.5 text-xs font-black rounded-lg transition-all uppercase tracking-wider flex items-center justify-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            Internal
+                        </button>
+                        <button type="button" @click="tipePesanan = 'eksternal'" :class="tipePesanan === 'eksternal' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2.5 text-xs font-black rounded-lg transition-all uppercase tracking-wider flex items-center justify-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                            Eksternal
+                        </button>
+                    </div>
+                    <input type="hidden" name="tipe_pesanan" :value="tipePesanan">
+                    <div class="flex items-center gap-2 text-[11px] text-muted-foreground bg-[#526B42]/5 px-3 py-2 rounded-xl border border-[#526B42]/10 max-w-md mt-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-secondary shrink-0"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        <span><strong>Internal</strong>: warga kampus/dosen. <strong>Eksternal</strong>: pelanggan umum/kafe.</span>
+                    </div>
+                </div>
+
                 <!-- Dropdown Produk Jadi (Finished Goods) -->
                 <div class="space-y-1.5">
                     <label for="finished_good_id" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Produk Jadi (Kopi & Kemasan)</label>
@@ -156,7 +176,7 @@
                 <!-- Total Harga Jual (harga_jual_pesanan) -->
                 <div class="space-y-1.5">
                     <label for="harga_jual_pesanan" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Harga Transaksi (Rp)</label>
-                    <input type="number" name="harga_jual_pesanan" id="harga_jual_pesanan" required x-model.number="totalPrice" placeholder="Total harga jual otomatis..." class="w-full bg-background border-2 border-border rounded-xl px-4 py-3.5 text-2xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                    <input type="number" name="harga_jual_pesanan" id="harga_jual_pesanan" required x-model.number="totalPrice" placeholder="0" class="w-full bg-background border-2 border-border rounded-xl px-4 py-3.5 text-2xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
                 </div>
 
                 <!-- Sisa Pembayaran (Hanya jika Belum Bayar) -->
@@ -192,6 +212,7 @@
             totalPrice: null,
             timeObj: new Date(),
             paymentMethod: '{{ old('metode_pembayaran', 'lunas') }}',
+            tipePesanan: '{{ old('tipe_pesanan', request('tab') === 'internal' ? 'internal' : 'eksternal') }}',
 
             init() {
                 this.updateSelectedGood();

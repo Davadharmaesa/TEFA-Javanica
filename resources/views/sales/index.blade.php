@@ -3,7 +3,7 @@
 @section('title', 'Modul Penjualan - TEFA Javanica')
 
 @section('content')
-<div x-data="{ activeTab: 'internal' }" class="space-y-6 pb-12">
+<div x-data="{ activeTab: '{{ request('tab') === 'eksternal' || request('tab') === 'external' ? 'external' : 'internal' }}' }" class="space-y-6 pb-12">
 
     @if(session('success'))
         <div class="p-4 bg-secondary/10 border border-secondary/20 text-secondary rounded-xl font-bold flex items-center gap-2 shadow-sm animate-fade-in">
@@ -22,7 +22,7 @@
             <p class="text-sm text-muted-foreground mt-1">Manajemen pemesanan (Pre-Order) Internal & Eksternal.</p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('sales.create') }}" class="bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105 active:scale-95">
+            <a :href="'{{ route('sales.create') }}?tab=' + activeTab" class="bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105 active:scale-95">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 Buat Pre-Order
             </a>
@@ -64,26 +64,26 @@
             </div>
         </div>
         <div class="overflow-x-auto">
-            <table class="hidden md:table w-full text-left border-collapse">
+            <table class="hidden md:table w-full text-left border-collapse min-w-[1100px]">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
-                        <th class="p-4 pl-6">ID Pesanan</th>
-                        <th class="p-4">Nama Pelanggan</th>
-                        <th class="p-4">Produk Jadi & Jumlah</th>
-                        <th class="p-4 text-right">Total Transaksi</th>
-                        <th class="p-4 text-center">Target Selesai / Pengambilan</th>
-                        <th class="p-4 text-center">Status Pembayaran</th>
-                        <th class="p-4 text-center">Status Pengiriman</th>
-                        <th class="p-4 text-center">Status Pengambilan</th>
-                        <th class="p-4 text-center pr-6">Aksi</th>
+                        <th class="p-4 pl-6 whitespace-nowrap w-[8%]">ID</th>
+                        <th class="p-4 min-w-[150px] whitespace-nowrap w-[12%]">Pelanggan</th>
+                        <th class="p-4 min-w-[320px] whitespace-nowrap w-[30%]">Produk & Jumlah</th>
+                        <th class="p-4 text-center whitespace-nowrap w-[10%]">Total</th>
+                        <th class="p-4 text-center whitespace-nowrap w-[10%]">Target Selesai</th>
+                        <th class="p-4 text-center whitespace-nowrap w-[10%]">Status Bayar</th>
+                        <th class="p-4 text-center whitespace-nowrap w-[10%]">Status Kirim</th>
+                        <th class="p-4 text-center whitespace-nowrap w-[10%]">Status Ambil</th>
+                        <th class="p-4 text-center pr-6 whitespace-nowrap w-[10%]">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/30">
                     @forelse($internalOrders ?? [] as $order)
                         <tr class="hover:bg-muted/10 transition-colors group">
-                            <td class="p-4 pl-6 font-mono text-sm font-bold text-muted-foreground">{{ $order['id'] }}</td>
-                            <td class="p-4 font-bold text-primary">{{ $order['customer_name'] }}</td>
-                            <td class="p-4">
+                            <td class="p-4 pl-6 font-mono text-sm font-bold text-muted-foreground whitespace-nowrap">{{ $order['id'] }}</td>
+                            <td class="p-4 font-bold text-primary min-w-[150px] whitespace-nowrap">{{ $order['customer_name'] }}</td>
+                            <td class="p-4 min-w-[320px]">
                                 <div class="font-bold text-foreground">{{ $order['item'] }}</div>
                                 <div class="text-xs text-muted-foreground mt-0.5 font-mono font-medium">
                                     @if(isset($order['qty_pcs']) && $order['qty_pcs'] > 0)
@@ -93,43 +93,43 @@
                                     @endif
                                 </div>
                             </td>
-                            <td class="p-4 text-right font-mono font-black text-primary">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</td>
-                            <td class="p-4 text-center text-sm font-mono font-medium text-muted-foreground">
+                            <td class="p-4 text-center font-mono font-black text-primary whitespace-nowrap">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</td>
+                            <td class="p-4 text-center text-sm font-mono font-medium text-muted-foreground whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($order['target_date'])->format('d M Y') }}
                             </td>
-                            <td class="p-4 text-center">
+                            <td class="p-4 text-center whitespace-nowrap">
                                 @if(strtolower($order['payment_status']) == 'lunas')
-                                    <span class="inline-flex items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">Lunas</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">Lunas</span>
                                 @elseif(str_contains(strtolower($order['payment_status']), 'dp'))
-                                    <span class="inline-flex items-center justify-center rounded-full bg-accent/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-accent">{{ $order['payment_status'] }}</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-accent/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-accent">{{ $order['payment_status'] }}</span>
                                 @else
-                                    <span class="inline-flex items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">{{ $order['payment_status'] }}</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">{{ $order['payment_status'] }}</span>
                                 @endif
                             </td>
-                            <td class="p-4 text-center">
+                            <td class="p-4 text-center whitespace-nowrap">
                                 @if($order['status'] == 'Menunggu Konfirmasi')
-                                    <span class="inline-flex items-center justify-center rounded-full bg-muted/50 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground border border-border">{{ $order['status'] }}</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-muted/50 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground border border-border">{{ $order['status'] }}</span>
                                 @elseif($order['status'] == 'Diproses')
-                                    <span class="inline-flex items-center justify-center rounded-full bg-blue-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-blue-600">{{ $order['status'] }}</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-blue-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-blue-600">{{ $order['status'] }}</span>
                                 @elseif($order['status'] == 'Siap Diambil')
-                                    <span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary">{{ $order['status'] }}</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary">{{ $order['status'] }}</span>
                                 @else
-                                    <span class="inline-flex items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">{{ $order['status'] }}</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">{{ $order['status'] }}</span>
                                 @endif
                             </td>
-                            <td class="p-4 text-center">
+                            <td class="p-4 text-center whitespace-nowrap">
                                 @if($order['pickup_status'] == 'Belum Diambil')
-                                    <span class="inline-flex items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">Belum Diambil</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">Belum Diambil</span>
                                 @else
-                                    <span class="inline-flex items-center justify-center rounded-full bg-green-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-green-600">Sudah Diambil</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-green-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-green-600">Sudah Diambil</span>
                                 @endif
                             </td>
-                            <td class="p-4 text-center pr-6">
+                            <td class="p-4 text-center pr-6 whitespace-nowrap">
                                 <div class="flex justify-center gap-1">
-                                    <button class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Pesanan">
+                                    <a href="{{ route('sales.edit', $order['raw_id']) }}" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Pesanan">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                    </button>
-                                    <form action="#" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
+                                    </a>
+                                    <form action="{{ route('sales.destroy', $order['raw_id']) }}" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus Pesanan">
@@ -156,7 +156,15 @@
                             <span class="text-[10px] font-mono text-muted-foreground block">#{{ $order['id'] }}</span>
                             <h4 class="font-bold text-primary text-sm mt-0.5">{{ $order['customer_name'] }}</h4>
                         </div>
-                        <span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-black rounded-full uppercase tracking-wider">{{ $order['status'] }}</span>
+                        @if($order['status'] == 'Menunggu Konfirmasi')
+                            <span class="px-2 py-0.5 bg-muted/50 text-muted-foreground border border-border text-[9px] font-black rounded-full uppercase tracking-wider">{{ $order['status'] }}</span>
+                        @elseif($order['status'] == 'Diproses')
+                            <span class="px-2 py-0.5 bg-blue-500/10 text-blue-600 text-[9px] font-black rounded-full uppercase tracking-wider">{{ $order['status'] }}</span>
+                        @elseif($order['status'] == 'Siap Diambil')
+                            <span class="px-2 py-0.5 bg-primary/10 text-primary text-[9px] font-black rounded-full uppercase tracking-wider">{{ $order['status'] }}</span>
+                        @else
+                            <span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-black rounded-full uppercase tracking-wider">{{ $order['status'] }}</span>
+                        @endif
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 text-xs border-y border-border/20 py-2">
@@ -202,11 +210,11 @@
                     </div>
 
                     <div class="flex justify-end gap-2 pt-1">
-                        <button class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                        <a href="{{ route('sales.edit', $order['raw_id']) }}" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                             Edit
-                        </button>
-                        <form action="#" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
+                        </a>
+                        <form action="{{ route('sales.destroy', $order['raw_id']) }}" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8B3A3A] bg-[#8B3A3A]/5 hover:bg-[#8B3A3A]/10 rounded-lg transition-colors">
@@ -230,26 +238,26 @@
             </div>
         </div>
         <div class="overflow-x-auto">
-            <table class="hidden md:table w-full text-left border-collapse">
+            <table class="hidden md:table w-full text-left border-collapse min-w-[1100px]">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
-                        <th class="p-4 pl-6">ID Pesanan</th>
-                        <th class="p-4">Nama Pelanggan</th>
-                        <th class="p-4">Produk Jadi & Jumlah</th>
-                        <th class="p-4 text-right">Total Transaksi</th>
-                        <th class="p-4 text-center">Target Selesai / Pengambilan</th>
-                        <th class="p-4 text-center">Status Pembayaran</th>
-                        <th class="p-4 text-center">Status Pengiriman</th>
-                        <th class="p-4 text-center">Status Pengambilan</th>
-                        <th class="p-4 text-center pr-6">Aksi</th>
+                        <th class="p-4 pl-6 whitespace-nowrap w-[8%]">ID</th>
+                        <th class="p-4 min-w-[150px] whitespace-nowrap w-[12%]">Pelanggan</th>
+                        <th class="p-4 min-w-[320px] whitespace-nowrap w-[30%]">Produk & Jumlah</th>
+                        <th class="p-4 text-center whitespace-nowrap w-[10%]">Total</th>
+                        <th class="p-4 text-center whitespace-nowrap w-[10%]">Target Selesai</th>
+                        <th class="p-4 text-center whitespace-nowrap w-[10%]">Status Bayar</th>
+                        <th class="p-4 text-center whitespace-nowrap w-[10%]">Status Kirim</th>
+                        <th class="p-4 text-center whitespace-nowrap w-[10%]">Status Ambil</th>
+                        <th class="p-4 text-center pr-6 whitespace-nowrap w-[10%]">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/30">
                     @forelse($externalOrders ?? [] as $order)
                         <tr class="hover:bg-muted/10 transition-colors group">
-                            <td class="p-4 pl-6 font-mono text-sm font-bold text-muted-foreground">{{ $order['id'] }}</td>
-                            <td class="p-4 font-bold text-primary">{{ $order['customer_name'] }}</td>
-                            <td class="p-4">
+                            <td class="p-4 pl-6 font-mono text-sm font-bold text-muted-foreground whitespace-nowrap">{{ $order['id'] }}</td>
+                            <td class="p-4 font-bold text-primary min-w-[150px] whitespace-nowrap">{{ $order['customer_name'] }}</td>
+                            <td class="p-4 min-w-[320px]">
                                 <div class="font-bold text-foreground">{{ $order['item'] }}</div>
                                 <div class="text-xs text-muted-foreground mt-0.5 font-mono font-medium">
                                     @if(isset($order['qty_pcs']) && $order['qty_pcs'] > 0)
@@ -259,43 +267,43 @@
                                     @endif
                                 </div>
                             </td>
-                            <td class="p-4 text-right font-mono font-black text-primary">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</td>
-                            <td class="p-4 text-center text-sm font-mono font-medium text-muted-foreground">
+                            <td class="p-4 text-center font-mono font-black text-primary whitespace-nowrap">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</td>
+                            <td class="p-4 text-center text-sm font-mono font-medium text-muted-foreground whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($order['target_date'])->format('d M Y') }}
                             </td>
-                            <td class="p-4 text-center">
+                            <td class="p-4 text-center whitespace-nowrap">
                                 @if(strtolower($order['payment_status']) == 'lunas')
-                                    <span class="inline-flex items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">Lunas</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">Lunas</span>
                                 @elseif(str_contains(strtolower($order['payment_status']), 'dp'))
-                                    <span class="inline-flex items-center justify-center rounded-full bg-accent/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-accent">{{ $order['payment_status'] }}</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-accent/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-accent">{{ $order['payment_status'] }}</span>
                                 @else
-                                    <span class="inline-flex items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">{{ $order['payment_status'] }}</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">{{ $order['payment_status'] }}</span>
                                 @endif
                             </td>
-                            <td class="p-4 text-center">
+                            <td class="p-4 text-center whitespace-nowrap">
                                 @if($order['status'] == 'Menunggu Konfirmasi')
-                                    <span class="inline-flex items-center justify-center rounded-full bg-muted/50 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground border border-border">{{ $order['status'] }}</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-muted/50 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground border border-border">{{ $order['status'] }}</span>
                                 @elseif($order['status'] == 'Diproses')
-                                    <span class="inline-flex items-center justify-center rounded-full bg-blue-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-blue-600">{{ $order['status'] }}</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-blue-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-blue-600">{{ $order['status'] }}</span>
                                 @elseif($order['status'] == 'Siap Diambil')
-                                    <span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary">{{ $order['status'] }}</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary">{{ $order['status'] }}</span>
                                 @else
-                                    <span class="inline-flex items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">{{ $order['status'] }}</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-secondary">{{ $order['status'] }}</span>
                                 @endif
                             </td>
-                            <td class="p-4 text-center">
+                            <td class="p-4 text-center whitespace-nowrap">
                                 @if($order['pickup_status'] == 'Belum Diambil')
-                                    <span class="inline-flex items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">Belum Diambil</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-red-600">Belum Diambil</span>
                                 @else
-                                    <span class="inline-flex items-center justify-center rounded-full bg-green-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-green-600">Sudah Diambil</span>
+                                    <span class="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-green-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-green-600">Sudah Diambil</span>
                                 @endif
                             </td>
-                            <td class="p-4 text-center pr-6">
+                            <td class="p-4 text-center pr-6 whitespace-nowrap">
                                 <div class="flex justify-center gap-1">
-                                    <button class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Pesanan">
+                                    <a href="{{ route('sales.edit', $order['raw_id']) }}" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Pesanan">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                    </button>
-                                    <form action="#" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
+                                    </a>
+                                    <form action="{{ route('sales.destroy', $order['raw_id']) }}" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus Pesanan">
@@ -322,7 +330,15 @@
                             <span class="text-[10px] font-mono text-muted-foreground block">#{{ $order['id'] }}</span>
                             <h4 class="font-bold text-primary text-sm mt-0.5">{{ $order['customer_name'] }}</h4>
                         </div>
-                        <span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-black rounded-full uppercase tracking-wider">{{ $order['status'] }}</span>
+                        @if($order['status'] == 'Menunggu Konfirmasi')
+                            <span class="px-2 py-0.5 bg-muted/50 text-muted-foreground border border-border text-[9px] font-black rounded-full uppercase tracking-wider">{{ $order['status'] }}</span>
+                        @elseif($order['status'] == 'Diproses')
+                            <span class="px-2 py-0.5 bg-blue-500/10 text-blue-600 text-[9px] font-black rounded-full uppercase tracking-wider">{{ $order['status'] }}</span>
+                        @elseif($order['status'] == 'Siap Diambil')
+                            <span class="px-2 py-0.5 bg-primary/10 text-primary text-[9px] font-black rounded-full uppercase tracking-wider">{{ $order['status'] }}</span>
+                        @else
+                            <span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[9px] font-black rounded-full uppercase tracking-wider">{{ $order['status'] }}</span>
+                        @endif
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 text-xs border-y border-border/20 py-2">
@@ -358,11 +374,11 @@
                     </div>
 
                     <div class="flex justify-end gap-2 pt-1">
-                        <button class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                        <a href="{{ route('sales.edit', $order['raw_id']) }}" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                             Edit
-                        </button>
-                        <form action="#" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
+                        </a>
+                        <form action="{{ route('sales.destroy', $order['raw_id']) }}" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8B3A3A] bg-[#8B3A3A]/5 hover:bg-[#8B3A3A]/10 rounded-lg transition-colors">

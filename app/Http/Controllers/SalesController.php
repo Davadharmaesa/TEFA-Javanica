@@ -40,6 +40,7 @@ class SalesController extends Controller
 
             return [
                 'id' => 'PO-OUT-' . str_pad($order->id, 3, '0', STR_PAD_LEFT),
+                'raw_id' => $order->id,
                 'customer_name' => $order->nama_pesanan,
                 'item' => $itemName,
                 'qty' => $order->jumlah_gram_pesanan,
@@ -49,6 +50,7 @@ class SalesController extends Controller
                 'payment_status' => $paymentStatusDisplay,
                 'pickup_status' => $order->status_pengambilan ?? 'Belum Diambil',
                 'target_date' => $order->tanggal_pesanan,
+                'tipe_pesanan' => $order->tipe_pesanan ?? 'eksternal',
                 'created_at' => $order->created_at->toDateTimeString()
             ];
         });
@@ -57,7 +59,7 @@ class SalesController extends Controller
         $externalOrders = [];
 
         foreach ($orders as $o) {
-            if (str_contains(strtolower($o['customer_name']), 'dosen') || str_contains(strtolower($o['customer_name']), 'kampus') || str_contains(strtolower($o['customer_name']), 'internal')) {
+            if (($o['tipe_pesanan'] ?? 'eksternal') === 'internal') {
                 $internalOrders[] = $o;
             } else {
                 $externalOrders[] = $o;
@@ -69,6 +71,7 @@ class SalesController extends Controller
             $internalOrders = [
                 [
                     'id' => 'PO-INT-001',
+                    'raw_id' => 1,
                     'customer_name' => 'Bapak Budi (Dosen TI)',
                     'item' => 'Arabica Ijen Roasting Medium (200g)',
                     'qty' => 1000,
@@ -84,6 +87,7 @@ class SalesController extends Controller
             $externalOrders = [
                 [
                     'id' => 'PO-EXT-001',
+                    'raw_id' => 2,
                     'customer_name' => 'Cafe Senja, Banyuwangi',
                     'item' => 'Espresso Blend (1kg)',
                     'qty' => 10000,
@@ -202,6 +206,7 @@ class SalesController extends Controller
             'tanggal_bayar_dp' => 'nullable|date',
             'batas_waktu_pembayaran' => 'nullable|date',
             'status_pengambilan' => 'nullable|string|in:Belum Diambil,Sudah Diambil',
+            'tipe_pesanan'       => 'nullable|string|in:internal,eksternal',
         ]);
 
         $roastedBean = RoastedBean::findOrFail($validated['roasted_bean_id']);
@@ -224,6 +229,10 @@ class SalesController extends Controller
                 
                 if ($finishedGood) {
                     $packagingId = $finishedGood->packaging_id;
+                    if ($jumlahPcs > 0) {
+                        $finishedGood->stok_pcs = max(0, $finishedGood->stok_pcs - $jumlahPcs);
+                        $finishedGood->save();
+                    }
                 } else {
                     $pouch = \App\Models\Packaging::where('kapasitas_gram', $beratGram)->first();
                     if ($pouch) {
@@ -327,15 +336,357 @@ class SalesController extends Controller
                 'tanggal_bayar_dp' => $validated['tanggal_bayar_dp'] ?? ($metode === 'dp' ? date('Y-m-d') : null),
                 'batas_waktu_pembayaran' => $validated['batas_waktu_pembayaran'] ?? null,
                 'status_pengambilan' => $validated['status_pengambilan'] ?? 'Belum Diambil',
+                'tipe_pesanan'       => $validated['tipe_pesanan'] ?? 'eksternal',
             ]);
 
             DB::commit();
 
-            return redirect()->route('sales.index')->with('success', 'Transaksi penjualan berhasil dicatat dengan pemotongan stok FIFO!');
+            $tab = ($validated['tipe_pesanan'] ?? 'eksternal') === 'internal' ? 'internal' : 'external';
+            return redirect()->route('sales.index', ['tab' => $tab])->with('success', 'Transaksi penjualan berhasil dicatat dengan pemotongan stok FIFO!');
 
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    /**
+     * Show the form for editing the specified Pre-Order
+     */
+    public function edit($id)
+    {
+        $order = PesananKeluar::findOrFail($id);
+        $finishedGoods = \App\Models\FinishedGood::with(['roastedBean', 'packaging'])->get();
+        
+        if ($finishedGoods->isEmpty()) {
+            $beans = RoastedBean::all();
+            $pouches = Packaging::where('tipe', 'like', '%Pouch%')->get();
+            if ($pouches->isEmpty()) {
+                $pouches = Packaging::all();
+            }
+            
+            $tempGoods = collect();
+            foreach ($beans as $bean) {
+                foreach ($pouches as $pouch) {
+                    $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function($q) use ($bean) {
+                        $q->where('roasted_bean_id', $bean->id);
+                    })->latest()->first();
+                    
+                    $hppPerPcs = $latestHpp && $latestHpp->hasil_kemasan_pcs > 0 
+                        ? round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs) 
+                        : 0;
+                        
+                    if ($hppPerPcs <= 0) {
+                        $hppPerPcs = $pouch->harga_satuan * 10;
+                    }
+                    
+                    $suggestedPricePerPcs = $hppPerPcs > 0 ? round($hppPerPcs * 1.5) : 0;
+
+                    $tempGoods->push([
+                        'id' => null,
+                        'roasted_bean_id' => $bean->id,
+                        'nama' => $bean->nama_kopi . ' - ' . $pouch->nama_kemasan,
+                        'berat_gram' => $pouch->kapasitas_gram,
+                        'stok_pcs' => 0,
+                        'hpp_per_pcs' => $hppPerPcs,
+                        'harga_jual_per_pcs' => $suggestedPricePerPcs,
+                    ]);
+                }
+            }
+            $finishedGoods = $tempGoods;
+        } else {
+            $finishedGoods = $finishedGoods->map(function($item) {
+                $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function($q) use ($item) {
+                    $q->where('roasted_bean_id', $item->roasted_bean_id);
+                })->latest()->first();
+                
+                $hppPerPcs = $latestHpp && $latestHpp->hasil_kemasan_pcs > 0 
+                    ? round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs) 
+                    : 0;
+                    
+                if ($hppPerPcs <= 0 && $item->packaging) {
+                    $hppPerPcs = $item->packaging->harga_satuan * 10;
+                }
+                    
+                $suggestedPricePerPcs = $hppPerPcs > 0 ? round($hppPerPcs * 1.5) : 0;
+                
+                return [
+                    'id' => $item->id,
+                    'roasted_bean_id' => $item->roasted_bean_id,
+                    'nama' => ($item->roastedBean->nama_kopi ?? 'Kopi') . ' - ' . ($item->packaging->nama_kemasan ?? 'Kemasan'),
+                    'berat_gram' => $item->packaging->kapasitas_gram ?? 0,
+                    'stok_pcs' => $item->stok_pcs,
+                    'hpp_per_pcs' => $hppPerPcs,
+                    'harga_jual_per_pcs' => $suggestedPricePerPcs,
+                ];
+            });
+        }
+
+        return view('sales.edit', compact('order', 'finishedGoods'));
+    }
+
+    /**
+     * Update the specified Pre-Order in storage
+     */
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'roasted_bean_id' => 'required|exists:roasted_bean,id',
+            'jumlah_gram_pesanan' => 'required|integer|min:1',
+            'harga_jual_pesanan' => 'required|integer|min:0',
+            'status_pengiriman' => 'required|string',
+            'finished_good_id' => 'nullable|string',
+            'jumlah_pcs' => 'nullable|integer|min:1',
+            'tanggal_pesanan' => 'nullable|date',
+            'metode_pembayaran' => 'nullable|string|in:lunas,dp,belum_bayar',
+            'nominal_dp' => 'nullable|integer|min:0',
+            'tanggal_bayar_dp' => 'nullable|date',
+            'batas_waktu_pembayaran' => 'nullable|date',
+            'status_pengambilan' => 'nullable|string|in:Belum Diambil,Sudah Diambil',
+            'tipe_pesanan'       => 'nullable|string|in:internal,eksternal',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $order = PesananKeluar::findOrFail($id);
+
+            // ============================================
+            // 1. REVERT OLD STOCK DEDUCTION
+            // ============================================
+            $oldRoastedBean = RoastedBean::find($order->roasted_bean_id);
+            if ($oldRoastedBean) {
+                $oldRoastedBean->total_stok += $order->jumlah_gram_pesanan;
+                $oldRoastedBean->save();
+            }
+
+            $oldStock = RoastedBeanStock::where('roasted_bean_id', $order->roasted_bean_id)
+                ->latest('tanggal_roasting')
+                ->first();
+            if ($oldStock) {
+                $oldStock->stok_gram += $order->jumlah_gram_pesanan;
+                $oldStock->save();
+            }
+
+            $oldBatch = RoastingBatch::where('roasted_bean_id', $order->roasted_bean_id)
+                ->where('status_batch', 'completed')
+                ->latest('tanggal_roasting')
+                ->first();
+            if ($oldBatch) {
+                $oldBatch->berat_matang_bersih += ($order->jumlah_gram_pesanan / 1000);
+                $oldBatch->save();
+            }
+
+            if ($order->packaging_id) {
+                $oldFinishedGood = \App\Models\FinishedGood::where('roasted_bean_id', $order->roasted_bean_id)
+                    ->where('packaging_id', $order->packaging_id)
+                    ->first();
+                if ($oldFinishedGood) {
+                    $oldFinishedGood->stok_pcs += $order->jumlah_pcs;
+                    $oldFinishedGood->save();
+                }
+            }
+
+            // ============================================
+            // 2. APPLY NEW STOCK DEDUCTION (FIFO)
+            // ============================================
+            $roastedBean = RoastedBean::findOrFail($validated['roasted_bean_id']);
+            $requestedGram = $validated['jumlah_gram_pesanan'];
+
+            // Deduct RoastingBatch
+            $batches = RoastingBatch::where('roasted_bean_id', $roastedBean->id)
+                ->where('status_batch', 'completed')
+                ->where('berat_matang_bersih', '>', 0)
+                ->orderBy('tanggal_roasting', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            $remainingToDeductBatches = $requestedGram;
+            foreach ($batches as $batch) {
+                if ($remainingToDeductBatches <= 0) break;
+                $batchStokGram = $batch->berat_matang_bersih * 1000;
+                if ($batchStokGram >= $remainingToDeductBatches) {
+                    $newBatchStokGram = $batchStokGram - $remainingToDeductBatches;
+                    $batch->berat_matang_bersih = $newBatchStokGram / 1000;
+                    $batch->save();
+                    $remainingToDeductBatches = 0;
+                } else {
+                    $remainingToDeductBatches -= $batchStokGram;
+                    $batch->berat_matang_bersih = 0;
+                    $batch->save();
+                }
+            }
+
+            // Deduct RoastedBeanStock
+            $stocks = RoastedBeanStock::where('roasted_bean_id', $roastedBean->id)
+                ->where('stok_gram', '>', 0)
+                ->orderBy('tanggal_roasting', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            $remainingToDeductStocks = $requestedGram;
+            foreach ($stocks as $stock) {
+                if ($remainingToDeductStocks <= 0) break;
+                if ($stock->stok_gram >= $remainingToDeductStocks) {
+                    $stock->stok_gram -= $remainingToDeductStocks;
+                    $stock->save();
+                    $remainingToDeductStocks = 0;
+                } else {
+                    $remainingToDeductStocks -= $stock->stok_gram;
+                    $stock->stok_gram = 0;
+                    $stock->save();
+                }
+            }
+
+            // Update master roasted bean stock
+            $roastedBean->total_stok = $roastedBean->total_stok - $requestedGram;
+            $roastedBean->save();
+
+            // Resolve packaging_id
+            $packagingId = null;
+            $jumlahPcs = $validated['jumlah_pcs'] ?? null;
+            if (!empty($validated['finished_good_id'])) {
+                $parts = explode('-', $validated['finished_good_id']);
+                $roastedBeanId = $parts[0] ?? null;
+                $beratGram = $parts[1] ?? null;
+
+                if ($roastedBeanId && $beratGram) {
+                    $finishedGood = \App\Models\FinishedGood::where('roasted_bean_id', $roastedBeanId)
+                        ->whereHas('packaging', function($query) use ($beratGram) {
+                            $query->where('kapasitas_gram', $beratGram);
+                        })->first();
+                    
+                    if ($finishedGood) {
+                        $packagingId = $finishedGood->packaging_id;
+                        if ($jumlahPcs > 0) {
+                            $finishedGood->stok_pcs = max(0, $finishedGood->stok_pcs - $jumlahPcs);
+                            $finishedGood->save();
+                        }
+                    } else {
+                        $pouch = \App\Models\Packaging::where('kapasitas_gram', $beratGram)->first();
+                        if ($pouch) {
+                            $packagingId = $pouch->id;
+                        }
+                    }
+                }
+            }
+
+            // Prepare payment
+            $total = $validated['harga_jual_pesanan'];
+            $metode = $validated['metode_pembayaran'] ?? 'lunas';
+            $nominalDp = $validated['nominal_dp'] ?? null;
+            $sisa = null;
+            if ($metode === 'dp' && $nominalDp) {
+                $sisa = max(0, $total - $nominalDp);
+                $statusPembayaran = $sisa === 0 ? 'lunas' : 'dp';
+            } elseif ($metode === 'belum_bayar') {
+                $sisa = $total;
+                $statusPembayaran = 'belum_bayar';
+                $nominalDp = 0;
+            } else {
+                $statusPembayaran = 'lunas';
+                $sisa = 0;
+                $nominalDp = 0;
+            }
+
+            // Update pesanan keluar record
+            $order->update([
+                'roasted_bean_id' => $roastedBean->id,
+                'packaging_id' => $packagingId,
+                'nama_pesanan' => $validated['customer_name'],
+                'jumlah_gram_pesanan' => $validated['jumlah_gram_pesanan'],
+                'jumlah_pcs' => $jumlahPcs,
+                'harga_jual_pesanan' => $validated['harga_jual_pesanan'],
+                'tanggal_pesanan' => $validated['tanggal_pesanan'] ?? date('Y-m-d'),
+                'total_pembayaran' => $total,
+                'status_pembayaran' => $statusPembayaran,
+                'status_pengiriman' => $validated['status_pengiriman'],
+                'metode_pembayaran' => $metode,
+                'nominal_dp' => $nominalDp,
+                'sisa_pembayaran' => $sisa,
+                'tanggal_bayar_dp' => $validated['tanggal_bayar_dp'] ?? ($metode === 'dp' ? date('Y-m-d') : null),
+                'batas_waktu_pembayaran' => $validated['batas_waktu_pembayaran'] ?? null,
+                'status_pengambilan' => $validated['status_pengambilan'] ?? 'Belum Diambil',
+                'tipe_pesanan'       => $validated['tipe_pesanan'] ?? 'eksternal',
+            ]);
+
+            DB::commit();
+
+            $tab = ($validated['tipe_pesanan'] ?? 'eksternal') === 'internal' ? 'internal' : 'external';
+            return redirect()->route('sales.index', ['tab' => $tab])->with('success', 'Transaksi penjualan berhasil diperbarui!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui transaksi: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    /**
+     * Cancel / Delete the specified Pre-Order and restore stock
+     */
+    public function destroy($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $order = PesananKeluar::findOrFail($id);
+
+            // Revert Stock Deduction
+            $roastedBean = RoastedBean::find($order->roasted_bean_id);
+            if ($roastedBean) {
+                $roastedBean->total_stok += $order->jumlah_gram_pesanan;
+                $roastedBean->save();
+            }
+
+            // Revert RoastedBeanStock
+            $latestStock = RoastedBeanStock::where('roasted_bean_id', $order->roasted_bean_id)
+                ->latest('tanggal_roasting')
+                ->first();
+            if ($latestStock) {
+                $latestStock->stok_gram += $order->jumlah_gram_pesanan;
+                $latestStock->save();
+            } else {
+                RoastedBeanStock::create([
+                    'roasted_bean_id' => $order->roasted_bean_id,
+                    'stok_gram' => $order->jumlah_gram_pesanan,
+                    'harga_roasting' => 0,
+                    'tanggal_roasting' => now()->toDateString(),
+                ]);
+            }
+
+            // Revert RoastingBatch
+            $latestBatch = RoastingBatch::where('roasted_bean_id', $order->roasted_bean_id)
+                ->where('status_batch', 'completed')
+                ->latest('tanggal_roasting')
+                ->first();
+            if ($latestBatch) {
+                $latestBatch->berat_matang_bersih += ($order->jumlah_gram_pesanan / 1000);
+                $latestBatch->save();
+            }
+
+            // Revert FinishedGood Stock
+            if ($order->packaging_id) {
+                $finishedGood = \App\Models\FinishedGood::where('roasted_bean_id', $order->roasted_bean_id)
+                    ->where('packaging_id', $order->packaging_id)
+                    ->first();
+                if ($finishedGood) {
+                    $finishedGood->stok_pcs += $order->jumlah_pcs;
+                    $finishedGood->save();
+                }
+            }
+
+            // Delete order
+            $order->delete();
+
+            DB::commit();
+
+            $tab = ($order->tipe_pesanan ?? 'eksternal') === 'internal' ? 'internal' : 'external';
+            return redirect()->route('sales.index', ['tab' => $tab])->with('success', 'Transaksi penjualan berhasil dibatalkan dan stok dikembalikan!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Gagal membatalkan transaksi: ' . $e->getMessage()]);
         }
     }
 

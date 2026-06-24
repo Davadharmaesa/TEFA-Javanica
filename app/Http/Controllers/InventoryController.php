@@ -113,7 +113,7 @@ class InventoryController extends Controller
         }
 
         if ($tanggalBeliCarbon->gt(\Carbon\Carbon::today())) {
-            return redirect()->back()->withInput()->with('error', 'Tanggal barang masuk tidak boleh melebihi hari ini!');
+            return redirect()->route('inventory.index', ['tab' => 'greenbean'])->withInput()->with('error', 'Tanggal barang masuk tidak boleh melebihi hari ini!');
         }
 
         $tanggalBeli = $tanggalBeliCarbon->toDateString();
@@ -125,7 +125,7 @@ class InventoryController extends Controller
             'tanggal_beli' => $tanggalBeli,
         ]);
 
-        return redirect()->route('inventory.index')->with('success', 'Stok Green Bean berhasil ditambahkan!');
+        return redirect()->route('inventory.index', ['tab' => 'greenbean'])->with('success', 'Stok Green Bean berhasil ditambahkan!');
     }
     
     public function updateGreenBean(Request $request, $id)
@@ -142,7 +142,7 @@ class InventoryController extends Controller
         }
 
         if ($tanggalBeliCarbon->gt(\Carbon\Carbon::today())) {
-            return redirect()->back()->withInput()->with('error', 'Tanggal pembelian asli tidak boleh melebihi hari ini!');
+            return redirect()->route('inventory.index', ['tab' => 'greenbean'])->withInput()->with('error', 'Tanggal pembelian asli tidak boleh melebihi hari ini!');
         }
 
         $tanggalBeli = $tanggalBeliCarbon->toDateString();
@@ -161,7 +161,7 @@ class InventoryController extends Controller
             \Log::warning("Failed to run low stock WA check on update: " . $ex->getMessage());
         }
         
-        return redirect()->route('inventory.index')->with('success', 'Data Stok Green Bean berhasil diperbarui!');
+        return redirect()->route('inventory.index', ['tab' => 'greenbean'])->with('success', 'Data Stok Green Bean berhasil diperbarui!');
     }
 
     public function destroyGreenBean($id)
@@ -178,7 +178,7 @@ class InventoryController extends Controller
             \Log::warning("Failed to run low stock WA check on delete: " . $ex->getMessage());
         }
 
-        return redirect()->route('inventory.index')->with('success', 'Data Stok Green Bean berhasil dihapus!');
+        return redirect()->route('inventory.index', ['tab' => 'greenbean'])->with('success', 'Data Stok Green Bean berhasil dihapus!');
     }
 
     // --- ROASTED BEAN ---
@@ -186,7 +186,7 @@ class InventoryController extends Controller
     {
         $validated = $request->validate(['nama_kopi' => 'required|string|max:255', 'bentuk_akhir' => 'required|string|max:255', 'total_stok' => 'required|numeric|min:0', 'satuan_dasar' => 'required|string|max:50']);
         RoastedBean::create($validated);
-        return redirect()->route('inventory.index')->with('success', 'Roasted Bean berhasil ditambahkan!');
+        return redirect()->route('inventory.index', ['tab' => 'roastedbean'])->with('success', 'Roasted Bean berhasil ditambahkan!');
     }
     public function updateRoastedBean(Request $request, $id)
     {
@@ -211,7 +211,7 @@ class InventoryController extends Controller
             }
         }
 
-        return redirect()->route('inventory.index')->with('success', 'Batch Roasting berhasil diperbarui!');
+        return redirect()->route('inventory.index', ['tab' => 'roastedbean'])->with('success', 'Batch Roasting berhasil diperbarui!');
     }
     
     public function destroyRoastedBean($id)
@@ -227,7 +227,7 @@ class InventoryController extends Controller
         }
         $batch->delete();
         
-        return redirect()->route('inventory.index')->with('success', 'Batch Roasting berhasil dihapus!');
+        return redirect()->route('inventory.index', ['tab' => 'roastedbean'])->with('success', 'Batch Roasting berhasil dihapus!');
     }
 
     // --- PACKAGING ---
@@ -235,17 +235,17 @@ class InventoryController extends Controller
     {
         $validated = $request->validate(['nama_kemasan' => 'required|string|max:255', 'tipe' => 'required|string|max:255', 'stok_pcs' => 'required|integer|min:0', 'harga_satuan' => 'required|numeric|min:0']);
         Packaging::create($validated);
-        return redirect()->route('inventory.index')->with('success', 'Produk Kemasan berhasil ditambahkan!');
+        return redirect()->route('inventory.index', ['tab' => 'produk'])->with('success', 'Produk Kemasan berhasil ditambahkan!');
     }
     public function updatePackaging(Request $request, $id)
     {
         $validated = $request->validate(['nama_kemasan' => 'required|string|max:255', 'tipe' => 'required|string|max:255', 'stok_pcs' => 'required|integer|min:0', 'harga_satuan' => 'required|numeric|min:0']);
         Packaging::findOrFail($id)->update($validated);
-        return redirect()->route('inventory.index')->with('success', 'Produk Kemasan berhasil diperbarui!');
+        return redirect()->route('inventory.index', ['tab' => 'produk'])->with('success', 'Produk Kemasan berhasil diperbarui!');
     }
     public function destroyPackaging($id)
     {
         Packaging::findOrFail($id)->delete();
-        return redirect()->route('inventory.index')->with('success', 'Produk Kemasan berhasil dihapus!');
+        return redirect()->route('inventory.index', ['tab' => 'produk'])->with('success', 'Produk Kemasan berhasil dihapus!');
     }
 }
