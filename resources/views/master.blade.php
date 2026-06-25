@@ -392,7 +392,11 @@
                 </div>
                 <div class="space-y-1.5">
                     <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Harga (Rp)</label>
-                    <input type="number" min="0" x-model="formBiaya.harga" class="w-full bg-background border-2 border-border/80 rounded-xl px-4 py-3 text-xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-muted/50 placeholder:text-base placeholder:font-sans" placeholder="Ketik nominal..." />
+                    <input type="text" 
+                           :value="window.formatRupiahString(formBiaya.harga)" 
+                           @input="formBiaya.harga = window.parseRupiahString($event.target.value)" 
+                           class="w-full bg-background border-2 border-border/80 rounded-xl px-4 py-3 text-xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all placeholder:text-muted/50 placeholder:text-base placeholder:font-sans" 
+                           placeholder="Ketik nominal..." />
                 </div>
             </div>
 
@@ -471,7 +475,11 @@
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div class="space-y-1.5">
                             <label class="text-[10px] font-bold text-muted-foreground uppercase">Total Pembelian (Rp)</label>
-                            <input type="number" min="0" x-model="formPackaging.harga_total_pembelian" class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-mono font-medium text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="Total Bayar..." />
+                            <input type="text" 
+                                   :value="window.formatRupiahString(formPackaging.harga_total_pembelian)" 
+                                   @input="formPackaging.harga_total_pembelian = window.parseRupiahString($event.target.value)" 
+                                   class="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-sm font-mono font-medium text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                                   placeholder="Total Bayar..." />
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-[10px] font-bold text-muted-foreground uppercase">Jumlah Qty Beli</label>
@@ -480,7 +488,11 @@
                     </div>
                     <div class="space-y-1.5 pt-3 border-t border-primary/10">
                         <label class="text-[10px] font-bold text-primary uppercase tracking-widest">Harga Satuan Rill (Rp)</label>
-                        <input type="number" min="0" x-model="formPackaging.harga_satuan" class="w-full bg-white border border-border/60 rounded-xl px-4 py-3 text-lg font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-muted/40 placeholder:text-sm placeholder:font-sans" placeholder="Bisa diketik manual..." />
+                        <input type="text" 
+                               :value="window.formatRupiahString(formPackaging.harga_satuan)" 
+                               @input="formPackaging.harga_satuan = window.parseRupiahString($event.target.value)" 
+                               class="w-full bg-white border border-border/60 rounded-xl px-4 py-3 text-lg font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all placeholder:text-muted/40 placeholder:text-sm placeholder:font-sans" 
+                               placeholder="Bisa diketik manual..." />
                         <span class="text-[9px] font-bold text-muted-foreground">*Terisi otomatis jika kalkulator diisi. Tetap bisa diedit manual.</span>
                     </div>
                 </div>

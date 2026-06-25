@@ -660,7 +660,12 @@
                         <template x-if="!isEditMode">
                             <div class="md:col-span-2 space-y-2 mt-2">
                                 <label class="block text-sm font-bold text-foreground mb-1">Total Harga Beli / Nota (Rp)</label>
-                                <input type="number" min="0" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" name="total_harga" x-model="formData.total_harga" placeholder="Contoh: 5000000" class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all font-mono">
+                                <input type="text" 
+                                       :value="window.formatRupiahString(formData.total_harga)" 
+                                       @input="formData.total_harga = window.parseRupiahString($event.target.value)" 
+                                       placeholder="Contoh: 5.000.000" 
+                                       class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all font-mono">
+                                <input type="hidden" name="total_harga" :value="formData.total_harga || ''">
                                 <div class="p-3 bg-muted/30 rounded-xl mt-2 flex justify-between items-center" x-show="formData.stok_kg > 0 && formData.total_harga > 0">
                                     <span class="text-xs font-bold text-muted-foreground uppercase">Kalkulasi Harga Standar</span>
                                     <span class="text-lg font-black text-primary">Rp <span x-text="formatRupiah(Math.round(formData.total_harga / formData.stok_kg))"></span> <span class="text-xs text-muted-foreground font-medium">/ Kg</span></span>
@@ -741,7 +746,13 @@
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-foreground mb-1">HPP / Harga Beli (Rp)</label>
-                            <input type="number" min="0" onwheel="this.blur()" onkeydown="if(event.key==='-'||event.key==='e'){event.preventDefault();}" oninput="if(this.value < 0) this.value = 0" name="harga_satuan" x-model="formData.hpp" placeholder="Contoh: 5000" required class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                            <input type="text" 
+                                   :value="window.formatRupiahString(formData.hpp)" 
+                                   @input="formData.hpp = window.parseRupiahString($event.target.value)" 
+                                   placeholder="Contoh: 5.000" 
+                                   required 
+                                   class="w-full bg-background border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                            <input type="hidden" name="harga_satuan" :value="formData.hpp || ''">
                         </div>
                     </div>
                 </div>
