@@ -175,8 +175,13 @@
 
                 <!-- Total Harga Jual (harga_jual_pesanan) -->
                 <div class="space-y-1.5">
-                    <label for="harga_jual_pesanan" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Harga Transaksi (Rp)</label>
-                    <input type="number" name="harga_jual_pesanan" id="harga_jual_pesanan" required x-model.number="totalPrice" placeholder="0" class="w-full bg-background border-2 border-border rounded-xl px-4 py-3.5 text-2xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                    <label for="harga_jual_pesanan_display" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Harga Transaksi (Rp)</label>
+                    <input type="text" id="harga_jual_pesanan_display" required 
+                           :value="window.formatRupiahString(totalPrice)" 
+                           @input="totalPrice = window.parseRupiahString($event.target.value)" 
+                           placeholder="0" 
+                           class="w-full bg-background border-2 border-border rounded-xl px-4 py-3.5 text-2xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                    <input type="hidden" name="harga_jual_pesanan" :value="totalPrice || 0">
                 </div>
 
                 <!-- Sisa Pembayaran (Hanya jika Belum Bayar) -->

@@ -150,7 +150,21 @@
                     },
                 }
             }
-        }
+        };
+    </script>
+    <script>
+        window.formatRupiahString = function(value) {
+            if (value === null || value === undefined || value === '') return '';
+            let valStr = value.toString().replace(/\D/g, '');
+            if (!valStr) return '';
+            return valStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        };
+
+        window.parseRupiahString = function(value) {
+            if (value === null || value === undefined || value === '') return 0;
+            let clean = value.toString().replace(/\D/g, '');
+            return clean ? parseInt(clean, 10) : 0;
+        };
     </script>
 </head>
 <body class="antialiased" x-data="{

@@ -208,7 +208,7 @@ class PesananKeluarTest extends TestCase
             'metode_pembayaran' => 'lunas',
         ]);
 
-        $response->assertRedirect('/sales');
+        $response->assertRedirect('/sales?tab=external');
 
         // Check that the stock is negative in roasted_bean
         $this->assertEquals(-700, $roastedBean->refresh()->total_stok);
@@ -254,7 +254,7 @@ class PesananKeluarTest extends TestCase
             'batas_waktu_pembayaran' => '2026-06-10',
         ]);
 
-        $response->assertRedirect('/sales');
+        $response->assertRedirect('/sales?tab=external');
 
         // Check pesanan_keluar record has status_pembayaran = 'dp' and sisa_pembayaran = 60000
         $this->assertDatabaseHas('pesanan_keluar', [
@@ -293,7 +293,7 @@ class PesananKeluarTest extends TestCase
             'status_pengambilan' => 'Belum Diambil',
         ]);
 
-        $response->assertRedirect('/sales');
+        $response->assertRedirect('/sales?tab=external');
 
         $this->assertDatabaseHas('pesanan_keluar', [
             'nama_pesanan' => 'Customer Unpaid',
