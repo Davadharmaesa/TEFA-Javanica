@@ -18,6 +18,7 @@ const __dirname = path.dirname(__filename);
 const PORT = 3000;
 let sock = null;
 let isConnected = false;
+let currentQr = null;
 
 async function connectToWhatsApp() {
     // Simpan data login di folder 'baileys_auth_info' agar tidak perlu scan ulang setiap dijalankan
@@ -39,6 +40,7 @@ async function connectToWhatsApp() {
         const { connection, lastDisconnect, qr } = update;
 
         if (qr) {
+            currentQr = qr;
             console.log('\n==================================================');
             console.log('[INFO] PINDAI QR CODE BERIKUT DENGAN WHATSAPP HP ANDA:');
             console.log('==================================================\n');
@@ -52,10 +54,12 @@ async function connectToWhatsApp() {
             if (shouldReconnect) {
                 connectToWhatsApp();
             } else {
+                currentQr = null;
                 console.log('[ERROR] Sesi terputus/Log Out. Silakan hapus folder "baileys_auth_info" dan jalankan ulang.');
             }
         } else if (connection === 'open') {
             isConnected = true;
+            currentQr = null;
             console.log('\n==================================================');
             console.log('[SUCCESS] WhatsApp Berhasil Terhubung!');
             console.log('==================================================\n');
@@ -66,7 +70,7 @@ async function connectToWhatsApp() {
 }
 
 // HTTP API Server
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -75,6 +79,37 @@ const server = http.createServer((req, res) => {
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
         res.end();
+        return;
+    }
+
+    if (req.url === '/status' && req.method === 'GET') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ 
+            success: true, 
+            isConnected: isConnected, 
+            qr: currentQr 
+        }));
+        return;
+    }
+
+    if (req.url === '/logout' && req.method === 'POST') {
+        try {
+            if (sock) {
+                console.log('[INFO] Melakukan Log Out WhatsApp...');
+                await sock.logout();
+                isConnected = false;
+                currentQr = null;
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, message: 'Berhasil keluar dan memutuskan sesi WhatsApp!' }));
+            } else {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: 'Koneksi WhatsApp belum diinisialisasi!' }));
+            }
+        } catch (err) {
+            console.error('[ERROR]', err);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: false, error: err.message }));
+        }
         return;
     }
 

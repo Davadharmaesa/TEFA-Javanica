@@ -86,4 +86,50 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'User ' . $userName . ' berhasil dihapus!');
     }
+
+    /**
+     * Get WhatsApp connection status and QR code from Gateway.
+     */
+    public function getWaStatus()
+    {
+        $url = config('services.whatsapp.url', 'http://localhost:3000');
+        $apiKey = config('services.whatsapp.api_key', '');
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders(array_filter([
+                'X-API-KEY' => $apiKey,
+                'apikey' => $apiKey,
+            ]))->timeout(3)->get("{$url}/status");
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+            return response()->json(['success' => false, 'error' => 'Gagal mengambil status dari Gateway'], 502);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => 'Gateway tidak merespon (Offline)'], 504);
+        }
+    }
+
+    /**
+     * Logout WhatsApp session from Gateway.
+     */
+    public function logoutWa()
+    {
+        $url = config('services.whatsapp.url', 'http://localhost:3000');
+        $apiKey = config('services.whatsapp.api_key', '');
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders(array_filter([
+                'X-API-KEY' => $apiKey,
+                'apikey' => $apiKey,
+            ]))->timeout(5)->post("{$url}/logout");
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+            return response()->json(['success' => false, 'error' => 'Gagal melakukan logout pada Gateway'], 502);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => 'Gateway tidak merespon (Offline)'], 504);
+        }
+    }
 }

@@ -62,7 +62,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/30">
-                    <template x-for="item in dataBiaya" :key="item.id">
+                    <template x-for="item in paginatedBiaya" :key="item.id">
                         <tr class="hover:bg-muted/10 transition-colors group">
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-primary group-hover:text-secondary transition-colors" x-text="item.nama"></p>
@@ -91,7 +91,7 @@
         </div>
         <!-- Mobile Card List View -->
         <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
-            <template x-for="item in dataBiaya" :key="item.id">
+            <template x-for="item in paginatedBiaya" :key="item.id">
                 <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
                     <div class="flex justify-between items-start">
                         <h4 class="font-bold text-primary text-sm" x-text="item.nama"></h4>
@@ -122,6 +122,30 @@
                 </div>
             </template>
         </div>
+
+        <!-- Pagination Controls -->
+        <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Menampilkan <span x-text="dataBiaya.length > 0 ? (biayaPage - 1) * biayaLimit + 1 : 0"></span> - <span x-text="Math.min(biayaPage * biayaLimit, dataBiaya.length)"></span> dari <span x-text="dataBiaya.length"></span> data
+            </span>
+            <div class="flex items-center gap-1.5">
+                <button 
+                    type="button" 
+                    @click="biayaPage = Math.max(1, biayaPage - 1)" 
+                    :disabled="biayaPage === 1"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Sebelumnya</button>
+
+                <span class="text-xs font-mono font-black text-primary px-3">Halaman <span x-text="biayaPage"></span> dari <span x-text="totalBiayaPages"></span></span>
+
+                <button 
+                    type="button" 
+                    @click="biayaPage = Math.min(totalBiayaPages, biayaPage + 1)" 
+                    :disabled="biayaPage === totalBiayaPages"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Selanjutnya</button>
+            </div>
+        </div>
     </div>
 
     <div x-show="activeTab === 'greenbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
@@ -136,7 +160,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/30">
-                    <template x-for="item in dataGreenBean" :key="item.id">
+                    <template x-for="item in paginatedGreenBeans" :key="item.id">
                         <tr class="hover:bg-muted/10 transition-colors group">
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-primary group-hover:text-secondary transition-colors" x-text="item.nama_biji"></p>
@@ -164,7 +188,7 @@
         </div>
         <!-- Mobile Card List View -->
         <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
-            <template x-for="item in dataGreenBean" :key="item.id">
+            <template x-for="item in paginatedGreenBeans" :key="item.id">
                 <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
                     <div class="flex justify-between items-start">
                         <h4 class="font-bold text-primary text-sm" x-text="item.nama_biji"></h4>
@@ -191,6 +215,30 @@
                 </div>
             </template>
         </div>
+
+        <!-- Pagination Controls -->
+        <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Menampilkan <span x-text="dataGreenBean.length > 0 ? (greenBeanPage - 1) * greenBeanLimit + 1 : 0"></span> - <span x-text="Math.min(greenBeanPage * greenBeanLimit, dataGreenBean.length)"></span> dari <span x-text="dataGreenBean.length"></span> data
+            </span>
+            <div class="flex items-center gap-1.5">
+                <button 
+                    type="button" 
+                    @click="greenBeanPage = Math.max(1, greenBeanPage - 1)" 
+                    :disabled="greenBeanPage === 1"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Sebelumnya</button>
+
+                <span class="text-xs font-mono font-black text-primary px-3">Halaman <span x-text="greenBeanPage"></span> dari <span x-text="totalGreenBeanPages"></span></span>
+
+                <button 
+                    type="button" 
+                    @click="greenBeanPage = Math.min(totalGreenBeanPages, greenBeanPage + 1)" 
+                    :disabled="greenBeanPage === totalGreenBeanPages"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Selanjutnya</button>
+            </div>
+        </div>
     </div>
 
     <div x-show="activeTab === 'roastedbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
@@ -205,7 +253,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/30">
-                    <template x-for="item in dataRoastedBean" :key="item.id">
+                    <template x-for="item in paginatedRoastedBeans" :key="item.id">
                         <tr class="hover:bg-muted/10 transition-colors group">
                             <td class="p-4 pl-6">
                                 <p class="font-bold text-primary group-hover:text-secondary transition-colors" x-text="item.nama_kopi"></p>
@@ -233,7 +281,7 @@
         </div>
         <!-- Mobile Card List View -->
         <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
-            <template x-for="item in dataRoastedBean" :key="item.id">
+            <template x-for="item in paginatedRoastedBeans" :key="item.id">
                 <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
                     <div class="flex justify-between items-start">
                         <h4 class="font-bold text-primary text-sm" x-text="item.nama_kopi"></h4>
@@ -260,6 +308,30 @@
                 </div>
             </template>
         </div>
+
+        <!-- Pagination Controls -->
+        <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Menampilkan <span x-text="dataRoastedBean.length > 0 ? (roastedBeanPage - 1) * roastedBeanLimit + 1 : 0"></span> - <span x-text="Math.min(roastedBeanPage * roastedBeanLimit, dataRoastedBean.length)"></span> dari <span x-text="dataRoastedBean.length"></span> data
+            </span>
+            <div class="flex items-center gap-1.5">
+                <button 
+                    type="button" 
+                    @click="roastedBeanPage = Math.max(1, roastedBeanPage - 1)" 
+                    :disabled="roastedBeanPage === 1"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Sebelumnya</button>
+
+                <span class="text-xs font-mono font-black text-primary px-3">Halaman <span x-text="roastedBeanPage"></span> dari <span x-text="totalRoastedBeanPages"></span></span>
+
+                <button 
+                    type="button" 
+                    @click="roastedBeanPage = Math.min(totalRoastedBeanPages, roastedBeanPage + 1)" 
+                    :disabled="roastedBeanPage === totalRoastedBeanPages"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Selanjutnya</button>
+            </div>
+        </div>
     </div>
 
     <div x-show="activeTab === 'packaging'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
@@ -277,7 +349,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/30">
-                    <template x-for="item in dataPackaging" :key="item.id">
+                    <template x-for="item in paginatedPackaging" :key="item.id">
                         <tr class="hover:bg-muted/10 transition-colors group">
                             <td class="p-4 pl-6 align-middle">
                                 <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-wide shadow-sm border border-accent/20" x-text="item.tipe"></span>
@@ -314,7 +386,7 @@
         </div>
         <!-- Mobile Card List View -->
         <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
-            <template x-for="item in dataPackaging" :key="item.id">
+            <template x-for="item in paginatedPackaging" :key="item.id">
                 <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
                     <div class="flex justify-between items-start">
                         <div>
@@ -351,6 +423,30 @@
                     </div>
                 </div>
             </template>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Menampilkan <span x-text="dataPackaging.length > 0 ? (packagingPage - 1) * packagingLimit + 1 : 0"></span> - <span x-text="Math.min(packagingPage * packagingLimit, dataPackaging.length)"></span> dari <span x-text="dataPackaging.length"></span> data
+            </span>
+            <div class="flex items-center gap-1.5">
+                <button 
+                    type="button" 
+                    @click="packagingPage = Math.max(1, packagingPage - 1)" 
+                    :disabled="packagingPage === 1"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Sebelumnya</button>
+
+                <span class="text-xs font-mono font-black text-primary px-3">Halaman <span x-text="packagingPage"></span> dari <span x-text="totalPackagingPages"></span></span>
+
+                <button 
+                    type="button" 
+                    @click="packagingPage = Math.min(totalPackagingPages, packagingPage + 1)" 
+                    :disabled="packagingPage === totalPackagingPages"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Selanjutnya</button>
+            </div>
         </div>
     </div>
 
@@ -557,6 +653,51 @@
             dataGreenBean: [],
             dataRoastedBean: [],
             dataPackaging: [],
+
+            // Pagination States
+            biayaPage: 1,
+            biayaLimit: 10,
+            get totalBiayaPages() {
+                return Math.ceil(this.dataBiaya.length / this.biayaLimit) || 1;
+            },
+            get paginatedBiaya() {
+                this.biayaPage = Math.min(Math.max(1, this.biayaPage), this.totalBiayaPages);
+                const start = (this.biayaPage - 1) * this.biayaLimit;
+                return this.dataBiaya.slice(start, start + this.biayaLimit);
+            },
+
+            greenBeanPage: 1,
+            greenBeanLimit: 10,
+            get totalGreenBeanPages() {
+                return Math.ceil(this.dataGreenBean.length / this.greenBeanLimit) || 1;
+            },
+            get paginatedGreenBeans() {
+                this.greenBeanPage = Math.min(Math.max(1, this.greenBeanPage), this.totalGreenBeanPages);
+                const start = (this.greenBeanPage - 1) * this.greenBeanLimit;
+                return this.dataGreenBean.slice(start, start + this.greenBeanLimit);
+            },
+
+            roastedBeanPage: 1,
+            roastedBeanLimit: 10,
+            get totalRoastedBeanPages() {
+                return Math.ceil(this.dataRoastedBean.length / this.roastedBeanLimit) || 1;
+            },
+            get paginatedRoastedBeans() {
+                this.roastedBeanPage = Math.min(Math.max(1, this.roastedBeanPage), this.totalRoastedBeanPages);
+                const start = (this.roastedBeanPage - 1) * this.roastedBeanLimit;
+                return this.dataRoastedBean.slice(start, start + this.roastedBeanLimit);
+            },
+
+            packagingPage: 1,
+            packagingLimit: 10,
+            get totalPackagingPages() {
+                return Math.ceil(this.dataPackaging.length / this.packagingLimit) || 1;
+            },
+            get paginatedPackaging() {
+                this.packagingPage = Math.min(Math.max(1, this.packagingPage), this.totalPackagingPages);
+                const start = (this.packagingPage - 1) * this.packagingLimit;
+                return this.dataPackaging.slice(start, start + this.packagingLimit);
+            },
 
             init() {
                 this.fetchData();

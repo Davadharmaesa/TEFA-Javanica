@@ -121,6 +121,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/', [\App\Http\Controllers\UserController::class, 'store'])->name('store');
             Route::put('/{id}', [\App\Http\Controllers\UserController::class, 'update'])->name('update');
             Route::delete('/{id}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('destroy');
+            Route::get('/whatsapp/status', [\App\Http\Controllers\UserController::class, 'getWaStatus'])->name('wa.status');
+            Route::post('/whatsapp/logout', [\App\Http\Controllers\UserController::class, 'logoutWa'])->name('wa.logout');
         });
 
 

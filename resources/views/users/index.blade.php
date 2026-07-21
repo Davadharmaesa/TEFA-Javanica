@@ -15,7 +15,11 @@
             </h1>
             <p class="text-sm text-muted-foreground mt-1">Daftarkan, edit, dan atur hak akses pengguna (PIC, Operator, Mahasiswa Magang).</p>
         </div>
-        <div>
+        <div class="flex items-center gap-3">
+            <button @click="openWaModal()" class="border border-secondary/60 text-secondary hover:bg-secondary/10 px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-all flex items-center gap-2 hover:scale-105 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                WhatsApp Gateway
+            </button>
             <button @click="openAddModal()" class="bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105 active:scale-95">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Tambah User
@@ -250,6 +254,92 @@
         </div>
     </div>
 
+    <!-- Modal WhatsApp Gateway -->
+    <div x-show="isWaModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/50 backdrop-blur-sm" style="display: none;" x-transition>
+        <div @click.away="isWaModalOpen = false; stopWaPolling()" class="bg-card border border-border/40 w-full max-w-md rounded-2xl shadow-xl overflow-hidden my-auto transform transition-all">
+            <div class="bg-[#C87A54] px-6 py-4 flex justify-between items-center text-white">
+                <h3 class="font-heading font-bold text-lg flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    Koneksi WhatsApp Gateway
+                </h3>
+                <button type="button" @click="isWaModalOpen = false; stopWaPolling()" class="text-white/80 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <!-- Loading State -->
+                <div x-show="waLoading" class="flex flex-col items-center justify-center py-8 space-y-3">
+                    <svg class="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-muted-foreground">Memuat status gateway...</span>
+                </div>
+
+                <!-- Content State when loaded -->
+                <div x-show="!waLoading" class="space-y-4">
+                    <!-- Status Badge -->
+                    <div class="flex items-center justify-between p-4 bg-muted/30 border border-border/40 rounded-xl">
+                        <span class="text-sm font-bold text-primary">Status Koneksi:</span>
+                        <template x-if="waStatus && waStatus.isConnected">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-600 border border-green-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></span> Terhubung
+                            </span>
+                        </template>
+                        <template x-if="waStatus && !waStatus.isConnected">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-600 border border-red-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Terputus
+                            </span>
+                        </template>
+                    </div>
+
+                    <!-- Connected Details -->
+                    <div x-show="waStatus && waStatus.isConnected" class="p-4 bg-secondary/10 border border-secondary/20 text-secondary rounded-xl text-center space-y-2">
+                        <p class="text-sm font-bold">WhatsApp gateway aktif dan siap mengirimkan notifikasi stok!</p>
+                        <button type="button" @click="logoutWa()" class="mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm">
+                            Disconnect / Keluar Akun
+                        </button>
+                    </div>
+
+                    <!-- Disconnected / QR Code needed -->
+                    <div x-show="waStatus && !waStatus.isConnected" class="space-y-4 text-center">
+                        <template x-if="waStatus && waStatus.qr">
+                            <div class="space-y-4">
+                                <p class="text-xs text-muted-foreground">Silakan scan QR code di bawah ini menggunakan aplikasi WhatsApp di HP Anda untuk menghubungkan gateway:</p>
+                                <div class="flex justify-center p-3 bg-white border border-border rounded-xl w-60 h-60 mx-auto shadow-inner">
+                                    <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(waStatus.qr)" class="w-full h-full object-contain" alt="Scan QR Code WA">
+                                </div>
+                                <div class="text-[10px] text-muted-foreground flex items-center justify-center gap-1.5">
+                                    <svg class="animate-spin h-3.5 w-3.5 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>Menunggu pemindaian... QR akan otomatis ter-refresh</span>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="waStatus && !waStatus.qr">
+                            <div class="p-6 bg-muted/40 border border-border/60 rounded-xl space-y-2">
+                                <p class="text-sm font-bold text-muted-foreground">Menghubungkan ke server...</p>
+                                <p class="text-xs text-muted-foreground">QR code sedang di-generate di server gateway. Mohon tunggu sesaat.</p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex justify-end gap-2">
+                <button type="button" @click="fetchWaStatus()" class="px-4 py-2 border border-border/60 text-xs font-bold text-primary bg-card rounded-lg transition-colors select-none">
+                    Refresh Status
+                </button>
+                <button type="button" @click="isWaModalOpen = false; stopWaPolling()" class="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-bold rounded-lg transition-all shadow-sm select-none">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Form Tambah/Edit User -->
     <div x-show="isModalOpen" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" style="display: none;" x-transition>
         <div @click.away="isModalOpen = false" class="bg-card w-full max-w-lg rounded-2xl shadow-xl border border-border/40 p-6 relative overflow-hidden my-auto">
@@ -352,6 +442,79 @@
             isEditMode: false,
             editId: null,
             formData: { name: '', email: '', role: '' },
+            isWaModalOpen: false,
+            waLoading: false,
+            waStatus: null,
+            waPollingInterval: null,
+
+            init() {
+                this.$watch('isWaModalOpen', value => {
+                    if (value) {
+                        this.startWaPolling();
+                    } else {
+                        this.stopWaPolling();
+                    }
+                });
+            },
+
+            openWaModal() {
+                this.isWaModalOpen = true;
+                this.fetchWaStatus();
+            },
+
+            async fetchWaStatus() {
+                this.waLoading = this.waStatus ? false : true;
+                try {
+                    const response = await fetch('{{ route('users.wa.status') }}');
+                    if (response.ok) {
+                        this.waStatus = await response.json();
+                    } else {
+                        this.waStatus = { isConnected: false, qr: null };
+                    }
+                } catch (e) {
+                    this.waStatus = { isConnected: false, qr: null };
+                } finally {
+                    this.waLoading = false;
+                }
+            },
+
+            startWaPolling() {
+                if (this.waPollingInterval) clearInterval(this.waPollingInterval);
+                this.waPollingInterval = setInterval(() => {
+                    this.fetchWaStatus();
+                }, 5000);
+            },
+
+            stopWaPolling() {
+                if (this.waPollingInterval) {
+                    clearInterval(this.waPollingInterval);
+                    this.waPollingInterval = null;
+                }
+            },
+
+            async logoutWa() {
+                if (!confirm('Apakah Anda yakin ingin memutuskan koneksi WhatsApp ini?')) return;
+                this.waLoading = true;
+                try {
+                    const response = await fetch('{{ route('users.wa.logout') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    if (response.ok) {
+                        alert('Berhasil memutuskan sesi WhatsApp!');
+                        this.fetchWaStatus();
+                    } else {
+                        alert('Gagal melakukan logout!');
+                    }
+                } catch (e) {
+                    alert('Error melakukan logout!');
+                } finally {
+                    this.waLoading = false;
+                }
+            },
 
             openAddModal() {
                 this.isEditMode = false;

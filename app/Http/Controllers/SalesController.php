@@ -18,11 +18,17 @@ class SalesController extends Controller
      */
     public function index()
     {
-        // Load actual completed sales from database
-        $orders = PesananKeluar::with(['roastedBean', 'packaging'])->orderBy('created_at', 'desc')->get()->map(function($order) {
+        $mapOrder = function($order) {
             $itemName = $order->roastedBean ? $order->roastedBean->nama_kopi : 'Kopi';
             if ($order->packaging) {
-                $itemName .= ' - ' . $order->packaging->nama_kemasan . ' (' . $order->packaging->kapasitas_gram . 'g)';
+                $pkgName = $order->packaging->nama_kemasan;
+                $capacityStr = $order->packaging->kapasitas_gram . 'g';
+                $capacityStrAlt = $order->packaging->kapasitas_gram . ' g';
+                if (stripos($pkgName, $capacityStr) !== false || stripos($pkgName, $capacityStrAlt) !== false) {
+                    $itemName .= ' - ' . $pkgName;
+                } else {
+                    $itemName .= ' - ' . $pkgName . ' (' . $capacityStr . ')';
+                }
             }
 
             // Normalisasi status pembayaran ke label berformat cantik
@@ -53,22 +59,36 @@ class SalesController extends Controller
                 'tipe_pesanan' => $order->tipe_pesanan ?? 'eksternal',
                 'created_at' => $order->created_at->toDateTimeString()
             ];
-        });
+        };
 
-        $internalOrders = [];
-        $externalOrders = [];
+        // Query separately to paginate in database level
+        $internalQuery = PesananKeluar::with(['roastedBean', 'packaging'])
+            ->where('tipe_pesanan', 'internal')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'page_internal');
 
-        foreach ($orders as $o) {
-            if (($o['tipe_pesanan'] ?? 'eksternal') === 'internal') {
-                $internalOrders[] = $o;
-            } else {
-                $externalOrders[] = $o;
-            }
-        }
+        $externalQuery = PesananKeluar::with(['roastedBean', 'packaging'])
+            ->where(function($query) {
+                $query->where('tipe_pesanan', 'eksternal')
+                      ->orWhereNull('tipe_pesanan');
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'page_external');
+
+        // Transform results and append cross parameters to keep page state
+        $internalOrders = $internalQuery->through($mapOrder)->appends([
+            'tab' => 'internal',
+            'page_external' => request('page_external')
+        ]);
+
+        $externalOrders = $externalQuery->through($mapOrder)->appends([
+            'tab' => 'external',
+            'page_internal' => request('page_internal')
+        ]);
 
         // Fallback dummy data if no actual orders exist yet
-        if (count($orders) === 0) {
-            $internalOrders = [
+        if ($internalQuery->total() === 0 && $externalQuery->total() === 0) {
+            $internalOrders = new \Illuminate\Pagination\LengthAwarePaginator([
                 [
                     'id' => 'PO-INT-001',
                     'raw_id' => 1,
@@ -81,10 +101,15 @@ class SalesController extends Controller
                     'payment_status' => 'Belum Bayar',
                     'pickup_status' => 'Belum Diambil',
                     'target_date' => '2026-05-02',
+                    'tipe_pesanan' => 'internal',
                     'created_at' => '2026-04-29 09:00:00'
                 ]
-            ];
-            $externalOrders = [
+            ], 1, 10, 1, [
+                'path' => request()->url(),
+                'query' => request()->query()
+            ]);
+
+            $externalOrders = new \Illuminate\Pagination\LengthAwarePaginator([
                 [
                     'id' => 'PO-EXT-001',
                     'raw_id' => 2,
@@ -97,9 +122,13 @@ class SalesController extends Controller
                     'payment_status' => 'DP (Rp 500.000)',
                     'pickup_status' => 'Belum Diambil',
                     'target_date' => '2026-04-29',
+                    'tipe_pesanan' => 'eksternal',
                     'created_at' => '2026-04-25 10:15:00'
                 ]
-            ];
+            ], 1, 10, 1, [
+                'path' => request()->url(),
+                'query' => request()->query()
+            ]);
         }
 
         // Data untuk Tab Kasir Timbangan Dinamis

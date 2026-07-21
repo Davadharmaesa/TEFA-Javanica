@@ -13,90 +13,6 @@
             </svg>
         </button>
 
-        <div class="relative w-96 hidden md:block group" x-data="{
-            searchQuery: '',
-            searchResults: [],
-            showDropdown: false,
-            loading: false,
-            async performSearch() {
-                if (this.searchQuery.trim().length === 0) {
-                    this.searchResults = [];
-                    await this.fetchDefaults();
-                    return;
-                }
-                this.loading = true;
-                try {
-                    let res = await fetch('/internal-api/search?q=' + encodeURIComponent(this.searchQuery));
-                    if (res.ok) {
-                        this.searchResults = await res.json();
-                    }
-                } catch (e) {
-                    console.error('Search failed', e);
-                } finally {
-                    this.loading = false;
-                }
-            },
-            async fetchDefaults() {
-                this.loading = true;
-                try {
-                    let res = await fetch('/internal-api/search');
-                    if (res.ok) {
-                        this.searchResults = await res.json();
-                    }
-                } catch (e) {
-                    console.error('Failed to load defaults', e);
-                } finally {
-                    this.loading = false;
-                }
-            }
-        }" @click.away="showDropdown = false">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            </span>
-            <input
-                type="text"
-                placeholder="Cari data stok, batch, atau laporan..."
-                class="w-full bg-background border border-border rounded-md pl-10 pr-4 py-2 text-sm text-primary font-sans focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                x-model="searchQuery"
-                @focus="showDropdown = true; performSearch()"
-                @input.debounce.300ms="performSearch()"
-            >
-
-            <!-- Dropdown Hasil Pencarian -->
-            <div x-show="showDropdown" x-cloak class="absolute left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-xl z-50 max-h-96 overflow-y-auto custom-scrollbar p-2" style="display: none;">
-                <!-- Loading -->
-                <div x-show="loading" class="flex items-center justify-center p-6 gap-2 text-xs text-muted-foreground">
-                    <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    <span>Mencari data...</span>
-                </div>
-                
-                <!-- Hasil List -->
-                <div x-show="!loading && searchResults.length > 0" class="space-y-1">
-                    <template x-for="item in searchResults" :key="item.label + item.url + item.type">
-                        <a :href="item.url" class="block p-3 hover:bg-muted/30 rounded-lg transition-colors group">
-                            <div class="flex justify-between items-start gap-2">
-                                <p class="text-sm font-bold text-primary group-hover:text-secondary transition-colors" x-text="item.label"></p>
-                                <span class="text-[9px] font-black font-mono uppercase tracking-widest px-2 py-0.5 rounded flex-shrink-0" 
-                                      :class="{
-                                          'bg-blue-500/10 text-blue-600': item.type === 'Halaman',
-                                          'bg-green-500/10 text-green-600': item.type === 'Bahan Baku',
-                                          'bg-yellow-500/10 text-yellow-600': item.type === 'Batch Roasting',
-                                          'bg-amber-500/10 text-amber-600': item.type === 'Stok Kemasan',
-                                          'bg-purple-500/10 text-purple-600': item.type === 'Produk Jadi'
-                                      }"
-                                      x-text="item.type"></span>
-                            </div>
-                            <p class="text-xs text-muted-foreground mt-0.5" x-text="item.desc"></p>
-                        </a>
-                    </template>
-                </div>
-
-                <!-- Kosong -->
-                <div x-show="!loading && searchResults.length === 0" class="p-6 text-center text-xs text-muted-foreground">
-                    Tidak ditemukan data atau laporan yang cocok.
-                </div>
-            </div>
-        </div>
     </div>
 
     <div class="flex items-center gap-6">
@@ -107,10 +23,77 @@
         </button>
 
         <!-- Notifications -->
-        <button class="relative text-muted-foreground hover:text-primary transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-surface"></span>
-        </button>
+        <div class="relative" x-data="{ open: false }">
+            <button @click="open = !open" class="relative text-muted-foreground hover:text-primary transition-colors focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-surface"></span>
+            </button>
+
+            <!-- Notification Dropdown -->
+            <div x-show="open" @click.away="open = false" x-cloak 
+                 class="absolute right-0 mt-4 w-80 bg-card border border-border/50 rounded-2xl shadow-xl z-50 overflow-hidden"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 translate-y-2"
+                 style="display: none;">
+                
+                <div class="px-4 py-3 border-b border-border/50 bg-muted/10 flex justify-between items-center">
+                    <h3 class="font-bold text-sm text-primary">Notifikasi Sistem</h3>
+                    <span class="text-[10px] bg-accent/20 text-accent font-bold px-2 py-0.5 rounded-full">3 Baru</span>
+                </div>
+
+                <div class="max-h-[300px] overflow-y-auto divide-y divide-border/30 custom-scrollbar">
+                    <!-- Item 1 -->
+                    <div class="px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer group">
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-secondary group-hover:text-white transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-foreground">Stok Green Bean Menipis!</p>
+                                <p class="text-[11px] text-muted-foreground mt-0.5 leading-snug">Sisa stok Arabica Ijen tinggal 5 Kg. Segera lakukan restock.</p>
+                                <p class="text-[9px] text-muted-foreground/70 mt-1 font-mono">10 menit yang lalu</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer group">
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-[#C87A54]/10 text-[#C87A54] flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-[#C87A54] group-hover:text-white transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8c0 4.5-5 9-5 9s-5-4.5-5-9a5 5 0 0 1 10 0z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-foreground">Batch Roasting Selesai</p>
+                                <p class="text-[11px] text-muted-foreground mt-0.5 leading-snug">Batch #BR-0042 (Robusta) telah selesai diroasting dan masuk ke gudang.</p>
+                                <p class="text-[9px] text-muted-foreground/70 mt-1 font-mono">1 jam yang lalu</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer group">
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-primary group-hover:text-white transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-foreground">Pre-Order Baru</p>
+                                <p class="text-[11px] text-muted-foreground mt-0.5 leading-snug">Terdapat 1 pesanan PO baru dari Budi Santoso.</p>
+                                <p class="text-[9px] text-muted-foreground/70 mt-1 font-mono">3 jam yang lalu</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="px-4 py-2 border-t border-border/50 text-center bg-muted/5">
+                    <a href="#" class="text-[11px] font-bold text-primary hover:underline">Tandai semua sudah dibaca</a>
+                </div>
+            </div>
+        </div>
 
         <div class="w-px h-6 bg-border"></div>
 
@@ -126,3 +109,4 @@
         </div>
     </div>
 </header>
+

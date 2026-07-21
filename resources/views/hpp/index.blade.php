@@ -253,7 +253,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/30">
-                    <template x-for="batch in batches.filter(b => b.sudah_dihitung)" :key="batch.id">
+                    <template x-for="batch in paginatedHppBatches" :key="batch.id">
                         <tr class="hover:bg-muted/10 transition-colors">
                             <td class="p-4 text-sm font-mono font-bold text-foreground" x-text="batch.kode_batch"></td>
                             <td class="p-4 text-xs font-mono text-muted-foreground" x-text="new Date(batch.hpp.created_at).toLocaleDateString('id-ID')"></td>
@@ -265,11 +265,35 @@
                             </td>
                         </tr>
                     </template>
-                    <tr x-show="batches.filter(b => b.sudah_dihitung).length === 0">
+                    <tr x-show="filteredHppBatches.length === 0">
                         <td colspan="6" class="p-8 text-center text-muted-foreground font-medium text-sm">Belum ada riwayat perhitungan HPP yang tersimpan.</td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Menampilkan <span x-text="filteredHppBatches.length > 0 ? (hppPage - 1) * hppLimit + 1 : 0"></span> - <span x-text="Math.min(hppPage * hppLimit, filteredHppBatches.length)"></span> dari <span x-text="filteredHppBatches.length"></span> data
+            </span>
+            <div class="flex items-center gap-1.5">
+                <button 
+                    type="button" 
+                    @click="hppPage = Math.max(1, hppPage - 1)" 
+                    :disabled="hppPage === 1"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Sebelumnya</button>
+
+                <span class="text-xs font-mono font-black text-primary px-3">Halaman <span x-text="hppPage"></span> dari <span x-text="totalHppPages"></span></span>
+
+                <button 
+                    type="button" 
+                    @click="hppPage = Math.min(totalHppPages, hppPage + 1)" 
+                    :disabled="hppPage === totalHppPages"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Selanjutnya</button>
+            </div>
         </div>
     </div>
 </div>
@@ -280,6 +304,21 @@
         Alpine.data('hppCalculator', () => ({
             batches: @json($batches),
             loading: false,
+
+            // Pagination States
+            hppPage: 1,
+            hppLimit: 10,
+            get filteredHppBatches() {
+                return this.batches.filter(b => b.sudah_dihitung);
+            },
+            get totalHppPages() {
+                return Math.ceil(this.filteredHppBatches.length / this.hppLimit) || 1;
+            },
+            get paginatedHppBatches() {
+                this.hppPage = Math.min(Math.max(1, this.hppPage), this.totalHppPages);
+                const start = (this.hppPage - 1) * this.hppLimit;
+                return this.filteredHppBatches.slice(start, start + this.hppLimit);
+            },
             form: {
                 selectedBatch: '',
                 selectedPouch: '',

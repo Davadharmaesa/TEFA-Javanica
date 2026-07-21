@@ -39,7 +39,7 @@
             <span class="truncate">Internal (Kampus)</span>
             <span class="ml-1 inline-flex items-center justify-center rounded-full px-1.5 py-0.5 text-[9px] font-black shrink-0"
                 :class="activeTab === 'internal' ? 'bg-primary/10 text-primary' : 'bg-muted-foreground/20 text-muted-foreground'">
-                {{ count($internalOrders ?? []) }}
+                {{ $internalOrders->total() }}
             </span>
         </button>
         <button 
@@ -51,7 +51,7 @@
             <span class="truncate">Eksternal (Publik)</span>
             <span class="ml-1 inline-flex items-center justify-center rounded-full px-1.5 py-0.5 text-[9px] font-black shrink-0"
                 :class="activeTab === 'external' ? 'bg-primary/10 text-primary' : 'bg-muted-foreground/20 text-muted-foreground'">
-                {{ count($externalOrders ?? []) }}
+                {{ $externalOrders->total() }}
             </span>
         </button>
     </div>
@@ -64,12 +64,12 @@
             </div>
         </div>
         <div class="overflow-x-auto">
-            <table class="hidden md:table w-full text-left border-collapse min-w-[1100px]">
+            <table class="hidden md:table w-full text-left border-collapse min-w-[950px]">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4 pl-6 whitespace-nowrap w-[8%]">ID</th>
-                        <th class="p-4 min-w-[150px] whitespace-nowrap w-[12%]">Pelanggan</th>
-                        <th class="p-4 min-w-[320px] whitespace-nowrap w-[30%]">Produk & Jumlah</th>
+                        <th class="p-4 min-w-[110px] whitespace-nowrap w-[12%]">Pelanggan</th>
+                        <th class="p-4 min-w-[280px] whitespace-nowrap w-[30%]">Produk & Jumlah</th>
                         <th class="p-4 text-center whitespace-nowrap w-[10%]">Total</th>
                         <th class="p-4 text-center whitespace-nowrap w-[10%]">Target Selesai</th>
                         <th class="p-4 text-center whitespace-nowrap w-[10%]">Status Bayar</th>
@@ -82,8 +82,8 @@
                     @forelse($internalOrders ?? [] as $order)
                         <tr class="hover:bg-muted/10 transition-colors group">
                             <td class="p-4 pl-6 font-mono text-sm font-bold text-muted-foreground whitespace-nowrap">{{ $order['id'] }}</td>
-                            <td class="p-4 font-bold text-primary min-w-[150px] whitespace-nowrap">{{ $order['customer_name'] }}</td>
-                            <td class="p-4 min-w-[320px]">
+                            <td class="p-4 font-bold text-primary min-w-[110px] whitespace-nowrap">{{ $order['customer_name'] }}</td>
+                            <td class="p-4 min-w-[280px]">
                                 <div class="font-bold text-foreground">{{ $order['item'] }}</div>
                                 <div class="text-xs text-muted-foreground mt-0.5 font-mono font-medium">
                                     @if(isset($order['qty_pcs']) && $order['qty_pcs'] > 0)
@@ -228,6 +228,28 @@
                 <p class="p-6 text-center text-muted-foreground font-medium italic text-xs">Belum ada pesanan pre-order internal.</p>
             @endforelse
         </div>
+
+        <!-- Pagination Controls -->
+        <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Menampilkan {{ $internalOrders->firstItem() ?? 0 }} - {{ $internalOrders->lastItem() ?? 0 }} dari {{ $internalOrders->total() }} data
+            </span>
+            <div class="flex items-center gap-1.5">
+                @if ($internalOrders->onFirstPage())
+                    <span class="px-3 py-1.5 text-xs font-bold text-muted-foreground bg-muted/50 rounded-lg cursor-not-allowed border border-border/40 select-none">Sebelumnya</span>
+                @else
+                    <a href="{{ $internalOrders->previousPageUrl() }}" class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card rounded-lg border border-border/60 transition-all shadow-sm">Sebelumnya</a>
+                @endif
+
+                <span class="text-xs font-mono font-black text-primary px-3">Halaman {{ $internalOrders->currentPage() }} dari {{ $internalOrders->lastPage() }}</span>
+
+                @if ($internalOrders->hasMorePages())
+                    <a href="{{ $internalOrders->nextPageUrl() }}" class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card rounded-lg border border-border/60 transition-all shadow-sm">Selanjutnya</a>
+                @else
+                    <span class="px-3 py-1.5 text-xs font-bold text-muted-foreground bg-muted/50 rounded-lg cursor-not-allowed border border-border/40 select-none">Selanjutnya</span>
+                @endif
+            </div>
+        </div>
     </div>
 
     <div x-show="activeTab === 'external'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
@@ -238,12 +260,12 @@
             </div>
         </div>
         <div class="overflow-x-auto">
-            <table class="hidden md:table w-full text-left border-collapse min-w-[1100px]">
+            <table class="hidden md:table w-full text-left border-collapse min-w-[950px]">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4 pl-6 whitespace-nowrap w-[8%]">ID</th>
-                        <th class="p-4 min-w-[150px] whitespace-nowrap w-[12%]">Pelanggan</th>
-                        <th class="p-4 min-w-[320px] whitespace-nowrap w-[30%]">Produk & Jumlah</th>
+                        <th class="p-4 min-w-[110px] whitespace-nowrap w-[12%]">Pelanggan</th>
+                        <th class="p-4 min-w-[280px] whitespace-nowrap w-[30%]">Produk & Jumlah</th>
                         <th class="p-4 text-center whitespace-nowrap w-[10%]">Total</th>
                         <th class="p-4 text-center whitespace-nowrap w-[10%]">Target Selesai</th>
                         <th class="p-4 text-center whitespace-nowrap w-[10%]">Status Bayar</th>
@@ -256,8 +278,8 @@
                     @forelse($externalOrders ?? [] as $order)
                         <tr class="hover:bg-muted/10 transition-colors group">
                             <td class="p-4 pl-6 font-mono text-sm font-bold text-muted-foreground whitespace-nowrap">{{ $order['id'] }}</td>
-                            <td class="p-4 font-bold text-primary min-w-[150px] whitespace-nowrap">{{ $order['customer_name'] }}</td>
-                            <td class="p-4 min-w-[320px]">
+                            <td class="p-4 font-bold text-primary min-w-[110px] whitespace-nowrap">{{ $order['customer_name'] }}</td>
+                            <td class="p-4 min-w-[280px]">
                                 <div class="font-bold text-foreground">{{ $order['item'] }}</div>
                                 <div class="text-xs text-muted-foreground mt-0.5 font-mono font-medium">
                                     @if(isset($order['qty_pcs']) && $order['qty_pcs'] > 0)
@@ -391,6 +413,28 @@
             @empty
                 <p class="p-6 text-center text-muted-foreground font-medium italic text-xs">Belum ada pesanan pre-order eksternal.</p>
             @endforelse
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Menampilkan {{ $externalOrders->firstItem() ?? 0 }} - {{ $externalOrders->lastItem() ?? 0 }} dari {{ $externalOrders->total() }} data
+            </span>
+            <div class="flex items-center gap-1.5">
+                @if ($externalOrders->onFirstPage())
+                    <span class="px-3 py-1.5 text-xs font-bold text-muted-foreground bg-muted/50 rounded-lg cursor-not-allowed border border-border/40 select-none">Sebelumnya</span>
+                @else
+                    <a href="{{ $externalOrders->previousPageUrl() }}" class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card rounded-lg border border-border/60 transition-all shadow-sm">Sebelumnya</a>
+                @endif
+
+                <span class="text-xs font-mono font-black text-primary px-3">Halaman {{ $externalOrders->currentPage() }} dari {{ $externalOrders->lastPage() }}</span>
+
+                @if ($externalOrders->hasMorePages())
+                    <a href="{{ $externalOrders->nextPageUrl() }}" class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card rounded-lg border border-border/60 transition-all shadow-sm">Selanjutnya</a>
+                @else
+                    <span class="px-3 py-1.5 text-xs font-bold text-muted-foreground bg-muted/50 rounded-lg cursor-not-allowed border border-border/40 select-none">Selanjutnya</span>
+                @endif
+            </div>
         </div>
     </div>
 </div>

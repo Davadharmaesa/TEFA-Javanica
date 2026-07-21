@@ -119,19 +119,7 @@
     <!-- Tab Content: Green Bean -->
     <div x-show="activeTab === 'greenbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
         <div class="overflow-x-auto">
-            <table class="hidden md:table w-full text-left border-collapse table-fixed">
-                <colgroup>
-                    <col class="w-28">
-                    <col>
-                    <col class="w-28">
-                    <col class="w-32">
-                    <col class="w-36">
-                    <col class="w-28">
-                    <col class="w-28">
-                    @if(auth()->user() && in_array(strtolower(auth()->user()->role), ['pic', 'operator']))
-                    <col class="w-20">
-                    @endif
-                </colgroup>
+            <table class="hidden md:table w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4">Kode Batch</th>
@@ -147,9 +135,9 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/30">
-                    <template x-for="item in dataGreenBean" :key="item.id">
+                    <template x-for="item in paginatedGreenBeans" :key="item.id">
                         <tr class="hover:bg-muted/10 transition-colors group">
-                            <td class="p-4">
+                            <td class="p-4 whitespace-nowrap">
                                 <span class="text-sm font-mono text-muted-foreground" x-text="item.kode"></span>
                             </td>
                             <td class="p-4">
@@ -158,14 +146,14 @@
                             <td class="p-4 align-middle">
                                 <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-wide" x-text="item.kategori"></span>
                             </td>
-                            <td class="p-4 text-sm font-mono text-muted-foreground" x-text="item.tanggal_beli"></td>
-                            <td class="p-4 text-right font-mono font-bold text-primary">
+                            <td class="p-4 text-sm font-mono text-muted-foreground whitespace-nowrap" x-text="item.tanggal_beli"></td>
+                            <td class="p-4 text-right font-mono font-bold text-primary whitespace-nowrap">
                                 Rp <span x-text="formatRupiah(item.harga_beli)"></span><span class="text-[10px] font-medium text-muted-foreground">/Kg</span>
                             </td>
-                            <td class="p-4 text-right font-mono font-bold" :class="item.stok <= 0 ? 'text-red-500' : 'text-primary'">
+                            <td class="p-4 text-right font-mono font-bold whitespace-nowrap" :class="item.stok <= 0 ? 'text-red-500' : 'text-primary'">
                                 <span x-text="item.stok"></span> Kg
                             </td>
-                            <td class="p-4 text-center">
+                            <td class="p-4 text-center whitespace-nowrap">
                                 <template x-if="item.stok > 5">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-600">
                                         <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Aman
@@ -205,7 +193,7 @@
         </div>
         <!-- Mobile Card List View -->
         <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
-            <template x-for="item in dataGreenBean" :key="item.id">
+            <template x-for="item in paginatedGreenBeans" :key="item.id">
                 <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
                     <div class="flex justify-between items-start">
                         <div>
@@ -267,28 +255,40 @@
                 </div>
             </template>
         </div>
+
+        <!-- Pagination Controls -->
+        <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Menampilkan <span x-text="dataGreenBean.length > 0 ? (greenBeanPage - 1) * greenBeanLimit + 1 : 0"></span> - <span x-text="Math.min(greenBeanPage * greenBeanLimit, dataGreenBean.length)"></span> dari <span x-text="dataGreenBean.length"></span> data
+            </span>
+            <div class="flex items-center gap-1.5">
+                <button 
+                    type="button" 
+                    @click="greenBeanPage = Math.max(1, greenBeanPage - 1)" 
+                    :disabled="greenBeanPage === 1"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Sebelumnya</button>
+
+                <span class="text-xs font-mono font-black text-primary px-3">Halaman <span x-text="greenBeanPage"></span> dari <span x-text="totalGreenBeanPages"></span></span>
+
+                <button 
+                    type="button" 
+                    @click="greenBeanPage = Math.min(totalGreenBeanPages, greenBeanPage + 1)" 
+                    :disabled="greenBeanPage === totalGreenBeanPages"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Selanjutnya</button>
+            </div>
+        </div>
     </div>
 
     <!-- Tab Content: Roasted Bean -->
     <div x-show="activeTab === 'roastedbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
         <div class="overflow-x-auto">
-            <table class="hidden md:table w-full text-left border-collapse table-fixed">
-                <colgroup>
-                    <col class="w-28">
-                    <col>
-                    <col class="w-28">
-                    <col class="w-36">
-                    <col class="w-24">
-                    <col class="w-24">
-                    <col class="w-32">
-                    @if(auth()->user() && in_array(strtolower(auth()->user()->role), ['pic', 'operator']))
-                    <col class="w-20">
-                    @endif
-                </colgroup>
+            <table class="hidden md:table w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4">ID / Kode Batch</th>
-                        <th class="p-4">Nama Produk Kopi Matang</th>
+                        <th class="p-4">Produk Kopi</th>
                         <th class="p-4">Profil Sangrai</th>
                         <th class="p-4">Tgl & Expire</th>
                         <th class="p-4 text-right">Stok (Kg)</th>
@@ -300,9 +300,9 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/30">
-                    <template x-for="item in dataRoastingBatches" :key="item.id">
+                    <template x-for="item in paginatedRoastingBatches" :key="item.id">
                         <tr class="hover:bg-muted/10 transition-colors group">
-                            <td class="p-4">
+                            <td class="p-4 whitespace-nowrap">
                                 <span class="text-sm font-mono text-muted-foreground" x-text="item.kode"></span>
                             </td>
                             <td class="p-4">
@@ -311,17 +311,17 @@
                             <td class="p-4 align-middle">
                                 <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-wide" x-text="item.bentuk"></span>
                             </td>
-                            <td class="p-4">
+                            <td class="p-4 whitespace-nowrap">
                                 <p class="text-xs font-bold text-muted-foreground">Roast: <span x-text="item.tanggal_roasting"></span></p>
                                 <p class="text-xs font-bold text-red-500">Exp: <span x-text="item.tanggal_expire"></span></p>
                             </td>
-                            <td class="p-4 text-right font-mono font-bold text-primary">
+                            <td class="p-4 text-right font-mono font-bold text-primary whitespace-nowrap">
                                 <span x-text="item.stok"></span> Kg
                             </td>
-                            <td class="p-4 text-right font-mono font-bold text-yellow-600">
+                            <td class="p-4 text-right font-mono font-bold text-yellow-600 whitespace-nowrap">
                                 <span x-text="item.sisa_stok"></span> g
                             </td>
-                            <td class="p-4 text-center">
+                            <td class="p-4 text-center whitespace-nowrap">
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-600">
                                     <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Masuk Gudang
                                 </span>
@@ -349,7 +349,7 @@
         </div>
         <!-- Mobile Card List View -->
         <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
-            <template x-for="item in dataRoastingBatches" :key="item.id">
+            <template x-for="item in paginatedRoastingBatches" :key="item.id">
                 <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
                     <div class="flex justify-between items-start">
                         <div>
@@ -403,6 +403,30 @@
                 </div>
             </template>
         </div>
+
+        <!-- Pagination Controls -->
+        <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Menampilkan <span x-text="dataRoastingBatches.length > 0 ? (roastingBatchPage - 1) * roastingBatchLimit + 1 : 0"></span> - <span x-text="Math.min(roastingBatchPage * roastingBatchLimit, dataRoastingBatches.length)"></span> dari <span x-text="dataRoastingBatches.length"></span> data
+            </span>
+            <div class="flex items-center gap-1.5">
+                <button 
+                    type="button" 
+                    @click="roastingBatchPage = Math.max(1, roastingBatchPage - 1)" 
+                    :disabled="roastingBatchPage === 1"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Sebelumnya</button>
+
+                <span class="text-xs font-mono font-black text-primary px-3">Halaman <span x-text="roastingBatchPage"></span> dari <span x-text="totalRoastingBatchPages"></span></span>
+
+                <button 
+                    type="button" 
+                    @click="roastingBatchPage = Math.min(totalRoastingBatchPages, roastingBatchPage + 1)" 
+                    :disabled="roastingBatchPage === totalRoastingBatchPages"
+                    class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                >Selanjutnya</button>
+            </div>
+        </div>
     </div>
 
     <!-- Tab Content: Produk Kemasan -->
@@ -410,10 +434,6 @@
         
         <!-- Tabel Produk Siap Jual -->
         <div class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-border/50 bg-primary/5">
-                <h3 class="text-lg font-bold text-primary font-heading">Kopi Siap Jual (Finished Goods)</h3>
-                <p class="text-xs text-muted-foreground mt-1">Stok kopi yang sudah dibungkus dan siap dipasarkan.</p>
-            </div>
             <div class="overflow-x-auto">
                 <table class="hidden md:table w-full text-left border-collapse table-fixed">
                     <colgroup>
@@ -429,7 +449,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border/30">
-                        <template x-for="item in dataFinishedGoods" :key="item.id">
+                        <template x-for="item in paginatedFinishedGoods" :key="item.id">
                             <tr class="hover:bg-muted/10 transition-colors group">
                                 <td class="p-4">
                                     <p class="font-bold text-primary" x-text="item.nama"></p>
@@ -464,7 +484,7 @@
             </div>
             <!-- Mobile Card List View -->
             <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
-                <template x-for="item in dataFinishedGoods" :key="item.id">
+                <template x-for="item in paginatedFinishedGoods" :key="item.id">
                     <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm">
                         <div class="flex justify-between items-start">
                             <p class="font-bold text-primary text-sm" x-text="item.nama"></p>
@@ -494,14 +514,34 @@
                     Belum ada Kopi Siap Jual. Gunakan menu 'Proses Kemas'.
                 </div>
             </div>
+
+            <!-- Pagination Controls -->
+            <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                    Menampilkan <span x-text="dataFinishedGoods.length > 0 ? (finishedGoodsPage - 1) * finishedGoodsLimit + 1 : 0"></span> - <span x-text="Math.min(finishedGoodsPage * finishedGoodsLimit, dataFinishedGoods.length)"></span> dari <span x-text="dataFinishedGoods.length"></span> data
+                </span>
+                <div class="flex items-center gap-1.5">
+                    <button 
+                        type="button" 
+                        @click="finishedGoodsPage = Math.max(1, finishedGoodsPage - 1)" 
+                        :disabled="finishedGoodsPage === 1"
+                        class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                    >Sebelumnya</button>
+
+                    <span class="text-xs font-mono font-black text-primary px-3">Halaman <span x-text="finishedGoodsPage"></span> dari <span x-text="totalFinishedGoodsPages"></span></span>
+
+                    <button 
+                        type="button" 
+                        @click="finishedGoodsPage = Math.min(totalFinishedGoodsPages, finishedGoodsPage + 1)" 
+                        :disabled="finishedGoodsPage === totalFinishedGoodsPages"
+                        class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                    >Selanjutnya</button>
+                </div>
+            </div>
         </div>
 
         <!-- Tabel Kemasan Kosong -->
         <div class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-border/50">
-                <h3 class="text-lg font-bold text-primary font-heading">Wadah Kosong (Material)</h3>
-                <p class="text-xs text-muted-foreground mt-1">Stok material kemasan yang belum diisi.</p>
-            </div>
             <div class="overflow-x-auto">
                 <table class="hidden md:table w-full text-left border-collapse table-fixed">
                     <colgroup>
@@ -525,7 +565,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border/30">
-                        <template x-for="item in dataProduk" :key="item.id">
+                        <template x-for="item in paginatedProduk" :key="item.id">
                             <tr class="hover:bg-muted/10 transition-colors group">
                                 <td class="p-4">
                                     <p class="font-bold text-primary" x-text="item.nama"></p>
@@ -569,7 +609,7 @@
             </div>
             <!-- Mobile Card List View -->
             <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
-                <template x-for="item in dataProduk" :key="item.id">
+                <template x-for="item in paginatedProduk" :key="item.id">
                     <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
                         <div class="flex justify-between items-start">
                             <div>
@@ -606,6 +646,30 @@
                         @endif
                     </div>
                 </template>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                    Menampilkan <span x-text="dataProduk.length > 0 ? (produkPage - 1) * produkLimit + 1 : 0"></span> - <span x-text="Math.min(produkPage * produkLimit, dataProduk.length)"></span> dari <span x-text="dataProduk.length"></span> data
+                </span>
+                <div class="flex items-center gap-1.5">
+                    <button 
+                        type="button" 
+                        @click="produkPage = Math.max(1, produkPage - 1)" 
+                        :disabled="produkPage === 1"
+                        class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                    >Sebelumnya</button>
+
+                    <span class="text-xs font-mono font-black text-primary px-3">Halaman <span x-text="produkPage"></span> dari <span x-text="totalProdukPages"></span></span>
+
+                    <button 
+                        type="button" 
+                        @click="produkPage = Math.min(totalProdukPages, produkPage + 1)" 
+                        :disabled="produkPage === totalProdukPages"
+                        class="px-3 py-1.5 text-xs font-bold text-primary hover:text-white hover:bg-primary bg-card disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card disabled:hover:text-primary rounded-lg border border-border/60 transition-all shadow-sm select-none"
+                    >Selanjutnya</button>
+                </div>
             </div>
         </div>
     </div>
@@ -885,6 +949,51 @@
             dataRoastingBatches: @json($roastingBatches),
             dataProduk: @json($packagings),
             dataFinishedGoods: @json($finishedGoods ?? []),
+
+            // Pagination States
+            greenBeanPage: 1,
+            greenBeanLimit: 10,
+            get totalGreenBeanPages() {
+                return Math.ceil(this.dataGreenBean.length / this.greenBeanLimit) || 1;
+            },
+            get paginatedGreenBeans() {
+                this.greenBeanPage = Math.min(Math.max(1, this.greenBeanPage), this.totalGreenBeanPages);
+                const start = (this.greenBeanPage - 1) * this.greenBeanLimit;
+                return this.dataGreenBean.slice(start, start + this.greenBeanLimit);
+            },
+
+            roastingBatchPage: 1,
+            roastingBatchLimit: 10,
+            get totalRoastingBatchPages() {
+                return Math.ceil(this.dataRoastingBatches.length / this.roastingBatchLimit) || 1;
+            },
+            get paginatedRoastingBatches() {
+                this.roastingBatchPage = Math.min(Math.max(1, this.roastingBatchPage), this.totalRoastingBatchPages);
+                const start = (this.roastingBatchPage - 1) * this.roastingBatchLimit;
+                return this.dataRoastingBatches.slice(start, start + this.roastingBatchLimit);
+            },
+
+            finishedGoodsPage: 1,
+            finishedGoodsLimit: 10,
+            get totalFinishedGoodsPages() {
+                return Math.ceil(this.dataFinishedGoods.length / this.finishedGoodsLimit) || 1;
+            },
+            get paginatedFinishedGoods() {
+                this.finishedGoodsPage = Math.min(Math.max(1, this.finishedGoodsPage), this.totalFinishedGoodsPages);
+                const start = (this.finishedGoodsPage - 1) * this.finishedGoodsLimit;
+                return this.dataFinishedGoods.slice(start, start + this.finishedGoodsLimit);
+            },
+
+            produkPage: 1,
+            produkLimit: 10,
+            get totalProdukPages() {
+                return Math.ceil(this.dataProduk.length / this.produkLimit) || 1;
+            },
+            get paginatedProduk() {
+                this.produkPage = Math.min(Math.max(1, this.produkPage), this.totalProdukPages);
+                const start = (this.produkPage - 1) * this.produkLimit;
+                return this.dataProduk.slice(start, start + this.produkLimit);
+            },
 
             getTabName() {
                 if(this.activeTab === 'greenbean') return 'Green Bean';
