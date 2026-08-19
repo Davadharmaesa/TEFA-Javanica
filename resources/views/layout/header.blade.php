@@ -26,7 +26,9 @@
         <div class="relative" x-data="{ open: false }">
             <button @click="open = !open" class="relative text-muted-foreground hover:text-primary transition-colors focus:outline-none">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                @if(isset($system_notifications) && count($system_notifications) > 0)
                 <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-surface"></span>
+                @endif
             </button>
 
             <!-- Notification Dropdown -->
@@ -42,56 +44,39 @@
                 
                 <div class="px-4 py-3 border-b border-border/50 bg-muted/10 flex justify-between items-center">
                     <h3 class="font-bold text-sm text-primary">Notifikasi Sistem</h3>
-                    <span class="text-[10px] bg-accent/20 text-accent font-bold px-2 py-0.5 rounded-full">3 Baru</span>
+                    @if(isset($system_notifications) && count($system_notifications) > 0)
+                        <span class="text-[10px] bg-accent/20 text-accent font-bold px-2 py-0.5 rounded-full">{{ count($system_notifications) }} Baru</span>
+                    @endif
                 </div>
 
                 <div class="max-h-[300px] overflow-y-auto divide-y divide-border/30 custom-scrollbar">
-                    <!-- Item 1 -->
-                    <div class="px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer group">
-                        <div class="flex gap-3">
-                            <div class="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-secondary group-hover:text-white transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-foreground">Stok Green Bean Menipis!</p>
-                                <p class="text-[11px] text-muted-foreground mt-0.5 leading-snug">Sisa stok Arabica Ijen tinggal 5 Kg. Segera lakukan restock.</p>
-                                <p class="text-[9px] text-muted-foreground/70 mt-1 font-mono">10 menit yang lalu</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Item 2 -->
-                    <div class="px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer group">
-                        <div class="flex gap-3">
-                            <div class="w-8 h-8 rounded-full bg-[#C87A54]/10 text-[#C87A54] flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-[#C87A54] group-hover:text-white transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8c0 4.5-5 9-5 9s-5-4.5-5-9a5 5 0 0 1 10 0z"></path></svg>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-foreground">Batch Roasting Selesai</p>
-                                <p class="text-[11px] text-muted-foreground mt-0.5 leading-snug">Batch #BR-0042 (Robusta) telah selesai diroasting dan masuk ke gudang.</p>
-                                <p class="text-[9px] text-muted-foreground/70 mt-1 font-mono">1 jam yang lalu</p>
+                    @if(isset($system_notifications) && count($system_notifications) > 0)
+                        @foreach($system_notifications as $notif)
+                        <div class="px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer group">
+                            <div class="flex gap-3">
+                                <div class="w-8 h-8 rounded-full bg-{{ $notif['color'] }}/10 text-{{ $notif['color'] }} flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-{{ $notif['color'] }} group-hover:text-white transition-colors">
+                                    {!! $notif['icon'] !!}
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-foreground">{{ $notif['title'] }}</p>
+                                    <p class="text-[11px] text-muted-foreground mt-0.5 leading-snug">{{ $notif['message'] }}</p>
+                                    <p class="text-[9px] text-muted-foreground/70 mt-1 font-mono">{{ $notif['time'] }}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Item 3 -->
-                    <div class="px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer group">
-                        <div class="flex gap-3">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-primary group-hover:text-white transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-foreground">Pre-Order Baru</p>
-                                <p class="text-[11px] text-muted-foreground mt-0.5 leading-snug">Terdapat 1 pesanan PO baru dari Budi Santoso.</p>
-                                <p class="text-[9px] text-muted-foreground/70 mt-1 font-mono">3 jam yang lalu</p>
-                            </div>
+                        @endforeach
+                    @else
+                        <div class="px-4 py-6 text-center">
+                            <p class="text-xs text-muted-foreground">Tidak ada notifikasi baru.</p>
                         </div>
-                    </div>
+                    @endif
                 </div>
                 
+                @if(isset($system_notifications) && count($system_notifications) > 0)
                 <div class="px-4 py-2 border-t border-border/50 text-center bg-muted/5">
-                    <a href="#" class="text-[11px] font-bold text-primary hover:underline">Tandai semua sudah dibaca</a>
+                    <a href="#" @click.prevent="open = false" class="text-[11px] font-bold text-primary hover:underline">Tandai semua sudah dibaca</a>
                 </div>
+                @endif
             </div>
         </div>
 

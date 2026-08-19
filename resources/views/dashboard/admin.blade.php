@@ -178,14 +178,14 @@
             </div>
         </div>
 
-        <!-- Right Side: Logs -->
+        <!-- Right Side: History -->
         <div class="bg-card border border-border rounded-xl shadow-sm p-6 lg:h-full flex flex-col">
             <div class="flex items-center justify-between mb-6 pb-4 border-b border-border">
                 <div class="flex items-center gap-3">
                     <div class="p-2 bg-background border border-border text-primary rounded-md shadow-sm">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
                     </div>
-                    <h2 class="font-heading font-bold text-lg text-primary uppercase tracking-tighter">Log Aktivitas Terbaru</h2>
+                    <h2 class="font-heading font-bold text-lg text-primary uppercase tracking-tighter">History Aktivitas Terbaru</h2>
                 </div>
             </div>
             
@@ -203,7 +203,7 @@
                     </div>
                 @endforeach
             </div>
-            <a href="/inventory" class="w-full mt-4 py-2 text-center text-xs font-bold uppercase tracking-widest text-primary border border-border hover:bg-muted rounded-md transition-all">Lihat Seluruh Log</a>
+            <a href="/inventory" class="w-full mt-4 py-2 text-center text-xs font-bold uppercase tracking-widest text-primary border border-border hover:bg-muted rounded-md transition-all">Lihat Seluruh History</a>
         </div>
 
     </div>

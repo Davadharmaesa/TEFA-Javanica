@@ -169,22 +169,22 @@
                 </a>
                 <a href="/log-kerja" class="bg-card hover:bg-muted border border-border rounded-xl p-5 flex flex-col items-center justify-center gap-3 transition shadow-sm text-primary group">
                     <div class="p-2 border border-border text-primary rounded-md bg-background group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-sm">
-                        <!-- Clipboard/Log Kerja Icon -->
+                        <!-- Clipboard/History Kerja Icon -->
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                     </div>
-                    <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">Log Kerja Pekerja</span>
+                    <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">History Kerja Pekerja</span>
                 </a>
             </div>
         </div>
 
-        <!-- Right Side: Logs -->
+        <!-- Right Side: History -->
         <div class="bg-card border border-border rounded-xl shadow-sm p-6 lg:h-full flex flex-col">
             <div class="flex items-center justify-between mb-6 pb-4 border-b border-border">
                 <div class="flex items-center gap-3">
                     <div class="p-2 bg-background border border-border text-primary rounded-md shadow-sm">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
-                    <h2 class="font-heading font-bold text-lg text-primary uppercase tracking-tighter">Log Roasting</h2>
+                    <h2 class="font-heading font-bold text-lg text-primary uppercase tracking-tighter">History Roasting</h2>
                 </div>
             </div>
             
