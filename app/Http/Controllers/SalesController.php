@@ -143,6 +143,28 @@ class SalesController extends Controller
     /**
      * Show the form for creating a new Pre-Order
      */
+    private function calculateProductPricing(int $roastedBeanId, ?Packaging $packaging): array
+    {
+        if (!$packaging || $packaging->kapasitas_gram <= 0) {
+            return ['hpp_per_pcs' => 0, 'harga_jual_per_pcs' => 0];
+        }
+
+        $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function ($query) use ($roastedBeanId) {
+            $query->where('roasted_bean_id', $roastedBeanId);
+        })->latest()->first();
+
+        if ($latestHpp && $latestHpp->hasil_kemasan_pcs > 0) {
+            $hppPerPcs = round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs);
+        } else {
+            $hppPerPcs = round(($packaging->harga_satuan ?? 0) * 10);
+        }
+
+        return [
+            'hpp_per_pcs' => $hppPerPcs,
+            'harga_jual_per_pcs' => round($hppPerPcs * 1.5),
+        ];
+    }
+
     public function create()
     {
         $existingFinishedGoods = \App\Models\FinishedGood::with(['roastedBean', 'packaging'])->get();
@@ -160,20 +182,9 @@ class SalesController extends Controller
                     return $item->roasted_bean_id == $bean->id && $item->packaging_id == $pouch->id;
                 });
 
-                // Coba cari HPP terbaru untuk roasted bean ini
-                $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function($q) use ($bean) {
-                    $q->where('roasted_bean_id', $bean->id);
-                })->latest()->first();
-                
-                $hppPerPcs = $latestHpp && $latestHpp->hasil_kemasan_pcs > 0 
-                    ? round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs) 
-                    : 0;
-                    
-                if ($hppPerPcs <= 0) {
-                    continue; // Strict mode: Do not allow selling if HPP is not calculated
-                }
-                
-                $suggestedPricePerPcs = round($hppPerPcs * 1.5);
+                $pricing = $this->calculateProductPricing($bean->id, $pouch);
+                $hppPerPcs = $pricing['hpp_per_pcs'];
+                $suggestedPricePerPcs = $pricing['harga_jual_per_pcs'];
 
                 $tempGoods->push([
                     'id' => $existing ? $existing->id : null,
@@ -205,7 +216,7 @@ class SalesController extends Controller
             'finished_good_id' => 'nullable|string',
             'jumlah_pcs' => 'nullable|integer|min:1',
             'tanggal_pesanan' => 'nullable|date|after_or_equal:today',
-            'metode_pembayaran' => 'nullable|string|in:lunas,dp,belum_bayar',
+            'metode_pembayaran' => 'nullable|string|in:lunas,belum_bayar',
             'nominal_dp' => 'nullable|integer|min:0|lte:harga_jual_pesanan',
             'tanggal_bayar_dp' => 'nullable|date',
             'batas_waktu_pembayaran' => 'nullable|date|after_or_equal:today',
@@ -308,13 +319,10 @@ class SalesController extends Controller
             $metode = $validated['metode_pembayaran'] ?? 'lunas';
             $nominalDp = $validated['nominal_dp'] ?? null;
             $sisa = null;
-            if ($metode === 'dp' && $nominalDp) {
-                $sisa = max(0, $total - $nominalDp);
-                $statusPembayaran = $sisa === 0 ? 'lunas' : 'dp';
-            } elseif ($metode === 'belum_bayar') {
+            if ($metode === 'belum_bayar') {
                 $nominalDp = (int) ($nominalDp ?? 0);
                 $sisa = max(0, $total - $nominalDp);
-                $statusPembayaran = $nominalDp > 0 ? ($sisa === 0 ? 'lunas' : 'dp') : 'belum_bayar';
+                $statusPembayaran = $sisa === 0 ? 'lunas' : 'belum_bayar';
             } else {
                 $statusPembayaran = 'lunas';
                 $sisa = 0;
@@ -337,7 +345,7 @@ class SalesController extends Controller
                 'metode_pembayaran' => $metode,
                 'nominal_dp' => $nominalDp,
                 'sisa_pembayaran' => $sisa,
-                'tanggal_bayar_dp' => $validated['tanggal_bayar_dp'] ?? ($metode === 'dp' ? date('Y-m-d') : null),
+                'tanggal_bayar_dp' => $validated['tanggal_bayar_dp'] ?? ($metode === 'belum_bayar' && $nominalDp > 0 ? date('Y-m-d') : null),
                 'batas_waktu_pembayaran' => $validated['batas_waktu_pembayaran'] ?? null,
                 'status_pengambilan' => $validated['status_pengambilan'] ?? 'Belum Diambil',
                 'tipe_pesanan'       => $validated['tipe_pesanan'] ?? 'eksternal',
@@ -424,19 +432,9 @@ class SalesController extends Controller
             $tempGoods = collect();
             foreach ($beans as $bean) {
                 foreach ($pouches as $pouch) {
-                    $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function($q) use ($bean) {
-                        $q->where('roasted_bean_id', $bean->id);
-                    })->latest()->first();
-                    
-                    $hppPerPcs = $latestHpp && $latestHpp->hasil_kemasan_pcs > 0 
-                        ? round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs) 
-                        : 0;
-                        
-                    if ($hppPerPcs <= 0) {
-                        continue; // Strict mode: Do not allow selling if HPP is not calculated
-                    }
-                    
-                    $suggestedPricePerPcs = round($hppPerPcs * 1.5);
+                    $pricing = $this->calculateProductPricing($bean->id, $pouch);
+                    $hppPerPcs = $pricing['hpp_per_pcs'];
+                    $suggestedPricePerPcs = $pricing['harga_jual_per_pcs'];
 
                     $tempGoods->push([
                         'id' => null,
@@ -452,19 +450,9 @@ class SalesController extends Controller
             $finishedGoods = $tempGoods;
         } else {
             $finishedGoods = $finishedGoods->map(function($item) {
-                $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function($q) use ($item) {
-                    $q->where('roasted_bean_id', $item->roasted_bean_id);
-                })->latest()->first();
-                
-                $hppPerPcs = $latestHpp && $latestHpp->hasil_kemasan_pcs > 0 
-                    ? round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs) 
-                    : 0;
-                    
-                if ($hppPerPcs <= 0) {
-                    return null; // Strict mode: Do not allow selling if HPP is not calculated
-                }
-                    
-                $suggestedPricePerPcs = round($hppPerPcs * 1.5);
+                $pricing = $this->calculateProductPricing($item->roasted_bean_id, $item->packaging);
+                $hppPerPcs = $pricing['hpp_per_pcs'];
+                $suggestedPricePerPcs = $pricing['harga_jual_per_pcs'];
                 
                 return [
                     'id' => $item->id,
@@ -495,7 +483,7 @@ class SalesController extends Controller
             'finished_good_id' => 'nullable|string',
             'jumlah_pcs' => 'nullable|integer|min:1',
             'tanggal_pesanan' => 'nullable|date|after_or_equal:today',
-            'metode_pembayaran' => 'nullable|string|in:lunas,dp,belum_bayar',
+            'metode_pembayaran' => 'nullable|string|in:lunas,belum_bayar',
             'nominal_dp' => 'nullable|integer|min:0|lte:harga_jual_pesanan',
             'tanggal_bayar_dp' => 'nullable|date',
             'batas_waktu_pembayaran' => 'nullable|date|after_or_equal:today',
@@ -640,13 +628,10 @@ class SalesController extends Controller
             $metode = $validated['metode_pembayaran'] ?? 'lunas';
             $nominalDp = $validated['nominal_dp'] ?? null;
             $sisa = null;
-            if ($metode === 'dp' && $nominalDp) {
-                $sisa = max(0, $total - $nominalDp);
-                $statusPembayaran = $sisa === 0 ? 'lunas' : 'dp';
-            } elseif ($metode === 'belum_bayar') {
+            if ($metode === 'belum_bayar') {
                 $nominalDp = (int) ($nominalDp ?? 0);
                 $sisa = max(0, $total - $nominalDp);
-                $statusPembayaran = $nominalDp > 0 ? ($sisa === 0 ? 'lunas' : 'dp') : 'belum_bayar';
+                $statusPembayaran = $sisa === 0 ? 'lunas' : 'belum_bayar';
             } else {
                 $statusPembayaran = 'lunas';
                 $sisa = 0;
@@ -668,7 +653,7 @@ class SalesController extends Controller
                 'metode_pembayaran' => $metode,
                 'nominal_dp' => $nominalDp,
                 'sisa_pembayaran' => $sisa,
-                'tanggal_bayar_dp' => $validated['tanggal_bayar_dp'] ?? ($metode === 'dp' ? date('Y-m-d') : null),
+                'tanggal_bayar_dp' => $validated['tanggal_bayar_dp'] ?? ($metode === 'belum_bayar' && $nominalDp > 0 ? date('Y-m-d') : null),
                 'batas_waktu_pembayaran' => $validated['batas_waktu_pembayaran'] ?? null,
                 'status_pengambilan' => $validated['status_pengambilan'] ?? 'Belum Diambil',
                 'tipe_pesanan'       => $validated['tipe_pesanan'] ?? 'eksternal',

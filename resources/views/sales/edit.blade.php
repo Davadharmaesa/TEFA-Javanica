@@ -86,7 +86,7 @@
                 <!-- Dropdown Produk Jadi (Finished Goods) -->
                 <div class="space-y-1.5">
                     <label for="finished_good_id" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Produk Jadi (Kopi & Kemasan)</label>
-                    <select id="finished_good_id" name="finished_good_id" required x-model="selectedGoodId" @change="updateSelectedGood" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                    <select id="finished_good_id" name="finished_good_id" required x-model="selectedGoodId" @change="updateSelectedGood(true)" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
                         <option value="" disabled>-- Pilih Produk Jadi --</option>
                         @foreach($finishedGoods as $good)
                             <option value="{{ $good['roasted_bean_id'] }}-{{ $good['berat_gram'] }}">
@@ -99,12 +99,12 @@
                 <!-- QTY Pcs -->
                 <div class="space-y-1.5">
                     <label for="jumlah_pcs" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Jumlah Pesanan (Pcs)</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9]+" id="jumlah_pcs" name="jumlah_pcs" required x-model.number="quantityPcs" @input="this.value = this.value.replace(/[^0-9]/g, ''); calculatePrices()" placeholder="Contoh: 12" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                    <input type="text" inputmode="numeric" pattern="[0-9]+" id="jumlah_pcs" name="jumlah_pcs" required x-model.number="quantityPcs" @input="quantityPcs = parseInt($event.target.value.replace(/[^0-9]/g, ''), 10) || null; calculatePrices()" @wheel.prevent placeholder="Contoh: 12" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
                 </div>
             </div>
 
             <!-- Detail Kalkulasi Fisik & HPP -->
-            <template x-if="selectedGood">
+            <template x-if="selectedGood && quantityPcs > 0">
                 <div class="bg-[#526B42]/5 border border-[#526B42]/20 rounded-xl p-4 space-y-2 text-sm">
                     <div class="flex justify-between">
                         <span class="text-muted-foreground">Berat per Kemasan:</span>
@@ -168,8 +168,8 @@
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Metode Pembayaran</label>
                     <div class="grid grid-cols-2 gap-1 bg-muted/40 p-1 rounded-xl border border-border/50">
-                        <button type="button" @click="paymentMethod = 'lunas'" :class="paymentMethod === 'lunas' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider">Lunas</button>
-                        <button type="button" @click="paymentMethod = 'belum_bayar'" :class="paymentMethod === 'belum_bayar' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider">Belum Bayar</button>
+                        <button type="button" @click="paymentMethod = 'lunas'" :class="paymentMethod === 'lunas' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider">Tunai / Lunas</button>
+                        <button type="button" @click="paymentMethod = 'belum_bayar'" :class="paymentMethod === 'belum_bayar' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider">Belum Bayar / DP</button>
                     </div>
                     <input type="hidden" name="metode_pembayaran" :value="paymentMethod">
                 </div>
@@ -283,20 +283,23 @@
                 return 0;
             },
 
-            updateSelectedGood() {
+            updateSelectedGood(recalculate = false) {
                 if (this.selectedGoodId) {
                     const [beanId, berat] = this.selectedGoodId.split('-');
                     this.selectedGood = this.finishedGoods.find(g => g.roasted_bean_id == beanId && g.berat_gram == berat);
                 } else {
                     this.selectedGood = null;
                 }
-                // Do not recalculate price on init if old value or existing value exists
-                // so we don't overwrite custom prices
+                if (recalculate) {
+                    this.calculatePrices();
+                }
             },
 
             calculatePrices() {
-                if (this.selectedGood && this.quantityPcs) {
-                    this.totalPrice = this.quantityPcs * this.selectedGood.harga_jual_per_pcs;
+                const quantity = Number(this.quantityPcs) || 0;
+                const recommendedPrice = Number(this.selectedGood?.harga_jual_per_pcs) || 0;
+                if (this.selectedGood && quantity > 0) {
+                    this.totalPrice = quantity * recommendedPrice;
                 } else {
                     this.totalPrice = null;
                 }
