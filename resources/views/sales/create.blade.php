@@ -166,9 +166,10 @@
                 <!-- Pemilih Metode Pembayaran -->
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Metode Pembayaran</label>
-                    <div class="grid grid-cols-2 gap-1 bg-muted/40 p-1 rounded-xl border border-border/50">
-                        <button type="button" @click="paymentMethod = 'lunas'" :class="paymentMethod === 'lunas' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider flex items-center justify-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg> Tunai (Lunas)</button>
-                        <button type="button" @click="paymentMethod = 'belum_bayar'" :class="paymentMethod === 'belum_bayar' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider flex items-center justify-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Belum Bayar / DP</button>
+                    <div class="grid grid-cols-3 gap-1 bg-muted/40 p-1 rounded-xl border border-border/50">
+                        <button type="button" @click="paymentMethod = 'lunas'" :class="paymentMethod === 'lunas' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider flex items-center justify-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg> Lunas</button>
+                        <button type="button" @click="paymentMethod = 'dp'" :class="paymentMethod === 'dp' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider flex items-center justify-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg> Cicil / DP</button>
+                        <button type="button" @click="paymentMethod = 'belum_bayar'" :class="paymentMethod === 'belum_bayar' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider flex items-center justify-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Hutang</button>
                     </div>
                     <input type="hidden" name="metode_pembayaran" :value="paymentMethod">
                 </div>
@@ -192,10 +193,10 @@
                     </template>
                 </div>
 
-                <!-- Kalkulator Kasir (Hanya jika Tunai/Lunas) -->
+                <!-- Kalkulator Kasir LUNAS -->
                 <div x-show="paymentMethod === 'lunas'" x-transition class="space-y-3 bg-primary/5 p-4 rounded-xl border border-primary/20">
                     <div class="space-y-1.5">
-                        <label for="uang_diterima_display" class="text-xs font-bold text-primary uppercase tracking-wider">Uang Diterima dari Pelanggan (Rp)</label>
+                        <label for="uang_diterima_display" class="text-xs font-bold text-primary uppercase tracking-wider">Uang Diterima (Rp)</label>
                         <input type="text" id="uang_diterima_display" 
                                :value="window.formatRupiahString(uangDiterima)" 
                                @input="uangDiterima = window.parseRupiahString($event.target.value)" 
@@ -215,16 +216,37 @@
                     </template>
                 </div>
 
-                <!-- Sisa Pembayaran (Hanya jika Belum Bayar) -->
-                <div x-show="paymentMethod === 'belum_bayar'" x-transition class="space-y-1.5" style="display: none;">
-                    <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Sisa Pembayaran (Rp)</label>
-                    <div class="w-full bg-muted/20 border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-muted-foreground" x-text="'Rp ' + (sisaPembayaran || 0).toLocaleString('id-ID')"></div>
+                <!-- Nominal DP (Hanya jika Cicil / DP) -->
+                <div x-show="paymentMethod === 'dp'" x-transition class="space-y-3 bg-secondary/5 p-4 rounded-xl border border-secondary/20" style="display: none;">
+                    <div class="space-y-1.5">
+                        <label for="nominal_dp_display" class="text-xs font-bold text-secondary uppercase tracking-wider">Nominal DP / Cicilan (Rp)</label>
+                        <input type="text" id="nominal_dp_display" 
+                               :value="window.formatRupiahString(nominalDp)" 
+                               @input="nominalDp = window.parseRupiahString($event.target.value)" 
+                               placeholder="0" 
+                               class="w-full bg-background border-2 border-secondary/50 rounded-xl px-4 py-3 text-xl font-mono font-black focus:outline-none focus:ring-2 focus:ring-secondary/50 text-secondary transition-all">
+                        <input type="hidden" name="nominal_dp" :value="nominalDp || 0">
+                    </div>
+                    
+                    <div class="flex justify-between items-center pt-2 border-t border-secondary/20">
+                        <span class="text-sm font-bold text-secondary uppercase tracking-wider">Sisa Hutang:</span>
+                        <span class="text-2xl font-mono font-black text-secondary" x-text="'Rp ' + Math.max(0, sisaHutang).toLocaleString('id-ID')"></span>
+                    </div>
+                    <template x-if="nominalDp >= totalPrice && totalPrice > 0">
+                        <p class="text-xs font-bold text-orange-500 mt-1">DP mencapai total harga. Sebaiknya gunakan metode "Lunas".</p>
+                    </template>
                 </div>
 
-                <!-- Batas Waktu Pembayaran (Hanya jika Belum Bayar) -->
+                <!-- Sisa Pembayaran Info (Jika Belum Bayar) -->
                 <div x-show="paymentMethod === 'belum_bayar'" x-transition class="space-y-1.5" style="display: none;">
-                    <label for="batas_waktu_pembayaran" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Batas Waktu Pembayaran</label>
-                    <input type="date" name="batas_waktu_pembayaran" id="batas_waktu_pembayaran" :required="paymentMethod === 'belum_bayar'" value="{{ old('batas_waktu_pembayaran') }}" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                    <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Hutang (Rp)</label>
+                    <div class="w-full bg-muted/20 border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-muted-foreground" x-text="'Rp ' + (totalPrice || 0).toLocaleString('id-ID')"></div>
+                </div>
+
+                <!-- Batas Waktu Pembayaran (Untuk DP atau Hutang) -->
+                <div x-show="paymentMethod === 'belum_bayar' || paymentMethod === 'dp'" x-transition class="space-y-1.5" style="display: none;">
+                    <label for="batas_waktu_pembayaran" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Jatuh Tempo Pelunasan</label>
+                    <input type="date" name="batas_waktu_pembayaran" id="batas_waktu_pembayaran" :required="paymentMethod === 'belum_bayar' || paymentMethod === 'dp'" value="{{ old('batas_waktu_pembayaran') }}" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
                 </div>
             </div>
 
@@ -251,6 +273,7 @@
             tipePesanan: '{{ old('tipe_pesanan', request('tab') === 'internal' ? 'internal' : 'eksternal') }}',
 
             uangDiterima: null,
+            nominalDp: null,
 
             init() {
                 this.updateSelectedGood();
@@ -286,6 +309,13 @@
                 return 0;
             },
 
+            get sisaHutang() {
+                if (this.totalPrice !== null && this.nominalDp !== null) {
+                    return parseInt(this.totalPrice || 0) - parseInt(this.nominalDp || 0);
+                }
+                return 0;
+            },
+
             submitForm(e) {
                 if (this.paymentMethod === 'lunas') {
                     if (this.uangDiterima === null || this.uangDiterima === '' || this.uangDiterima == 0) {
@@ -294,6 +324,11 @@
                     }
                     if (this.kembalian < 0) {
                         alert('Gagal memproses transaksi: Uang yang diterima kurang Rp ' + Math.abs(this.kembalian).toLocaleString('id-ID') + '!');
+                        return;
+                    }
+                } else if (this.paymentMethod === 'dp') {
+                    if (this.nominalDp === null || this.nominalDp === '' || this.nominalDp == 0) {
+                        alert('Silakan masukkan nominal Uang DP/Cicilan dari pelanggan!');
                         return;
                     }
                 }

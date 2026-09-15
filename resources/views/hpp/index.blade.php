@@ -146,7 +146,7 @@
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
                                     <p class="text-sm font-bold text-foreground">Bahan Baku (Green Bean)</p>
-                                    <p class="text-[10px] text-muted-foreground">Harga per kg × Berat terpakai</p>
+                                    <p class="text-[10px] text-muted-foreground" x-text="'Alokasi ' + (preview.share_percentage || 0) + '% dari total bahan baku roasting'"></p>
                                 </div>
                                 <p class="font-mono font-bold text-primary" x-text="formatRupiah(preview.biaya_bahan_baku)"></p>
                             </div>
@@ -155,7 +155,7 @@
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
                                     <p class="text-sm font-bold text-foreground">Biaya Operasional Mesin </p>
-                                    <p class="text-[10px] text-muted-foreground">Durasi Total Kerja (Menit) × Tarif per Menit</p>
+                                    <p class="text-[10px] text-muted-foreground" x-text="'Alokasi ' + (preview.share_percentage || 0) + '% dari (Durasi × Tarif per Menit)'"></p>
                                 </div>
                                 <p class="font-mono font-bold text-primary" x-text="formatRupiah(preview.biaya_listrik)"></p>
                             </div>
@@ -164,7 +164,7 @@
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
                                     <p class="text-sm font-bold text-foreground">Overhead Lainnya & Penyusutan</p>
-                                    <p class="text-[10px] text-muted-foreground" x-text="'Membagi Biaya Overhead Standar (' + formatRupiah(preview.biaya_overhead_lainnya_batch) + '/batch)'"></p>
+                                    <p class="text-[10px] text-muted-foreground" x-text="'Alokasi ' + (preview.share_percentage || 0) + '% dari Biaya Overhead (' + formatRupiah(preview.biaya_overhead_custom_batch || 0) + '/batch)'"></p>
                                     <template x-if="preview.overhead_list && preview.overhead_list.length > 0">
                                         <p class="text-[9px] text-secondary font-bold mt-0.5">Komponen: <span x-text="preview.overhead_list.join(', ')"></span></p>
                                     </template>
@@ -176,7 +176,7 @@
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
                                     <p class="text-sm font-bold text-foreground">Tenaga Kerja (Gaji & Roasting)</p>
-                                    <p class="text-[10px] text-muted-foreground" x-text="preview.is_fallback_gaji ? 'Membagi Upah Standar Master (' + formatRupiah(preview.biaya_tenaga_kerja_batch) + '/batch)' : 'Membagi Upah dari Log Kerja Batch (' + formatRupiah(preview.biaya_tenaga_kerja_batch) + ')'"></p>
+                                    <p class="text-[10px] text-muted-foreground" x-text="'Alokasi ' + (preview.share_percentage || 0) + '% dari ' + (preview.is_fallback_gaji ? 'Upah Standar Master (' + formatRupiah(preview.biaya_tenaga_kerja_batch) + ')' : 'Upah Log Kerja (' + formatRupiah(preview.biaya_tenaga_kerja_batch) + ')')"></p>
                                     <template x-if="preview.pekerja_list && preview.pekerja_list.length > 0">
                                         <p class="text-[9px] text-secondary font-bold mt-0.5">Pekerja Terlibat: <span x-text="preview.pekerja_list.join(', ')"></span></p>
                                     </template>

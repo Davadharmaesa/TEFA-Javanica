@@ -62,6 +62,11 @@ class DashboardController extends Controller
             ? round((($total_raw_roasted - $total_cooked_roasted) / $total_raw_roasted) * 100, 1)
             : 0;
 
+        // 7. Antrean Pesanan MTO
+        $antrean_mto = PesananKeluar::whereIn('status_pengiriman', ['Menunggu Konfirmasi', 'Diproses'])
+            ->orderBy('tanggal_pesanan', 'asc')
+            ->get();
+
         return view('dashboard', compact(
             'total_stok_biji_mentah',
             'total_kopi_matang',
@@ -69,7 +74,8 @@ class DashboardController extends Controller
             'stok_menipis',
             'recent_logs',
             'avg_burnoff',
-            'has_warning' 
+            'has_warning',
+            'antrean_mto'
         ));
     }
 }
