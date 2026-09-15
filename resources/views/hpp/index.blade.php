@@ -151,11 +151,11 @@
                                 <p class="font-mono font-bold text-primary" x-text="formatRupiah(preview.biaya_bahan_baku)"></p>
                             </div>
                             
-                            <!-- Listrik -->
+                            <!-- Listrik & Operasional Mesin -->
                             <div class="flex justify-between items-center border-b border-border/50 pb-2">
                                 <div>
-                                    <p class="text-sm font-bold text-foreground">Biaya Operasional Mesin </p>
-                                    <p class="text-[10px] text-muted-foreground" x-text="'Alokasi ' + (preview.share_percentage || 0) + '% dari (Durasi × Tarif per Menit)'"></p>
+                                    <p class="text-sm font-bold text-foreground">Biaya Operasional Mesin</p>
+                                    <p class="text-[10px] text-muted-foreground" x-text="'Alokasi ' + (preview.share_percentage || 0) + '% dari (Durasi × Tarif per Menit) + Pre-heating Rp1.000'"></p>
                                 </div>
                                 <p class="font-mono font-bold text-primary" x-text="formatRupiah(preview.biaya_listrik)"></p>
                             </div>

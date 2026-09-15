@@ -84,6 +84,7 @@ class HppAndSalesTest extends TestCase
 
         $data = $response->json();
         $this->assertEquals(731707, round($data['biaya_bahan_baku']));
+        $this->assertEquals(1229, round($data['biaya_listrik']));
     }
 
     public function test_sales_transaction_deducts_stock_using_fifo(): void
