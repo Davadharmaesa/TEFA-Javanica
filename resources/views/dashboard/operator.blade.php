@@ -175,6 +175,70 @@
                     <span class="text-xs font-bold font-sans uppercase tracking-tighter text-center">History Kerja Pekerja</span>
                 </a>
             </div>
+            
+            <!-- Antrean MTO Section -->
+            <div class="mt-8 bg-card border border-border shadow-sm rounded-xl overflow-hidden">
+                <div class="p-4 border-b border-border bg-muted/20 flex items-center gap-3">
+                    <div class="p-1.5 bg-primary/10 text-primary rounded-md shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h2 class="font-heading font-bold text-lg text-primary uppercase tracking-tighter">Antrean Pesanan MTO (Pre-Order)</h2>
+                </div>
+                <div class="p-0 overflow-x-auto">
+                    @if(isset($antrean_mto) && $antrean_mto->count() > 0)
+                        <table class="w-full text-left border-collapse min-w-max">
+                            <thead>
+                                <tr class="bg-muted/30 text-[10px] uppercase tracking-widest text-muted-foreground">
+                                    <th class="p-3 border-b border-border font-bold">Target Selesai</th>
+                                    <th class="p-3 border-b border-border font-bold">Pelanggan</th>
+                                    <th class="p-3 border-b border-border font-bold">Pesanan</th>
+                                    <th class="p-3 border-b border-border font-bold">Qty</th>
+                                    <th class="p-3 border-b border-border font-bold text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($antrean_mto as $mto)
+                                    <tr class="hover:bg-muted/20 transition-colors group">
+                                        <td class="p-3 border-b border-border/50 text-xs font-mono text-primary font-bold">
+                                            {{ $mto->tanggal_pesanan ? \Carbon\Carbon::parse($mto->tanggal_pesanan)->format('d M Y') : '-' }}
+                                        </td>
+                                        <td class="p-3 border-b border-border/50 text-sm font-bold text-primary">{{ $mto->customer_name }}</td>
+                                        <td class="p-3 border-b border-border/50 text-sm text-muted-foreground">{{ $mto->nama_pesanan ?? 'Produk Jadi' }}</td>
+                                        <td class="p-3 border-b border-border/50 text-sm font-bold text-primary">{{ $mto->jumlah_pcs }} Pcs</td>
+                                        <td class="p-3 border-b border-border/50 text-right">
+                                            @if(strtolower($mto->status_pengiriman) === 'menunggu konfirmasi')
+                                                <form action="{{ route('sales.update-status', $mto->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="status_pengiriman" value="Diproses">
+                                                    <button type="submit" class="inline-flex items-center px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-orange-500 text-white hover:bg-orange-600 transition-colors shadow-sm" onclick="return confirm('Mulai proses pesanan ini?')">
+                                                        Mulai Proses
+                                                    </button>
+                                                </form>
+                                            @elseif(strtolower($mto->status_pengiriman) === 'diproses')
+                                                <form action="{{ route('sales.update-status', $mto->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="status_pengiriman" value="Siap Diambil">
+                                                    <button type="submit" class="inline-flex items-center px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors shadow-sm" onclick="return confirm('Pesanan ini sudah selesai di-roasting dan siap diambil?')">
+                                                        Tandai Selesai
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <div class="p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+                            <svg class="w-10 h-10 mb-3 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <p class="text-sm font-bold">Tidak ada antrean MTO</p>
+                            <p class="text-xs mt-1">Tim produksi bisa fokus pada penyangraian stok reguler.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
 
         <!-- Right Side: History -->

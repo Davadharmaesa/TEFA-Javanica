@@ -145,72 +145,48 @@ class SalesController extends Controller
      */
     public function create()
     {
-        $finishedGoods = \App\Models\FinishedGood::with(['roastedBean', 'packaging'])->get();
+        $existingFinishedGoods = \App\Models\FinishedGood::with(['roastedBean', 'packaging'])->get();
+        $beans = RoastedBean::all();
+        $pouches = Packaging::where('tipe', 'like', '%Pouch%')->get();
+        if ($pouches->isEmpty()) {
+            $pouches = Packaging::all();
+        }
         
-        if ($finishedGoods->isEmpty()) {
-            $beans = RoastedBean::all();
-            $pouches = Packaging::where('tipe', 'like', '%Pouch%')->get();
-            if ($pouches->isEmpty()) {
-                $pouches = Packaging::all();
-            }
-            
-            $tempGoods = collect();
-            foreach ($beans as $bean) {
-                foreach ($pouches as $pouch) {
-                    // Coba cari HPP terbaru untuk roasted bean ini
-                    $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function($q) use ($bean) {
-                        $q->where('roasted_bean_id', $bean->id);
-                    })->latest()->first();
-                    
-                    $hppPerPcs = $latestHpp && $latestHpp->hasil_kemasan_pcs > 0 
-                        ? round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs) 
-                        : 0;
-                        
-                    if ($hppPerPcs <= 0) {
-                        $hppPerPcs = $pouch->harga_satuan * 10;
-                    }
-                    
-                    $suggestedPricePerPcs = $hppPerPcs > 0 ? round($hppPerPcs * 1.5) : 0;
+        $tempGoods = collect();
+        foreach ($beans as $bean) {
+            foreach ($pouches as $pouch) {
+                // Cari apakah kombinasi ini sudah ada stoknya di FinishedGood
+                $existing = $existingFinishedGoods->first(function($item) use ($bean, $pouch) {
+                    return $item->roasted_bean_id == $bean->id && $item->packaging_id == $pouch->id;
+                });
 
-                    $tempGoods->push([
-                        'id' => null,
-                        'roasted_bean_id' => $bean->id,
-                        'nama' => $bean->nama_kopi . ' - ' . $pouch->nama_kemasan,
-                        'berat_gram' => $pouch->kapasitas_gram,
-                        'stok_pcs' => 0,
-                        'hpp_per_pcs' => $hppPerPcs,
-                        'harga_jual_per_pcs' => $suggestedPricePerPcs,
-                    ]);
-                }
-            }
-            $finishedGoods = $tempGoods;
-        } else {
-            $finishedGoods = $finishedGoods->map(function($item) {
-                $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function($q) use ($item) {
-                    $q->where('roasted_bean_id', $item->roasted_bean_id);
+                // Coba cari HPP terbaru untuk roasted bean ini
+                $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function($q) use ($bean) {
+                    $q->where('roasted_bean_id', $bean->id);
                 })->latest()->first();
                 
                 $hppPerPcs = $latestHpp && $latestHpp->hasil_kemasan_pcs > 0 
                     ? round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs) 
                     : 0;
                     
-                if ($hppPerPcs <= 0 && $item->packaging) {
-                    $hppPerPcs = $item->packaging->harga_satuan * 10;
+                if ($hppPerPcs <= 0) {
+                    continue; // Strict mode: Do not allow selling if HPP is not calculated
                 }
-                    
-                $suggestedPricePerPcs = $hppPerPcs > 0 ? round($hppPerPcs * 1.5) : 0;
                 
-                return [
-                    'id' => $item->id,
-                    'roasted_bean_id' => $item->roasted_bean_id,
-                    'nama' => ($item->roastedBean->nama_kopi ?? 'Kopi') . ' - ' . ($item->packaging->nama_kemasan ?? 'Kemasan'),
-                    'berat_gram' => $item->packaging->kapasitas_gram ?? 0,
-                    'stok_pcs' => $item->stok_pcs,
+                $suggestedPricePerPcs = round($hppPerPcs * 1.5);
+
+                $tempGoods->push([
+                    'id' => $existing ? $existing->id : null,
+                    'roasted_bean_id' => $bean->id,
+                    'nama' => $bean->nama_kopi . ' - ' . $pouch->nama_kemasan,
+                    'berat_gram' => $pouch->kapasitas_gram,
+                    'stok_pcs' => $existing ? $existing->stok_pcs : 0,
                     'hpp_per_pcs' => $hppPerPcs,
                     'harga_jual_per_pcs' => $suggestedPricePerPcs,
-                ];
-            });
+                ]);
+            }
         }
+        $finishedGoods = $tempGoods;
 
         return view('sales.create', compact('finishedGoods'));
     }
@@ -457,10 +433,10 @@ class SalesController extends Controller
                         : 0;
                         
                     if ($hppPerPcs <= 0) {
-                        $hppPerPcs = $pouch->harga_satuan * 10;
+                        continue; // Strict mode: Do not allow selling if HPP is not calculated
                     }
                     
-                    $suggestedPricePerPcs = $hppPerPcs > 0 ? round($hppPerPcs * 1.5) : 0;
+                    $suggestedPricePerPcs = round($hppPerPcs * 1.5);
 
                     $tempGoods->push([
                         'id' => null,
@@ -484,11 +460,11 @@ class SalesController extends Controller
                     ? round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs) 
                     : 0;
                     
-                if ($hppPerPcs <= 0 && $item->packaging) {
-                    $hppPerPcs = $item->packaging->harga_satuan * 10;
+                if ($hppPerPcs <= 0) {
+                    return null; // Strict mode: Do not allow selling if HPP is not calculated
                 }
                     
-                $suggestedPricePerPcs = $hppPerPcs > 0 ? round($hppPerPcs * 1.5) : 0;
+                $suggestedPricePerPcs = round($hppPerPcs * 1.5);
                 
                 return [
                     'id' => $item->id,
@@ -499,7 +475,7 @@ class SalesController extends Controller
                     'hpp_per_pcs' => $hppPerPcs,
                     'harga_jual_per_pcs' => $suggestedPricePerPcs,
                 ];
-            });
+            })->filter()->values();
         }
 
         return view('sales.edit', compact('order', 'finishedGoods'));
@@ -774,6 +750,26 @@ class SalesController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Gagal membatalkan transaksi: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Update only the shipping/pickup status (Used by Operator Dashboard)
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status_pengiriman' => 'required|string'
+        ]);
+
+        try {
+            $order = PesananKeluar::findOrFail($id);
+            $order->status_pengiriman = $request->status_pengiriman;
+            $order->save();
+
+            return back()->with('success', 'Status pesanan berhasil diperbarui!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal memperbarui status: ' . $e->getMessage());
         }
     }
 

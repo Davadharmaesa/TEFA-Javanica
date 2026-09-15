@@ -15,6 +15,7 @@ class HppController extends Controller
     {
         $batches = RoastingBatch::with(['greenBean', 'hppCalculation', 'roastedBean', 'logPekerjas'])
             ->orderBy('created_at', 'desc')
+            ->take(10)
             ->get()
             ->map(function ($batch) {
                 $gb = $batch->greenBean;
@@ -101,7 +102,7 @@ class HppController extends Controller
             $is_fallback_gaji = true;
             $biayaTenagaKerjaBatch = Biaya::where('kategori', 'Tenaga Kerja')->sum('harga') ?? 15000;
         }
-        $biayaGaji = $biayaTenagaKerjaBatch;
+        $biayaGaji = $biayaTenagaKerjaBatch * $share;
         
         // Kemasan: Pouch + Stiker
         $biayaKemasan = ($pouch_hpp + $sticker_hpp) * $hasil_kemasan_pcs;
@@ -128,7 +129,8 @@ class HppController extends Controller
             'pekerja_list' => $pekerjaList,
             'biaya_overhead_custom_batch' => $biayaOverheadLainnyaTarif,
             'overhead_list' => $overheadList,
-            'max_output_pcs' => $maxOutputPcs
+            'max_output_pcs' => $maxOutputPcs,
+            'share_percentage' => round($share * 100, 2)
         ]);
     }
 

@@ -73,6 +73,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{id}/edit', [\App\Http\Controllers\SalesController::class, 'edit'])->name('edit');
             Route::put('/{id}', [\App\Http\Controllers\SalesController::class, 'update'])->name('update');
             Route::delete('/{id}', [\App\Http\Controllers\SalesController::class, 'destroy'])->name('destroy');
+            Route::patch('/{id}/status', [\App\Http\Controllers\SalesController::class, 'updateStatus'])->name('update-status');
         });
 
         // Internal API: Kasir Timbangan Dinamis
