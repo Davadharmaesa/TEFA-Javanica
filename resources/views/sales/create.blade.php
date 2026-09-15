@@ -246,7 +246,7 @@
                 <!-- Batas Waktu Pembayaran (Untuk DP atau Hutang) -->
                 <div x-show="paymentMethod === 'belum_bayar' || paymentMethod === 'dp'" x-transition class="space-y-1.5" style="display: none;">
                     <label for="batas_waktu_pembayaran" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Jatuh Tempo Pelunasan</label>
-                    <input type="date" name="batas_waktu_pembayaran" id="batas_waktu_pembayaran" :required="paymentMethod === 'belum_bayar' || paymentMethod === 'dp'" value="{{ old('batas_waktu_pembayaran') }}" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                    <input type="date" name="batas_waktu_pembayaran" id="batas_waktu_pembayaran" min="{{ now()->toDateString() }}" :required="paymentMethod === 'belum_bayar' || paymentMethod === 'dp'" value="{{ old('batas_waktu_pembayaran') }}" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
                 </div>
             </div>
 
@@ -273,7 +273,7 @@
             tipePesanan: '{{ old('tipe_pesanan', request('tab') === 'internal' ? 'internal' : 'eksternal') }}',
 
             uangDiterima: null,
-            nominalDp: null,
+            nominalDp: {{ old('nominal_dp') !== null ? old('nominal_dp') : 'null' }},
 
             init() {
                 this.updateSelectedGood();
@@ -348,7 +348,7 @@
 
             get sisaPembayaran() {
                 if (this.paymentMethod === 'belum_bayar' && this.totalPrice) {
-                    return this.totalPrice;
+                    return Math.max(0, this.totalPrice - (this.nominalDp || 0));
                 }
                 return 0;
             },

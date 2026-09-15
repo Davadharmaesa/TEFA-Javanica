@@ -69,6 +69,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [\App\Http\Controllers\SalesController::class, 'index'])->name('index');
             Route::get('/create', [\App\Http\Controllers\SalesController::class, 'create'])->name('create');
             Route::post('/store', [\App\Http\Controllers\SalesController::class, 'store'])->name('store');
+            Route::post('/{id}/payment', [\App\Http\Controllers\SalesController::class, 'addPayment'])->name('payment.store');
             Route::get('/{id}/edit', [\App\Http\Controllers\SalesController::class, 'edit'])->name('edit');
             Route::put('/{id}', [\App\Http\Controllers\SalesController::class, 'update'])->name('update');
             Route::delete('/{id}', [\App\Http\Controllers\SalesController::class, 'destroy'])->name('destroy');

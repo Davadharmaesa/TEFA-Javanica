@@ -195,14 +195,15 @@
 
                 <!-- Sisa Pembayaran (Hanya jika Belum Bayar) -->
                 <div x-show="paymentMethod === 'belum_bayar'" x-transition class="space-y-1.5" style="display: none;">
-                    <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Sisa Pembayaran (Rp)</label>
-                    <div class="w-full bg-muted/20 border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-muted-foreground" x-text="'Rp ' + (sisaPembayaran || 0).toLocaleString('id-ID')"></div>
+                    <label for="nominal_dp" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Sudah Dibayar / DP (Rp)</label>
+                    <input type="text" id="nominal_dp" name="nominal_dp" :value="window.formatRupiahString(nominalDp)" @input="nominalDp = window.parseRupiahString($event.target.value)" placeholder="0" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    <div class="w-full bg-muted/20 border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-muted-foreground" x-text="'Sisa: Rp ' + sisaPembayaran.toLocaleString('id-ID')"></div>
                 </div>
 
                 <!-- Batas Waktu Pembayaran (Hanya jika Belum Bayar) -->
                 <div x-show="paymentMethod === 'belum_bayar'" x-transition class="space-y-1.5" style="display: none;">
                     <label for="batas_waktu_pembayaran" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Batas Waktu Pembayaran</label>
-                    <input type="date" name="batas_waktu_pembayaran" id="batas_waktu_pembayaran" :required="paymentMethod === 'belum_bayar'" value="{{ old('batas_waktu_pembayaran', $order->batas_waktu_pembayaran ? $order->batas_waktu_pembayaran->toDateString() : '') }}" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                    <input type="date" name="batas_waktu_pembayaran" id="batas_waktu_pembayaran" min="{{ now()->toDateString() }}" :required="paymentMethod === 'belum_bayar'" value="{{ old('batas_waktu_pembayaran', $order->batas_waktu_pembayaran ? $order->batas_waktu_pembayaran->toDateString() : '') }}" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
                 </div>
             </div>
 
@@ -225,7 +226,8 @@
             quantityPcs: {{ old('jumlah_pcs', $order->jumlah_pcs) !== null ? old('jumlah_pcs', $order->jumlah_pcs) : 'null' }},
             totalPrice: {{ old('harga_jual_pesanan', $order->harga_jual_pesanan) !== null ? old('harga_jual_pesanan', $order->harga_jual_pesanan) : 'null' }},
             timeObj: new Date(),
-            paymentMethod: '{{ old('metode_pembayaran', $order->metode_pembayaran) }}',
+            paymentMethod: '{{ old('metode_pembayaran', $order->metode_pembayaran === 'dp' ? 'belum_bayar' : $order->metode_pembayaran) }}',
+            nominalDp: {{ old('nominal_dp', $order->nominal_dp ?? 0) }},
             tipePesanan: '{{ old('tipe_pesanan', $order->tipe_pesanan) }}',
 
             init() {
@@ -271,7 +273,7 @@
 
             get sisaPembayaran() {
                 if (this.paymentMethod === 'belum_bayar' && this.totalPrice) {
-                    return this.totalPrice;
+                    return Math.max(0, this.totalPrice - (this.nominalDp || 0));
                 }
                 return 0;
             },
