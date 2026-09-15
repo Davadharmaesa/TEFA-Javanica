@@ -3,12 +3,18 @@
 @section('title', 'Modul Penjualan - TEFA Javanica')
 
 @section('content')
-<div x-data="{ activeTab: '{{ request('tab') === 'eksternal' || request('tab') === 'external' ? 'external' : 'internal' }}' }" class="space-y-6 pb-12">
+<div x-data="{ activeTab: '{{ request('tab') === 'eksternal' || request('tab') === 'external' ? 'external' : 'internal' }}', paymentModal: false, selectedOrder: {}, paymentUrl: '', openPayment(order) { this.selectedOrder = order; this.paymentUrl = '{{ url('/sales') }}/' + order.id + '/payment'; this.paymentModal = true; } }" class="space-y-6 pb-12">
 
     @if(session('success'))
         <div class="p-4 bg-secondary/10 border border-secondary/20 text-secondary rounded-xl font-bold flex items-center gap-2 shadow-sm animate-fade-in">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
             <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-700 rounded-xl font-bold shadow-sm">
+            {{ $errors->first() }}
         </div>
     @endif
 
@@ -93,7 +99,11 @@
                                     @endif
                                 </div>
                             </td>
-                            <td class="p-4 text-center font-mono font-black text-primary whitespace-nowrap">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</td>
+                            <td class="p-4 text-center whitespace-nowrap">
+                                <div class="font-mono font-black text-primary">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</div>
+                                <div class="mt-1 text-[10px] font-mono font-bold text-muted-foreground">Dibayar: Rp {{ number_format($order['paid_amount'] ?? 0, 0, ',', '.') }}</div>
+                                <div class="text-[10px] font-mono font-bold text-red-600">Sisa: Rp {{ number_format($order['remaining_amount'] ?? $order['total_price'], 0, ',', '.') }}</div>
+                            </td>
                             <td class="p-4 text-center text-sm font-mono font-medium text-muted-foreground whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($order['target_date'])->format('d M Y') }}
                             </td>
@@ -126,6 +136,11 @@
                             </td>
                             <td class="p-4 text-center pr-6 whitespace-nowrap">
                                 <div class="flex justify-center gap-1">
+                                    @if(($order['remaining_amount'] ?? 0) > 0)
+                                        <button type="button" @click="openPayment({ id: {{ $order['raw_id'] }}, customer: @js($order['customer_name']), total: {{ $order['total_price'] }}, paid: {{ $order['paid_amount'] ?? 0 }}, remaining: {{ $order['remaining_amount'] ?? 0 }}, deadline: @js(($order['payment_deadline'] ?? null)?->format('Y-m-d')) })" class="p-1.5 text-[#526B42] hover:text-[#3d5130] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Tambah Pembayaran">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
+                                        </button>
+                                    @endif
                                     @if(strtolower($order['payment_status']) !== 'lunas' || (Auth::check() && Auth::user()->role === 'PIC'))
                                         <a href="{{ route('sales.edit', $order['raw_id']) }}" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Pesanan">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -212,6 +227,12 @@
                     </div>
 
                     <div class="flex justify-end gap-2 pt-1">
+                        @if(($order['remaining_amount'] ?? 0) > 0)
+                            <button type="button" @click="openPayment({ id: {{ $order['raw_id'] }}, customer: @js($order['customer_name']), total: {{ $order['total_price'] }}, paid: {{ $order['paid_amount'] ?? 0 }}, remaining: {{ $order['remaining_amount'] ?? 0 }}, deadline: @js(($order['payment_deadline'] ?? null)?->format('Y-m-d')) })" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#526B42] bg-[#526B42]/5 hover:bg-[#526B42]/10 rounded-lg transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
+                                Bayar
+                            </button>
+                        @endif
                         <a href="{{ route('sales.edit', $order['raw_id']) }}" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                             Edit
@@ -291,7 +312,11 @@
                                     @endif
                                 </div>
                             </td>
-                            <td class="p-4 text-center font-mono font-black text-primary whitespace-nowrap">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</td>
+                            <td class="p-4 text-center whitespace-nowrap">
+                                <div class="font-mono font-black text-primary">Rp {{ number_format($order['total_price'], 0, ',', '.') }}</div>
+                                <div class="mt-1 text-[10px] font-mono font-bold text-muted-foreground">Dibayar: Rp {{ number_format($order['paid_amount'] ?? 0, 0, ',', '.') }}</div>
+                                <div class="text-[10px] font-mono font-bold text-red-600">Sisa: Rp {{ number_format($order['remaining_amount'] ?? $order['total_price'], 0, ',', '.') }}</div>
+                            </td>
                             <td class="p-4 text-center text-sm font-mono font-medium text-muted-foreground whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($order['target_date'])->format('d M Y') }}
                             </td>
@@ -324,6 +349,11 @@
                             </td>
                             <td class="p-4 text-center pr-6 whitespace-nowrap">
                                 <div class="flex justify-center gap-1">
+                                    @if(($order['remaining_amount'] ?? 0) > 0)
+                                        <button type="button" @click="openPayment({ id: {{ $order['raw_id'] }}, customer: @js($order['customer_name']), total: {{ $order['total_price'] }}, paid: {{ $order['paid_amount'] ?? 0 }}, remaining: {{ $order['remaining_amount'] ?? 0 }}, deadline: @js(($order['payment_deadline'] ?? null)?->format('Y-m-d')) })" class="p-1.5 text-[#526B42] hover:text-[#3d5130] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Tambah Pembayaran">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
+                                        </button>
+                                    @endif
                                     @if(strtolower($order['payment_status']) !== 'lunas' || (Auth::check() && Auth::user()->role === 'PIC'))
                                         <a href="{{ route('sales.edit', $order['raw_id']) }}" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Pesanan">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -400,6 +430,12 @@
                     </div>
 
                     <div class="flex justify-end gap-2 pt-1">
+                        @if(($order['remaining_amount'] ?? 0) > 0)
+                            <button type="button" @click="openPayment({ id: {{ $order['raw_id'] }}, customer: @js($order['customer_name']), total: {{ $order['total_price'] }}, paid: {{ $order['paid_amount'] ?? 0 }}, remaining: {{ $order['remaining_amount'] ?? 0 }}, deadline: @js(($order['payment_deadline'] ?? null)?->format('Y-m-d')) })" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#526B42] bg-[#526B42]/5 hover:bg-[#526B42]/10 rounded-lg transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
+                                Bayar
+                            </button>
+                        @endif
                         @if(strtolower($order['payment_status']) !== 'lunas' || (Auth::check() && Auth::user()->role === 'PIC'))
                             <a href="{{ route('sales.edit', $order['raw_id']) }}" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -441,6 +477,36 @@
                     <span class="px-3 py-1.5 text-xs font-bold text-muted-foreground bg-muted/50 rounded-lg cursor-not-allowed border border-border/40 select-none">Selanjutnya</span>
                 @endif
             </div>
+        </div>
+    </div>
+
+    <div x-show="paymentModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="paymentModal = false">
+        <div class="w-full max-w-md rounded-2xl bg-card border border-border shadow-2xl p-6" @click.outside="paymentModal = false">
+            <div class="flex items-start justify-between gap-4 mb-5">
+                <div>
+                    <h2 class="text-lg font-heading font-bold text-primary">Tambah Pembayaran</h2>
+                    <p class="text-xs text-muted-foreground mt-1" x-text="selectedOrder.customer"></p>
+                </div>
+                <button type="button" @click="paymentModal = false" class="text-muted-foreground hover:text-foreground" aria-label="Tutup">&times;</button>
+            </div>
+            <div class="grid grid-cols-2 gap-3 rounded-xl bg-muted/30 p-4 mb-5 text-sm">
+                <div><span class="block text-xs text-muted-foreground">Total Transaksi</span><strong x-text="'Rp ' + (selectedOrder.total || 0).toLocaleString('id-ID')"></strong></div>
+                <div><span class="block text-xs text-muted-foreground">Sudah Dibayar</span><strong x-text="'Rp ' + (selectedOrder.paid || 0).toLocaleString('id-ID')"></strong></div>
+                <div><span class="block text-xs text-muted-foreground">Sisa Pembayaran</span><strong class="text-red-600" x-text="'Rp ' + (selectedOrder.remaining || 0).toLocaleString('id-ID')"></strong></div>
+                <div><span class="block text-xs text-muted-foreground">Batas Waktu</span><strong x-text="selectedOrder.deadline || 'Tidak ditentukan'"></strong></div>
+            </div>
+            <form :action="paymentUrl" method="POST" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="payment_nominal" class="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Nominal Pembayaran Berikutnya (Rp)</label>
+                    <input id="payment_nominal" name="nominal" type="number" min="1" :max="selectedOrder.remaining" required class="w-full rounded-xl border border-border bg-background px-4 py-3 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-primary/40">
+                </div>
+                <div>
+                    <label for="payment_date" class="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Tanggal Pembayaran</label>
+                    <input id="payment_date" name="tanggal_bayar" type="date" value="{{ now()->toDateString() }}" required class="w-full rounded-xl border border-border bg-background px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-primary/40">
+                </div>
+                <button type="submit" class="w-full rounded-xl bg-primary px-4 py-3 font-black text-primary-foreground hover:bg-primary/90">Simpan Pembayaran</button>
+            </form>
         </div>
     </div>
 </div>

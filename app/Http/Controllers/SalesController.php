@@ -31,15 +31,11 @@ class SalesController extends Controller
                 }
             }
 
-            // Normalisasi status pembayaran ke label berformat cantik
-            $payStatus = strtolower($order->status_pembayaran);
-            if ($payStatus === 'lunas') {
+            $paymentSummary = $this->paymentSummary($order);
+            if ($paymentSummary['status'] === 'lunas') {
                 $paymentStatusDisplay = 'Lunas';
-            } elseif ($payStatus === 'dp') {
-                $paymentStatusDisplay = 'DP';
-                if ($order->nominal_dp) {
-                    $paymentStatusDisplay .= ' (Rp ' . number_format($order->nominal_dp, 0, ',', '.') . ')';
-                }
+            } elseif ($paymentSummary['paid'] > 0) {
+                $paymentStatusDisplay = 'Sebagian Dibayar/DP (Rp ' . number_format($paymentSummary['paid'], 0, ',', '.') . ')';
             } else {
                 $paymentStatusDisplay = 'Belum Bayar';
             }
@@ -52,6 +48,9 @@ class SalesController extends Controller
                 'qty' => $order->jumlah_gram_pesanan,
                 'qty_pcs' => $order->jumlah_pcs,
                 'total_price' => $order->harga_jual_pesanan,
+                'paid_amount' => $paymentSummary['paid'],
+                'remaining_amount' => $paymentSummary['remaining'],
+                'payment_deadline' => $order->batas_waktu_pembayaran,
                 'status' => $order->status_pengiriman,
                 'payment_status' => $paymentStatusDisplay,
                 'pickup_status' => $order->status_pengambilan ?? 'Belum Diambil',
@@ -231,9 +230,9 @@ class SalesController extends Controller
             'jumlah_pcs' => 'nullable|integer|min:1',
             'tanggal_pesanan' => 'nullable|date',
             'metode_pembayaran' => 'nullable|string|in:lunas,dp,belum_bayar',
-            'nominal_dp' => 'nullable|integer|min:0',
+            'nominal_dp' => 'nullable|integer|min:0|lte:harga_jual_pesanan',
             'tanggal_bayar_dp' => 'nullable|date',
-            'batas_waktu_pembayaran' => 'nullable|date',
+            'batas_waktu_pembayaran' => 'nullable|date|after_or_equal:today',
             'status_pengambilan' => 'nullable|string|in:Belum Diambil,Sudah Diambil',
             'tipe_pesanan'       => 'nullable|string|in:internal,eksternal',
         ]);
@@ -337,9 +336,9 @@ class SalesController extends Controller
                 $sisa = max(0, $total - $nominalDp);
                 $statusPembayaran = $sisa === 0 ? 'lunas' : 'dp';
             } elseif ($metode === 'belum_bayar') {
-                $sisa = $total;
-                $statusPembayaran = 'belum_bayar';
-                $nominalDp = 0;
+                $nominalDp = (int) ($nominalDp ?? 0);
+                $sisa = max(0, $total - $nominalDp);
+                $statusPembayaran = $nominalDp > 0 ? ($sisa === 0 ? 'lunas' : 'dp') : 'belum_bayar';
             } else {
                 $statusPembayaran = 'lunas';
                 $sisa = 0;
@@ -377,6 +376,58 @@ class SalesController extends Controller
             DB::rollBack();
             return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
+    }
+
+    public function addPayment(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'nominal' => 'required|integer|min:1',
+            'tanggal_bayar' => 'required|date',
+        ]);
+
+        $order = PesananKeluar::findOrFail($id);
+        $summary = $this->paymentSummary($order);
+
+        if ($summary['remaining'] <= 0) {
+            return back()->withErrors(['nominal' => 'Pesanan ini sudah lunas.']);
+        }
+
+        if ($order->batas_waktu_pembayaran && $validated['tanggal_bayar'] > $order->batas_waktu_pembayaran->toDateString()) {
+            return back()->withErrors(['tanggal_bayar' => 'Tanggal pembayaran melewati batas waktu pembayaran.']);
+        }
+
+        if ($validated['nominal'] > $summary['remaining']) {
+            return back()->withErrors(['nominal' => 'Nominal pembayaran melebihi sisa pembayaran.']);
+        }
+
+        $paid = $summary['paid'] + $validated['nominal'];
+        $remaining = $summary['total'] - $paid;
+        $order->update([
+            'nominal_dp' => $paid,
+            'sisa_pembayaran' => $remaining,
+            'status_pembayaran' => $remaining === 0 ? 'lunas' : 'dp',
+            'metode_pembayaran' => $remaining === 0 ? 'lunas' : 'dp',
+            'tanggal_bayar_dp' => $order->tanggal_bayar_dp ?? $validated['tanggal_bayar'],
+            'tanggal_pelunasan' => $remaining === 0 ? $validated['tanggal_bayar'] : null,
+        ]);
+
+        return back()->with('success', 'Pembayaran berhasil ditambahkan.');
+    }
+
+    private function paymentSummary(PesananKeluar $order): array
+    {
+        $total = (int) ($order->total_pembayaran ?: $order->harga_jual_pesanan);
+        $paid = strtolower((string) $order->status_pembayaran) === 'lunas'
+            ? $total
+            : min($total, (int) ($order->nominal_dp ?? 0));
+        $remaining = max(0, $total - $paid);
+
+        return [
+            'total' => $total,
+            'paid' => $paid,
+            'remaining' => $remaining,
+            'status' => $remaining === 0 ? 'lunas' : ($paid > 0 ? 'sebagian' : 'belum_bayar'),
+        ];
     }
 
     /**
@@ -469,9 +520,9 @@ class SalesController extends Controller
             'jumlah_pcs' => 'nullable|integer|min:1',
             'tanggal_pesanan' => 'nullable|date',
             'metode_pembayaran' => 'nullable|string|in:lunas,dp,belum_bayar',
-            'nominal_dp' => 'nullable|integer|min:0',
+            'nominal_dp' => 'nullable|integer|min:0|lte:harga_jual_pesanan',
             'tanggal_bayar_dp' => 'nullable|date',
-            'batas_waktu_pembayaran' => 'nullable|date',
+            'batas_waktu_pembayaran' => 'nullable|date|after_or_equal:today',
             'status_pengambilan' => 'nullable|string|in:Belum Diambil,Sudah Diambil',
             'tipe_pesanan'       => 'nullable|string|in:internal,eksternal',
         ]);
@@ -617,9 +668,9 @@ class SalesController extends Controller
                 $sisa = max(0, $total - $nominalDp);
                 $statusPembayaran = $sisa === 0 ? 'lunas' : 'dp';
             } elseif ($metode === 'belum_bayar') {
-                $sisa = $total;
-                $statusPembayaran = 'belum_bayar';
-                $nominalDp = 0;
+                $nominalDp = (int) ($nominalDp ?? 0);
+                $sisa = max(0, $total - $nominalDp);
+                $statusPembayaran = $nominalDp > 0 ? ($sisa === 0 ? 'lunas' : 'dp') : 'belum_bayar';
             } else {
                 $statusPembayaran = 'lunas';
                 $sisa = 0;

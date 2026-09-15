@@ -304,4 +304,45 @@ class PesananKeluarTest extends TestCase
             'status_pengiriman' => 'Diproses',
         ]);
     }
+
+    public function test_payment_can_be_added_until_order_is_paid_in_full(): void
+    {
+        $user = User::factory()->create(['role' => 'PIC']);
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Arabica Cicilan',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 0,
+            'satuan_dasar' => 'gram',
+            'tanggal_roasting' => '2026-05-25',
+            'tanggal_expire' => '2026-06-25',
+            'sisa_stok' => 0,
+        ]);
+        $order = PesananKeluar::create([
+            'user_id' => $user->id,
+            'roasted_bean_id' => $roastedBean->id,
+            'nama_pesanan' => 'Customer Cicilan',
+            'jumlah_gram_pesanan' => 500,
+            'harga_jual_pesanan' => 40000,
+            'tanggal_pesanan' => '2026-09-01',
+            'total_pembayaran' => 40000,
+            'status_pembayaran' => 'dp',
+            'status_pengiriman' => 'Diproses',
+            'metode_pembayaran' => 'dp',
+            'nominal_dp' => 20000,
+            'sisa_pembayaran' => 20000,
+            'batas_waktu_pembayaran' => '2026-09-30',
+        ]);
+
+        $this->actingAs($user)->post(route('sales.payment.store', $order), [
+            'nominal' => 20000,
+            'tanggal_bayar' => '2026-09-20',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('pesanan_keluar', [
+            'id' => $order->id,
+            'nominal_dp' => 40000,
+            'sisa_pembayaran' => 0,
+            'status_pembayaran' => 'lunas',
+        ]);
+    }
 }
