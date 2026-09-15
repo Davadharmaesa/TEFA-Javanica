@@ -45,7 +45,7 @@
     @endif
 
     <!-- Main Workspace -->
-    <form action="{{ route('sales.update', $order->id) }}" method="POST" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <form action="{{ route('sales.update', $order->id) }}" method="POST" @submit.prevent="submitForm" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         @csrf
         @method('PUT')
         
@@ -181,8 +181,16 @@
                            :value="window.formatRupiahString(totalPrice)" 
                            @input="totalPrice = window.parseRupiahString($event.target.value)" 
                            placeholder="0" 
-                           class="w-full bg-background border-2 border-border rounded-xl px-4 py-3.5 text-2xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                           :class="isSellingBelowHpp ? 'border-red-500 text-red-600 focus:border-red-500 focus:ring-red-500/50' : 'border-border text-primary focus:border-primary focus:ring-primary/50'"
+                           class="w-full bg-background border-2 rounded-xl px-4 py-3.5 text-2xl font-mono font-black focus:outline-none focus:ring-2 transition-all">
                     <input type="hidden" name="harga_jual_pesanan" :value="totalPrice || 0">
+                    
+                    <template x-if="isSellingBelowHpp">
+                        <p class="text-xs font-bold text-red-500 mt-1 flex items-center gap-1.5 bg-red-500/10 p-2 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                            Peringatan Total HPP/Modal adalah <span x-text="'Rp ' + totalHpp.toLocaleString('id-ID')"></span>!
+                        </p>
+                    </template>
                 </div>
 
                 <!-- Sisa Pembayaran (Hanya jika Belum Bayar) -->
@@ -231,6 +239,34 @@
 
             get currentDate() {
                 return this.timeObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            },
+
+            get totalHpp() {
+                if (this.selectedGood && this.quantityPcs) {
+                    return this.quantityPcs * this.selectedGood.hpp_per_pcs;
+                }
+                return 0;
+            },
+
+            get isSellingBelowHpp() {
+                if (this.totalPrice !== null && this.totalPrice !== '' && this.totalHpp) {
+                    return parseInt(this.totalPrice) < parseInt(this.totalHpp);
+                }
+                return false;
+            },
+
+            submitForm(e) {
+                if (this.isSellingBelowHpp) {
+                    const confirmMsg = 'PERINGATAN KERUGIAN!\n\n' +
+                                     'Total Harga Jual (Rp ' + parseInt(this.totalPrice).toLocaleString('id-ID') + ') lebih rendah dari Total Modal/HPP (Rp ' + parseInt(this.totalHpp).toLocaleString('id-ID') + ').\n\n' +
+                                     'Apakah Anda YAKIN ingin tetap memproses transaksi ini dan menjual rugi?';
+                    
+                    if (confirm(confirmMsg)) {
+                        e.target.submit();
+                    }
+                } else {
+                    e.target.submit();
+                }
             },
 
             get sisaPembayaran() {

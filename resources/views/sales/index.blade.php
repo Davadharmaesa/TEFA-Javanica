@@ -126,9 +126,11 @@
                             </td>
                             <td class="p-4 text-center pr-6 whitespace-nowrap">
                                 <div class="flex justify-center gap-1">
-                                    <a href="{{ route('sales.edit', $order['raw_id']) }}" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Pesanan">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                    </a>
+                                    @if(strtolower($order['payment_status']) !== 'lunas' || (Auth::check() && Auth::user()->role === 'PIC'))
+                                        <a href="{{ route('sales.edit', $order['raw_id']) }}" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Pesanan">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                        </a>
+                                    @endif
                                     <form action="{{ route('sales.destroy', $order['raw_id']) }}" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
                                         @csrf
                                         @method('DELETE')
@@ -322,9 +324,11 @@
                             </td>
                             <td class="p-4 text-center pr-6 whitespace-nowrap">
                                 <div class="flex justify-center gap-1">
-                                    <a href="{{ route('sales.edit', $order['raw_id']) }}" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Pesanan">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                    </a>
+                                    @if(strtolower($order['payment_status']) !== 'lunas' || (Auth::check() && Auth::user()->role === 'PIC'))
+                                        <a href="{{ route('sales.edit', $order['raw_id']) }}" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Pesanan">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                        </a>
+                                    @endif
                                     <form action="{{ route('sales.destroy', $order['raw_id']) }}" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
                                         @csrf
                                         @method('DELETE')
@@ -396,10 +400,12 @@
                     </div>
 
                     <div class="flex justify-end gap-2 pt-1">
-                        <a href="{{ route('sales.edit', $order['raw_id']) }}" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                            Edit
-                        </a>
+                        @if(strtolower($order['payment_status']) !== 'lunas' || (Auth::check() && Auth::user()->role === 'PIC'))
+                            <a href="{{ route('sales.edit', $order['raw_id']) }}" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                Edit
+                            </a>
+                        @endif
                         <form action="{{ route('sales.destroy', $order['raw_id']) }}" method="POST" class="inline" onsubmit="return confirm('Batalkan pesanan ini?');">
                             @csrf
                             @method('DELETE')

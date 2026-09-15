@@ -45,7 +45,7 @@
     @endif
 
     <!-- Main Workspace -->
-    <form action="{{ route('sales.store') }}" method="POST" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <form action="{{ route('sales.store') }}" method="POST" @submit.prevent="submitForm" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         @csrf
         
         <!-- KIRI: Detail Pesanan (Spans 8 cols) -->
@@ -167,8 +167,8 @@
                 <div class="space-y-2">
                     <label class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Metode Pembayaran</label>
                     <div class="grid grid-cols-2 gap-1 bg-muted/40 p-1 rounded-xl border border-border/50">
-                        <button type="button" @click="paymentMethod = 'lunas'" :class="paymentMethod === 'lunas' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider">Lunas</button>
-                        <button type="button" @click="paymentMethod = 'belum_bayar'" :class="paymentMethod === 'belum_bayar' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider">Belum Bayar</button>
+                        <button type="button" @click="paymentMethod = 'lunas'" :class="paymentMethod === 'lunas' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider flex items-center justify-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg> Tunai (Lunas)</button>
+                        <button type="button" @click="paymentMethod = 'belum_bayar'" :class="paymentMethod === 'belum_bayar' ? 'bg-[#526B42] text-white shadow-sm' : 'text-muted-foreground hover:bg-muted/30'" class="py-2 text-xs font-black rounded-lg transition-all uppercase tracking-wider flex items-center justify-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Belum Bayar / DP</button>
                     </div>
                     <input type="hidden" name="metode_pembayaran" :value="paymentMethod">
                 </div>
@@ -180,8 +180,39 @@
                            :value="window.formatRupiahString(totalPrice)" 
                            @input="totalPrice = window.parseRupiahString($event.target.value)" 
                            placeholder="0" 
-                           class="w-full bg-background border-2 border-border rounded-xl px-4 py-3.5 text-2xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                           :class="isSellingBelowHpp ? 'border-red-500 text-red-600 focus:border-red-500 focus:ring-red-500/50' : 'border-border text-primary focus:border-primary focus:ring-primary/50'"
+                           class="w-full bg-background border-2 rounded-xl px-4 py-3.5 text-2xl font-mono font-black focus:outline-none focus:ring-2 transition-all">
                     <input type="hidden" name="harga_jual_pesanan" :value="totalPrice || 0">
+                    
+                    <template x-if="isSellingBelowHpp">
+                        <p class="text-xs font-bold text-red-500 mt-1 flex items-center gap-1.5 bg-red-500/10 p-2 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                            Peringatan Jual Rugi: Total HPP/Modal adalah <span x-text="'Rp ' + totalHpp.toLocaleString('id-ID')"></span>!
+                        </p>
+                    </template>
+                </div>
+
+                <!-- Kalkulator Kasir (Hanya jika Tunai/Lunas) -->
+                <div x-show="paymentMethod === 'lunas'" x-transition class="space-y-3 bg-primary/5 p-4 rounded-xl border border-primary/20">
+                    <div class="space-y-1.5">
+                        <label for="uang_diterima_display" class="text-xs font-bold text-primary uppercase tracking-wider">Uang Diterima dari Pelanggan (Rp)</label>
+                        <input type="text" id="uang_diterima_display" 
+                               :value="window.formatRupiahString(uangDiterima)" 
+                               @input="uangDiterima = window.parseRupiahString($event.target.value)" 
+                               placeholder="0" 
+                               class="w-full bg-background border-2 border-primary/50 rounded-xl px-4 py-3 text-xl font-mono font-black focus:outline-none focus:ring-2 focus:ring-primary/50 text-primary transition-all">
+                    </div>
+                    
+                    <div class="flex justify-between items-center pt-2 border-t border-primary/20">
+                        <span class="text-sm font-bold text-primary uppercase tracking-wider">Kembalian:</span>
+                        <span class="text-2xl font-mono font-black" :class="kembalian < 0 ? 'text-red-500' : 'text-green-600'" x-text="'Rp ' + Math.max(0, kembalian).toLocaleString('id-ID')"></span>
+                    </div>
+                    <template x-if="kembalian < 0">
+                        <p class="text-xs font-bold text-red-500 mt-1 flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            Uang yang diterima kurang <span x-text="'Rp ' + Math.abs(kembalian).toLocaleString('id-ID')"></span>!
+                        </p>
+                    </template>
                 </div>
 
                 <!-- Sisa Pembayaran (Hanya jika Belum Bayar) -->
@@ -219,6 +250,8 @@
             paymentMethod: '{{ old('metode_pembayaran', 'lunas') }}',
             tipePesanan: '{{ old('tipe_pesanan', request('tab') === 'internal' ? 'internal' : 'eksternal') }}',
 
+            uangDiterima: null,
+
             init() {
                 this.updateSelectedGood();
                 setInterval(() => { this.timeObj = new Date(); }, 1000);
@@ -230,6 +263,52 @@
 
             get currentDate() {
                 return this.timeObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            },
+
+            get totalHpp() {
+                if (this.selectedGood && this.quantityPcs) {
+                    return this.quantityPcs * this.selectedGood.hpp_per_pcs;
+                }
+                return 0;
+            },
+
+            get isSellingBelowHpp() {
+                if (this.totalPrice !== null && this.totalPrice !== '' && this.totalHpp) {
+                    return parseInt(this.totalPrice) < parseInt(this.totalHpp);
+                }
+                return false;
+            },
+            
+            get kembalian() {
+                if (this.totalPrice !== null && this.uangDiterima !== null) {
+                    return parseInt(this.uangDiterima || 0) - parseInt(this.totalPrice || 0);
+                }
+                return 0;
+            },
+
+            submitForm(e) {
+                if (this.paymentMethod === 'lunas') {
+                    if (this.uangDiterima === null || this.uangDiterima === '' || this.uangDiterima == 0) {
+                        alert('Silakan masukkan nominal Uang Diterima dari pelanggan!');
+                        return;
+                    }
+                    if (this.kembalian < 0) {
+                        alert('Gagal memproses transaksi: Uang yang diterima kurang Rp ' + Math.abs(this.kembalian).toLocaleString('id-ID') + '!');
+                        return;
+                    }
+                }
+
+                if (this.isSellingBelowHpp) {
+                    const confirmMsg = 'PERINGATAN KERUGIAN!\n\n' +
+                                     'Total Harga Jual (Rp ' + parseInt(this.totalPrice).toLocaleString('id-ID') + ') lebih rendah dari Total Modal/HPP (Rp ' + parseInt(this.totalHpp).toLocaleString('id-ID') + ').\n\n' +
+                                     'Apakah Anda YAKIN ingin tetap memproses transaksi ini dan menjual rugi?';
+                    
+                    if (confirm(confirmMsg)) {
+                        e.target.submit();
+                    }
+                } else {
+                    e.target.submit();
+                }
             },
 
             get sisaPembayaran() {

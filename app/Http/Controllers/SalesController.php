@@ -481,6 +481,13 @@ class SalesController extends Controller
 
             $order = PesananKeluar::findOrFail($id);
 
+            // SECURITY: Prevent cashier from modifying Lunas/DP orders
+            if (in_array(strtolower($order->status_pembayaran), ['lunas', 'dp'])) {
+                if (!Auth::check() || Auth::user()->role !== 'PIC') {
+                    return back()->withErrors(['error' => 'Akses Ditolak. Transaksi yang sudah dibayar (Lunas/DP) tidak boleh diubah oleh Kasir. Silakan hubungi PIC/Manajer.'])->withInput();
+                }
+            }
+
             // ============================================
             // 1. REVERT OLD STOCK DEDUCTION
             // ============================================

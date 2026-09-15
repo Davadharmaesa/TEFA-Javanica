@@ -121,8 +121,8 @@
                                @input="form.margin_keuntungan = window.parseRupiahString($event.target.value)"
                                class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all" 
                                placeholder="Contoh: 15.000">
-                        <p class="text-[10px] text-red-500 font-bold mt-1" x-show="preview.hpp_per_pcs > 0 && form.margin_keuntungan !== '' && parseFloat(form.margin_keuntungan) < parseFloat(preview.hpp_per_pcs)">
-                            ⚠️ Peringatan: Margin Keuntungan lebih rendah daripada HPP per Pcs
+                        <p class="text-[10px] text-red-500 font-bold mt-1" x-show="form.margin_keuntungan !== '' && parseFloat(form.margin_keuntungan) < 0">
+                            ⚠️ Peringatan: Margin Keuntungan tidak boleh bernilai minus (rugi)
                         </p>
                     </div>
                 </div>
