@@ -68,6 +68,7 @@ class HppController extends Controller
         // Durasi Total Kerja Mesin = Masa Pre-heating + Menit First Crack + Detik Dev Tahan / 60
         $durasiTotalKerja = $batch->durasi_pre_heating + $batch->waktu_first_crack + ($batch->waktu_development / 60);
         // Hitung secara dinamis berdasarkan durasi (jam) dan daya mesin (0.75 kW untuk 750 Watt): tarif * kW * jam
+        $biayaTetapPreHeating = 1000;
         $biayaListrikBatch = ($durasiTotalKerja / 60) * 0.75 * $biayaListrikTarif;
         
         $pouch = $pouch_id ? Packaging::find($pouch_id) : null;
@@ -92,7 +93,7 @@ class HppController extends Controller
 
         // Allocate costs based on share of batch packaged
         $biayaBahanBaku = $batch->biaya_bahan_baku * $share;
-        $biayaListrik = $biayaListrikBatch * $share;
+        $biayaListrik = ($biayaListrikBatch * $share) + $biayaTetapPreHeating;
         $biayaPenyusutan = $biayaOverheadLainnyaTarif * $share;
         
         // Tenaga Kerja: Hitung dari log_pekerja jika ada, jika tidak ada fallback ke master Tenaga Kerja sum
