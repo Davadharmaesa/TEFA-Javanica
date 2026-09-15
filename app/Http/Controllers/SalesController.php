@@ -170,10 +170,10 @@ class SalesController extends Controller
                     : 0;
                     
                 if ($hppPerPcs <= 0) {
-                    $hppPerPcs = $pouch->harga_satuan * 10;
+                    continue; // Strict mode: Do not allow selling if HPP is not calculated
                 }
                 
-                $suggestedPricePerPcs = $hppPerPcs > 0 ? round($hppPerPcs * 1.5) : 0;
+                $suggestedPricePerPcs = round($hppPerPcs * 1.5);
 
                 $tempGoods->push([
                     'id' => $existing ? $existing->id : null,
@@ -433,10 +433,10 @@ class SalesController extends Controller
                         : 0;
                         
                     if ($hppPerPcs <= 0) {
-                        $hppPerPcs = $pouch->harga_satuan * 10;
+                        continue; // Strict mode: Do not allow selling if HPP is not calculated
                     }
                     
-                    $suggestedPricePerPcs = $hppPerPcs > 0 ? round($hppPerPcs * 1.5) : 0;
+                    $suggestedPricePerPcs = round($hppPerPcs * 1.5);
 
                     $tempGoods->push([
                         'id' => null,
@@ -460,11 +460,11 @@ class SalesController extends Controller
                     ? round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs) 
                     : 0;
                     
-                if ($hppPerPcs <= 0 && $item->packaging) {
-                    $hppPerPcs = $item->packaging->harga_satuan * 10;
+                if ($hppPerPcs <= 0) {
+                    return null; // Strict mode: Do not allow selling if HPP is not calculated
                 }
                     
-                $suggestedPricePerPcs = $hppPerPcs > 0 ? round($hppPerPcs * 1.5) : 0;
+                $suggestedPricePerPcs = round($hppPerPcs * 1.5);
                 
                 return [
                     'id' => $item->id,
@@ -475,7 +475,7 @@ class SalesController extends Controller
                     'hpp_per_pcs' => $hppPerPcs,
                     'harga_jual_per_pcs' => $suggestedPricePerPcs,
                 ];
-            });
+            })->filter()->values();
         }
 
         return view('sales.edit', compact('order', 'finishedGoods'));
