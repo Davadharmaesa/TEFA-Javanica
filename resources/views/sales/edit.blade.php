@@ -99,7 +99,7 @@
                 <!-- QTY Pcs -->
                 <div class="space-y-1.5">
                     <label for="jumlah_pcs" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Jumlah Pesanan (Pcs)</label>
-                    <input type="number" min="1" id="jumlah_pcs" name="jumlah_pcs" required x-model.number="quantityPcs" @input="calculatePrices" placeholder="Contoh: 12" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                    <input type="text" inputmode="numeric" pattern="[0-9]+" id="jumlah_pcs" name="jumlah_pcs" required x-model.number="quantityPcs" @input="this.value = this.value.replace(/[^0-9]/g, ''); calculatePrices()" placeholder="Contoh: 12" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
                 </div>
             </div>
 
@@ -147,7 +147,7 @@
                 
                 <div class="space-y-1.5">
                     <label for="tanggal_pesanan" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Target Selesai / Pengambilan</label>
-                    <input type="date" name="tanggal_pesanan" id="tanggal_pesanan" required value="{{ old('tanggal_pesanan', $order->tanggal_pesanan ? $order->tanggal_pesanan->toDateString() : '') }}" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                    <input type="date" name="tanggal_pesanan" id="tanggal_pesanan" min="{{ now()->toDateString() }}" required value="{{ old('tanggal_pesanan', $order->tanggal_pesanan ? $order->tanggal_pesanan->toDateString() : '') }}" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
                 </div>
             </div>
         </div>
@@ -258,6 +258,11 @@
             },
 
             submitForm(e) {
+                const nominalDpInput = e.target.querySelector('#nominal_dp');
+                if (nominalDpInput) {
+                    nominalDpInput.value = String(this.nominalDp || 0);
+                }
+
                 if (this.isSellingBelowHpp) {
                     const confirmMsg = 'PERINGATAN KERUGIAN!\n\n' +
                                      'Total Harga Jual (Rp ' + parseInt(this.totalPrice).toLocaleString('id-ID') + ') lebih rendah dari Total Modal/HPP (Rp ' + parseInt(this.totalHpp).toLocaleString('id-ID') + ').\n\n' +
