@@ -202,8 +202,13 @@
                                         <td class="p-3 border-b border-border/50 text-xs font-mono text-primary font-bold">
                                             {{ $mto->tanggal_pesanan ? \Carbon\Carbon::parse($mto->tanggal_pesanan)->format('d M Y') : '-' }}
                                         </td>
-                                        <td class="p-3 border-b border-border/50 text-sm font-bold text-primary">{{ $mto->customer_name }}</td>
-                                        <td class="p-3 border-b border-border/50 text-sm text-muted-foreground">{{ $mto->nama_pesanan ?? 'Produk Jadi' }}</td>
+                                        <td class="p-3 border-b border-border/50 text-sm font-bold text-primary">{{ $mto->nama_pesanan }}</td>
+                                        <td class="p-3 border-b border-border/50 text-sm text-muted-foreground">
+                                            {{ $mto->roastedBean->nama_kopi ?? 'Kopi' }}
+                                            @if($mto->packaging)
+                                                - {{ $mto->packaging->nama_kemasan }}
+                                            @endif
+                                        </td>
                                         <td class="p-3 border-b border-border/50 text-sm font-bold text-primary">{{ $mto->jumlah_pcs }} Pcs</td>
                                         <td class="p-3 border-b border-border/50 text-right">
                                             @if(strtolower($mto->status_pengiriman) === 'menunggu konfirmasi')

@@ -62,8 +62,8 @@ class DashboardController extends Controller
             ? round((($total_raw_roasted - $total_cooked_roasted) / $total_raw_roasted) * 100, 1)
             : 0;
 
-        // 7. Antrean Pesanan MTO
-        $antrean_mto = PesananKeluar::whereIn('status_pengiriman', ['Menunggu Konfirmasi', 'Diproses'])
+        $antrean_mto = PesananKeluar::with(['roastedBean', 'packaging'])
+            ->whereIn('status_pengiriman', ['Menunggu Konfirmasi', 'Diproses'])
             ->orderBy('tanggal_pesanan', 'asc')
             ->get();
 
