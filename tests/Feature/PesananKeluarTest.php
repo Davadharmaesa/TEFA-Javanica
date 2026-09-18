@@ -345,4 +345,146 @@ class PesananKeluarTest extends TestCase
             'status_pembayaran' => 'lunas',
         ]);
     }
+
+    /**
+     * Test that total transaction price is automatically calculated from quantity and product pricing for both Lunas and DP.
+     */
+    public function test_pre_order_sales_automatically_calculates_total_price_for_lunas_and_dp(): void
+    {
+        $user = User::factory()->create(['role' => 'PIC']);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Arabica Otomatis',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 5000,
+            'satuan_dasar' => 'gram',
+            'tanggal_roasting' => '2026-05-25',
+            'tanggal_expire' => '2026-06-25',
+            'sisa_stok' => 0,
+        ]);
+
+        $packaging = \App\Models\Packaging::create([
+            'tipe' => 'Pouch Stand',
+            'nama_kemasan' => 'Pouch 250g',
+            'kapasitas_gram' => 250,
+            'harga_satuan' => 2000,
+            'stok_pcs' => 100,
+        ]);
+
+        // Harga per pcs default jika tidak ada HPP adalah round(harga_satuan * 10 * 1.5) = 2000 * 10 * 1.5 = 30000
+        // Skenario 1: Transaksi Lunas dengan jumlah 4 pcs => Total seharusnya 4 * 30.000 = 120.000
+        $responseLunas = $this->actingAs($user)->post('/sales/store', [
+            'customer_name' => 'Pelanggan Lunas Otomatis',
+            'roasted_bean_id' => $roastedBean->id,
+            'finished_good_id' => $roastedBean->id . '-250',
+            'jumlah_pcs' => 4,
+            'jumlah_gram_pesanan' => 1000,
+            'harga_jual_pesanan' => 999999, // Dikirim angka sembarang untuk menguji kalkulasi otomatis backend
+            'status_pengiriman' => 'Menunggu Konfirmasi',
+            'metode_pembayaran' => 'lunas',
+        ]);
+
+        $responseLunas->assertRedirect('/sales?tab=external');
+
+        $this->assertDatabaseHas('pesanan_keluar', [
+            'nama_pesanan' => 'Pelanggan Lunas Otomatis',
+            'harga_jual_pesanan' => 120000, // Otomatis 4 * 30.000
+            'total_pembayaran' => 120000,
+            'status_pembayaran' => 'lunas',
+            'sisa_pembayaran' => 0,
+        ]);
+
+        // Skenario 2: Transaksi DP dengan jumlah 5 pcs => Total seharusnya 5 * 30.000 = 150.000
+        $responseDp = $this->actingAs($user)->post('/sales/store', [
+            'customer_name' => 'Pelanggan DP Otomatis',
+            'roasted_bean_id' => $roastedBean->id,
+            'finished_good_id' => $roastedBean->id . '-250',
+            'jumlah_pcs' => 5,
+            'jumlah_gram_pesanan' => 1250,
+            'harga_jual_pesanan' => 1, // Dikirim angka sembarang
+            'status_pengiriman' => 'Diproses',
+            'metode_pembayaran' => 'belum_bayar',
+            'nominal_dp' => 50000,
+        ]);
+
+        $responseDp->assertRedirect('/sales?tab=external');
+
+        $this->assertDatabaseHas('pesanan_keluar', [
+            'nama_pesanan' => 'Pelanggan DP Otomatis',
+            'harga_jual_pesanan' => 150000, // Otomatis 5 * 30.000
+            'total_pembayaran' => 150000,
+            'nominal_dp' => 50000,
+            'sisa_pembayaran' => 100000, // 150.000 - 50.000
+            'status_pembayaran' => 'belum_bayar',
+        ]);
+    }
+
+    /**
+     * Test that editing a pre-order automatically recalculates total transaction price.
+     */
+    public function test_edit_pre_order_sales_automatically_recalculates_total_price(): void
+    {
+        $user = User::factory()->create(['role' => 'PIC']);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Arabica Edit Test',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 5000,
+            'satuan_dasar' => 'gram',
+            'tanggal_roasting' => '2026-05-25',
+            'tanggal_expire' => '2026-06-25',
+            'sisa_stok' => 0,
+        ]);
+
+        $packaging = \App\Models\Packaging::create([
+            'tipe' => 'Pouch Stand',
+            'nama_kemasan' => 'Pouch 250g Edit',
+            'kapasitas_gram' => 250,
+            'harga_satuan' => 2000,
+            'stok_pcs' => 100,
+        ]);
+
+        $order = PesananKeluar::create([
+            'user_id' => $user->id,
+            'roasted_bean_id' => $roastedBean->id,
+            'packaging_id' => $packaging->id,
+            'nama_pesanan' => 'Customer Before Edit',
+            'jumlah_gram_pesanan' => 500,
+            'jumlah_pcs' => 2,
+            'harga_jual_pesanan' => 60000, // 2 * 30.000
+            'tanggal_pesanan' => '2026-09-10',
+            'total_pembayaran' => 60000,
+            'status_pembayaran' => 'belum_bayar',
+            'status_pengiriman' => 'Diproses',
+            'metode_pembayaran' => 'belum_bayar',
+            'nominal_dp' => 20000,
+            'sisa_pembayaran' => 40000,
+        ]);
+
+        // Ubah jumlah_pcs dari 2 menjadi 6 (seharusnya total harga jadi 6 * 30.000 = 180.000)
+        $response = $this->actingAs($user)->put('/sales/' . $order->id, [
+            'customer_name' => 'Customer After Edit',
+            'roasted_bean_id' => $roastedBean->id,
+            'finished_good_id' => $roastedBean->id . '-250',
+            'jumlah_pcs' => 6,
+            'jumlah_gram_pesanan' => 1500,
+            'harga_jual_pesanan' => 999, // Angka sembarang harus diabaikan dan dihitung otomatis
+            'status_pengiriman' => 'Diproses',
+            'metode_pembayaran' => 'belum_bayar',
+            'nominal_dp' => 50000,
+        ]);
+
+        $response->assertRedirect('/sales?tab=external');
+
+        $this->assertDatabaseHas('pesanan_keluar', [
+            'id' => $order->id,
+            'nama_pesanan' => 'Customer After Edit',
+            'jumlah_pcs' => 6,
+            'harga_jual_pesanan' => 180000, // 6 * 30.000
+            'total_pembayaran' => 180000,
+            'nominal_dp' => 50000,
+            'sisa_pembayaran' => 130000, // 180.000 - 50.000
+            'status_pembayaran' => 'belum_bayar',
+        ]);
+    }
 }

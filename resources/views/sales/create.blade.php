@@ -118,7 +118,7 @@
                         <span class="font-bold text-primary" x-text="'Rp ' + selectedGood.hpp_per_pcs.toLocaleString('id-ID')"></span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-muted-foreground">Harga Jual Disarankan (+50%):</span>
+                        <span class="text-muted-foreground">Harga Jual :</span>
                         <span class="font-bold text-secondary" x-text="'Rp ' + selectedGood.harga_jual_per_pcs.toLocaleString('id-ID') + ' / Pcs'"></span>
                     </div>
                 </div>
@@ -175,13 +175,15 @@
 
                 <!-- Total Harga Jual (harga_jual_pesanan) -->
                 <div class="space-y-1.5">
-                    <label for="harga_jual_pesanan_display" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Harga Transaksi (Rp)</label>
-                    <input type="text" id="harga_jual_pesanan_display" required 
-                           :value="window.formatRupiahString(totalPrice)" 
-                           @input="totalPrice = window.parseRupiahString($event.target.value)" 
-                           placeholder="0" 
-                           :class="isSellingBelowHpp ? 'border-red-500 text-red-600 focus:border-red-500 focus:ring-red-500/50' : 'border-border text-primary focus:border-primary focus:ring-primary/50'"
-                           class="w-full bg-background border-2 rounded-xl px-4 py-3.5 text-2xl font-mono font-black focus:outline-none focus:ring-2 transition-all">
+                    <div class="flex justify-between items-center">
+                        <label for="harga_jual_pesanan_display" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Harga Transaksi (Rp)</label>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="harga_jual_pesanan_display" readonly
+                               :value="window.formatRupiahString(totalPrice)" 
+                               placeholder="0" 
+                               class="w-full bg-muted/40 border-2 border-border/70 text-primary rounded-xl px-4 py-3.5 text-2xl font-mono font-black focus:outline-none cursor-not-allowed select-none transition-all">
+                    </div>
                     <input type="hidden" name="harga_jual_pesanan" :value="totalPrice || 0">
                     
                     <template x-if="isSellingBelowHpp">
@@ -224,7 +226,7 @@
                                @input="nominalDp = window.parseRupiahString($event.target.value)" 
                                placeholder="0" 
                                class="w-full bg-background border-2 border-secondary/50 rounded-xl px-4 py-3 text-xl font-mono font-black focus:outline-none focus:ring-2 focus:ring-secondary/50 text-secondary transition-all">
-                        <input type="hidden" name="nominal_dp" :value="nominalDp || 0">
+                        <input type="hidden" name="nominal_dp" id="nominal_dp" :value="nominalDp || 0">
                     </div>
                     
                     <div class="flex justify-between items-center pt-2 border-t border-secondary/20">
@@ -309,7 +311,20 @@
             submitForm(e) {
                 const nominalDpInput = e.target.querySelector('#nominal_dp');
                 if (nominalDpInput) {
-                    nominalDpInput.value = String(this.nominalDp || 0);
+                    nominalDpInput.value = String(this.paymentMethod === 'belum_bayar' ? (this.nominalDp || 0) : 0);
+                }
+
+                if (!this.selectedGood) {
+                    alert('Silakan pilih Produk Jadi terlebih dahulu!');
+                    return;
+                }
+                if (!this.quantityPcs || this.quantityPcs <= 0) {
+                    alert('Silakan masukkan Jumlah Pesanan (Pcs) yang valid!');
+                    return;
+                }
+                if (!this.totalPrice || this.totalPrice <= 0) {
+                    alert('Total harga transaksi belum terhitung!');
+                    return;
                 }
 
                 if (this.paymentMethod === 'lunas') {
@@ -322,8 +337,12 @@
                         return;
                     }
                 } else if (this.paymentMethod === 'belum_bayar') {
-                    if (this.nominalDp === null || this.nominalDp === '' || this.nominalDp == 0) {
-                        alert('Silakan masukkan nominal yang sudah dibayar dari pelanggan!');
+                    if (this.nominalDp === null || this.nominalDp === '' || this.nominalDp <= 0) {
+                        alert('Silakan masukkan nominal yang sudah dibayar (DP) dari pelanggan!');
+                        return;
+                    }
+                    if (parseInt(this.nominalDp) > parseInt(this.totalPrice)) {
+                        alert('Nominal DP (Rp ' + parseInt(this.nominalDp).toLocaleString('id-ID') + ') tidak boleh melebihi Total Harga Transaksi (Rp ' + parseInt(this.totalPrice).toLocaleString('id-ID') + ')!');
                         return;
                     }
                 }
