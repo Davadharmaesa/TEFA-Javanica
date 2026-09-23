@@ -273,6 +273,17 @@
                 @endif
             </div>
         </div>
+    </div>
+
+    <div x-show="activeTab === 'external'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
+        <div class="px-6 py-4 border-b border-border/50 bg-primary/5 flex justify-between items-center">
+            <div>
+                <h2 class="text-lg font-heading font-bold text-primary">Daftar Pre-Order Eksternal</h2>
+                <p class="text-xs text-muted-foreground mt-1">Pesanan dari luar kampus (seperti kafe atau pelanggan umum).</p>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="hidden md:table w-full text-left border-collapse min-w-[950px]">
                 <thead>
                     <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                         <th class="p-4 pl-6 whitespace-nowrap w-[8%]">ID</th>
@@ -446,7 +457,6 @@
             @endforelse
         </div>
 
-
         <!-- Pagination Controls -->
         <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
             <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
@@ -498,7 +508,6 @@
                 <button type="submit" class="w-full rounded-xl bg-primary px-4 py-3 font-black text-primary-foreground hover:bg-primary/90">Simpan Pembayaran</button>
             </form>
         </div>
-
     </div>
 </div>
 @endsection

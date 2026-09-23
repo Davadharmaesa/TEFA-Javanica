@@ -168,17 +168,7 @@
     </script>
 </head>
 <body class="antialiased" x-data="{
-    isCollapsed: (() => {
-        try {
-            const s = localStorage.getItem('sidebarCollapsed');
-            const val = (s !== null) ? (s === 'true') : (window.innerWidth < 1024);
-            // Langsung simpan supaya state konsisten di semua halaman
-            localStorage.setItem('sidebarCollapsed', String(val));
-            return val;
-        } catch(e) {
-            return window.innerWidth < 1024;
-        }
-    })() ,
+    isCollapsed: localStorage.getItem('sidebarCollapsed') === 'true',
     isMobileOpen: false
 }">
 
