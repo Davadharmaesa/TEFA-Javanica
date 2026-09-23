@@ -146,49 +146,6 @@
                 >Selanjutnya</button>
             </div>
         </div>
-    </div>
-
-    <div x-show="activeTab === 'greenbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
-        <div class="overflow-x-auto">
-            <table class="hidden md:table w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
-                        <th class="p-4 pl-6">Nama Biji Mentah</th>
-                        <th class="p-4">Asal</th>
-                        <th class="p-4 text-right">Stok (Kg)</th>
-                        <th class="p-4 text-center pr-6">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-border/30">
-                    <template x-for="item in paginatedGreenBeans" :key="item.id">
-                        <tr class="hover:bg-muted/10 transition-colors group">
-                            <td class="p-4 pl-6">
-                                <p class="font-bold text-primary group-hover:text-secondary transition-colors" x-text="item.nama_biji"></p>
-                            </td>
-                            <td class="p-4 align-middle">
-                                <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-wide shadow-sm border border-accent/20" x-text="item.asal_kopi"></span>
-                            </td>
-                            <td class="p-4 text-right font-mono font-bold" :class="(item.stok_gram/1000) < 10 ? 'text-red-500' : 'text-primary'">
-                                <span x-text="(item.stok_gram / 1000).toFixed(1)"></span> Kg
-                            </td>
-                            <td class="p-4 text-center pr-6">
-                                <div class="flex justify-center gap-1">
-                                    <button @click="editGreenBean(item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                    </button>
-                                    <button @click="openDeleteModal(item)" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
-        </div>
-        <!-- Mobile Card List View -->
-        <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
-            <template x-for="item in paginatedGreenBeans" :key="item.id">
                 <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
                     <div class="flex justify-between items-start">
                         <h4 class="font-bold text-primary text-sm" x-text="item.nama_biji"></h4>
@@ -239,49 +196,6 @@
                 >Selanjutnya</button>
             </div>
         </div>
-    </div>
-
-    <div x-show="activeTab === 'roastedbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
-        <div class="overflow-x-auto">
-            <table class="hidden md:table w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
-                        <th class="p-4 pl-6">Nama Produk Jadi</th>
-                        <th class="p-4">Bentuk</th>
-                        <th class="p-4 text-right">Stok (Kg)</th>
-                        <th class="p-4 text-center pr-6">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-border/30">
-                    <template x-for="item in paginatedRoastedBeans" :key="item.id">
-                        <tr class="hover:bg-muted/10 transition-colors group">
-                            <td class="p-4 pl-6">
-                                <p class="font-bold text-primary group-hover:text-secondary transition-colors" x-text="item.nama_kopi"></p>
-                            </td>
-                            <td class="p-4 align-middle">
-                                <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-wide shadow-sm border border-primary/20" x-text="item.bentuk_akhir"></span>
-                            </td>
-                            <td class="p-4 text-right font-mono font-bold text-primary">
-                                <span x-text="(item.total_stok / 1000).toFixed(1)"></span> Kg
-                            </td>
-                            <td class="p-4 text-center pr-6">
-                                <div class="flex justify-center gap-1">
-                                    <button @click="editRoastedBean(item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                    </button>
-                                    <button @click="openDeleteModal(item)" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
-        </div>
-        <!-- Mobile Card List View -->
-        <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
-            <template x-for="item in paginatedRoastedBeans" :key="item.id">
                 <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
                     <div class="flex justify-between items-start">
                         <h4 class="font-bold text-primary text-sm" x-text="item.nama_kopi"></h4>
@@ -332,61 +246,6 @@
                 >Selanjutnya</button>
             </div>
         </div>
-    </div>
-
-    <div x-show="activeTab === 'packaging'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
-        <div class="overflow-x-auto">
-            <table class="hidden md:table w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
-                        <th class="p-4 pl-6">Tipe</th>
-                        <th class="p-4">Nama Item</th>
-                        <th class="p-4">Kapasitas (Gram)</th>
-                        <th class="p-4">Satuan</th>
-                        <th class="p-4 text-right">Harga Satuan (Rp)</th>
-                        <th class="p-4 text-right">Stok</th>
-                        <th class="p-4 text-center pr-6">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-border/30">
-                    <template x-for="item in paginatedPackaging" :key="item.id">
-                        <tr class="hover:bg-muted/10 transition-colors group">
-                            <td class="p-4 pl-6 align-middle">
-                                <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-wide shadow-sm border border-accent/20" x-text="item.tipe"></span>
-                            </td>
-                            <td class="p-4">
-                                <p class="font-bold text-primary group-hover:text-secondary transition-colors" x-text="item.nama_kemasan"></p>
-                            </td>
-                            <td class="p-4">
-                                <span class="text-sm font-mono text-muted-foreground" x-text="item.tipe === 'Stiker' ? '-' : item.kapasitas_gram + 'g'"></span>
-                            </td>
-                            <td class="p-4">
-                                <span class="px-2 py-0.5 bg-muted-foreground/10 text-muted-foreground text-[10px] font-bold rounded-md uppercase tracking-wider border border-border" x-text="item.satuan || 'pcs'"></span>
-                            </td>
-                            <td class="p-4 text-right font-mono font-bold text-primary">
-                                Rp <span x-text="formatRupiah(item.harga_satuan)"></span>
-                            </td>
-                            <td class="p-4 text-right font-mono font-bold" :class="item.stok_pcs < 50 ? 'text-red-500' : 'text-primary'">
-                                <span x-text="item.stok_pcs"></span> <span x-text="item.satuan || 'pcs'" class="text-xs"></span>
-                            </td>
-                            <td class="p-4 text-center pr-6">
-                                <div class="flex justify-center gap-1">
-                                    <button @click="editPackaging(item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                    </button>
-                                    <button @click="openDeleteModal(item)" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
-        </div>
-        <!-- Mobile Card List View -->
-        <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
-            <template x-for="item in paginatedPackaging" :key="item.id">
                 <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
                     <div class="flex justify-between items-start">
                         <div>
@@ -425,6 +284,7 @@
             </template>
         </div>
 
+
         <!-- Pagination Controls -->
         <div class="px-6 py-4 border-t border-border/30 bg-muted/10 flex flex-col sm:flex-row justify-between items-center gap-4">
             <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
@@ -448,6 +308,7 @@
                 >Selanjutnya</button>
             </div>
         </div>
+
     </div>
 
     <div x-show="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">

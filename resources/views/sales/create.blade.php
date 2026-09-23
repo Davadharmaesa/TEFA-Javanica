@@ -176,12 +176,20 @@
                 <!-- Total Harga Jual (harga_jual_pesanan) -->
                 <div class="space-y-1.5">
                     <label for="harga_jual_pesanan_display" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Harga Transaksi (Rp)</label>
-                    <input type="text" id="harga_jual_pesanan_display" required 
-                           :value="window.formatRupiahString(totalPrice)" 
-                           @input="totalPrice = window.parseRupiahString($event.target.value)" 
-                           placeholder="0" 
-                           :class="isSellingBelowHpp ? 'border-red-500 text-red-600 focus:border-red-500 focus:ring-red-500/50' : 'border-border text-primary focus:border-primary focus:ring-primary/50'"
-                           class="w-full bg-background border-2 rounded-xl px-4 py-3.5 text-2xl font-mono font-black focus:outline-none focus:ring-2 transition-all">
+                    @if(auth()->check() && auth()->user()->role === 'PIC')
+                        <input type="text" id="harga_jual_pesanan_display" required 
+                               :value="window.formatRupiahString(totalPrice)" 
+                               @input="totalPrice = window.parseRupiahString($event.target.value)" 
+                               placeholder="0" 
+                               :class="isSellingBelowHpp ? 'border-red-500 text-red-600 focus:border-red-500 focus:ring-red-500/50' : 'border-border text-primary focus:border-primary focus:ring-primary/50'"
+                               class="w-full bg-background border-2 rounded-xl px-4 py-3.5 text-2xl font-mono font-black focus:outline-none focus:ring-2 transition-all">
+                    @else
+                        <input type="text" id="harga_jual_pesanan_display" required readonly
+                               :value="window.formatRupiahString(totalPrice)" 
+                               placeholder="0" 
+                               class="w-full bg-muted/40 border-2 border-border/50 rounded-xl px-4 py-3.5 text-2xl font-mono font-black text-muted-foreground focus:outline-none cursor-not-allowed"
+                               title="Harga paten, tidak dapat diubah oleh Kasir">
+                    @endif
                     <input type="hidden" name="harga_jual_pesanan" :value="totalPrice || 0">
                     
                     <template x-if="isSellingBelowHpp">

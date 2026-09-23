@@ -146,20 +146,25 @@ class HppController extends Controller
             'biaya_gaji' => 'required|numeric',
             'biaya_kemasan' => 'required|numeric',
             'total_hpp' => 'required|numeric',
+            'harga_jual_final' => 'required|numeric',
         ]);
 
-        HppCalculation::updateOrCreate(
-            ['roasting_batch_id' => $request->roasting_batch_id],
-            [
-                'biaya_bahan_baku' => $request->biaya_bahan_baku,
-                'biaya_listrik' => $request->biaya_listrik,
-                'biaya_penyusutan' => $request->biaya_penyusutan,
-                'biaya_gaji' => $request->biaya_gaji,
-                'biaya_kemasan' => $request->biaya_kemasan,
-                'hasil_kemasan_pcs' => $request->hasil_kemasan_pcs,
-                'total_hpp' => $request->total_hpp,
-            ]
-        );
+        // Prevent duplicate calculation for the same batch
+        if (HppCalculation::where('roasting_batch_id', $request->roasting_batch_id)->exists()) {
+            return back()->with('error', 'Batch ini sudah dihitung HPP-nya.');
+        }
+
+        HppCalculation::create([
+            'roasting_batch_id' => $request->roasting_batch_id,
+            'hasil_kemasan_pcs' => $request->hasil_kemasan_pcs,
+            'biaya_bahan_baku' => $request->biaya_bahan_baku,
+            'biaya_listrik' => $request->biaya_listrik,
+            'biaya_penyusutan' => $request->biaya_penyusutan,
+            'biaya_gaji' => $request->biaya_gaji,
+            'biaya_kemasan' => $request->biaya_kemasan,
+            'total_hpp' => $request->total_hpp,
+            'harga_jual_final' => $request->harga_jual_final,
+        ]);
 
         return redirect()->route('hpp.index')->with('success', 'Laporan HPP berhasil disimpan.');
     }

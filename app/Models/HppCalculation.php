@@ -15,6 +15,7 @@ class HppCalculation extends Model
         'biaya_kemasan',
         'hasil_kemasan_pcs',
         'total_hpp',
+        'harga_jual_final',
     ];
 
     public function roastingBatch()

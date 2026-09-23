@@ -155,13 +155,15 @@ class SalesController extends Controller
 
         if ($latestHpp && $latestHpp->hasil_kemasan_pcs > 0) {
             $hppPerPcs = round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs);
+            $hargaJualFinal = $latestHpp->harga_jual_final ?? 0;
         } else {
-            $hppPerPcs = round(($packaging->harga_satuan ?? 0) * 10);
+            $hppPerPcs = 0;
+            $hargaJualFinal = 0;
         }
 
         return [
             'hpp_per_pcs' => $hppPerPcs,
-            'harga_jual_per_pcs' => round($hppPerPcs * 1.5),
+            'harga_jual_per_pcs' => $hargaJualFinal,
         ];
     }
 
@@ -169,7 +171,7 @@ class SalesController extends Controller
     {
         $existingFinishedGoods = \App\Models\FinishedGood::with(['roastedBean', 'packaging'])->get();
         $beans = RoastedBean::all();
-        $pouches = Packaging::where('tipe', 'like', '%Pouch%')->get();
+        $pouches = Packaging::where('kapasitas_gram', '>', 0)->get();
         if ($pouches->isEmpty()) {
             $pouches = Packaging::all();
         }
@@ -183,6 +185,10 @@ class SalesController extends Controller
                 });
 
                 $pricing = $this->calculateProductPricing($bean->id, $pouch);
+                if ($pricing['harga_jual_per_pcs'] <= 0) {
+                    continue; // Strict mode: Do not show items without a final selling price from HPP
+                }
+
                 $hppPerPcs = $pricing['hpp_per_pcs'];
                 $suggestedPricePerPcs = $pricing['harga_jual_per_pcs'];
 
@@ -424,7 +430,7 @@ class SalesController extends Controller
         
         if ($finishedGoods->isEmpty()) {
             $beans = RoastedBean::all();
-            $pouches = Packaging::where('tipe', 'like', '%Pouch%')->get();
+            $pouches = Packaging::where('kapasitas_gram', '>', 0)->get();
             if ($pouches->isEmpty()) {
                 $pouches = Packaging::all();
             }
@@ -433,6 +439,10 @@ class SalesController extends Controller
             foreach ($beans as $bean) {
                 foreach ($pouches as $pouch) {
                     $pricing = $this->calculateProductPricing($bean->id, $pouch);
+                    if ($pricing['harga_jual_per_pcs'] <= 0) {
+                        continue; // Strict mode
+                    }
+
                     $hppPerPcs = $pricing['hpp_per_pcs'];
                     $suggestedPricePerPcs = $pricing['harga_jual_per_pcs'];
 
@@ -451,6 +461,10 @@ class SalesController extends Controller
         } else {
             $finishedGoods = $finishedGoods->map(function($item) {
                 $pricing = $this->calculateProductPricing($item->roasted_bean_id, $item->packaging);
+                if ($pricing['harga_jual_per_pcs'] <= 0) {
+                    return null; // Strict mode
+                }
+
                 $hppPerPcs = $pricing['hpp_per_pcs'];
                 $suggestedPricePerPcs = $pricing['harga_jual_per_pcs'];
                 

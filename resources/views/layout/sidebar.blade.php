@@ -1,8 +1,8 @@
 <!-- Backdrop Gelap Mobile -->
 <div 
-    x-show="mobileSidebarOpen" 
+    x-show="isMobileOpen" 
     x-cloak 
-    @click="mobileSidebarOpen = false" 
+    @click="isMobileOpen = false" 
     class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 md:hidden transition-opacity duration-300"
     x-transition:enter="transition ease-out duration-300"
     x-transition:enter-start="opacity-0"
@@ -16,10 +16,31 @@
     x-init="$nextTick(() => { $el.classList.remove('sidebar-pre-collapsed') })"
     class="flex flex-col bg-card shadow-md h-full z-40 fixed inset-y-0 left-0 md:relative md:translate-x-0 transition-all duration-300 ease-in-out border-r border-border w-64 md:flex-shrink-0" 
     :class="[
-        isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0', 
+        isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         isCollapsed ? 'md:w-20' : 'md:w-56'
     ]"
 >
+
+    <style>
+        /* Mencegah glitch teks meluber saat render pertama kali sebelum Alpine.js aktif */
+        aside.sidebar-pre-collapsed {
+            width: 5rem !important; /* Setara w-20 */
+        }
+        aside.sidebar-pre-collapsed h1,
+        aside.sidebar-pre-collapsed p.text-muted-foreground.font-mono,
+        aside.sidebar-pre-collapsed nav a span,
+        aside.sidebar-pre-collapsed div.flex-1.whitespace-nowrap,
+        aside.sidebar-pre-collapsed form button span {
+            display: none !important;
+        }
+        aside.sidebar-pre-collapsed nav a,
+        aside.sidebar-pre-collapsed div.p-3.space-y-3 > div,
+        aside.sidebar-pre-collapsed form button {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+            justify-content: center !important;
+        }
+    </style>
 
     <!-- Toggle Button (Desktop/Tablet only) -->
     <button 
@@ -60,10 +81,6 @@
                     </button>
                 </div>
             </div>
-            <!-- Tombol Tutup (mobile only) -->
-            <button @click="mobileSidebarOpen = false" class="md:hidden text-muted-foreground hover:text-primary transition-colors p-1.5 hover:bg-muted/50 rounded-xl" title="Tutup Menu">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
         </div>
     </div>
 

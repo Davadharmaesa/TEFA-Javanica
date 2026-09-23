@@ -279,77 +279,6 @@
                 >Selanjutnya</button>
             </div>
         </div>
-    </div>
-
-    <!-- Tab Content: Roasted Bean -->
-    <div x-show="activeTab === 'roastedbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden" style="display: none;">
-        <div class="overflow-x-auto">
-            <table class="hidden md:table w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
-                        <th class="p-4">ID / Kode Batch</th>
-                        <th class="p-4">Produk Kopi</th>
-                        <th class="p-4">Profil Sangrai</th>
-                        <th class="p-4">Tgl & Expire</th>
-                        <th class="p-4 text-right">Stok (Kg)</th>
-                        <th class="p-4 text-right">Sisa (Gram)</th>
-                        <th class="p-4 text-center">Status</th>
-                        @if(auth()->user() && in_array(strtolower(auth()->user()->role), ['pic', 'operator']))
-                        <th class="p-4 text-center">Aksi</th>
-                        @endif
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-border/30">
-                    <template x-for="item in paginatedRoastingBatches" :key="item.id">
-                        <tr class="hover:bg-muted/10 transition-colors group">
-                            <td class="p-4 whitespace-nowrap">
-                                <span class="text-sm font-mono text-muted-foreground" x-text="item.kode"></span>
-                            </td>
-                            <td class="p-4">
-                                <p class="font-bold text-primary" x-text="item.nama"></p>
-                            </td>
-                            <td class="p-4 align-middle">
-                                <span class="inline-block whitespace-nowrap px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-wide" x-text="item.bentuk"></span>
-                            </td>
-                            <td class="p-4 whitespace-nowrap">
-                                <p class="text-xs font-bold text-muted-foreground">Roast: <span x-text="item.tanggal_roasting"></span></p>
-                                <p class="text-xs font-bold text-red-500">Exp: <span x-text="item.tanggal_expire"></span></p>
-                            </td>
-                            <td class="p-4 text-right font-mono font-bold text-primary whitespace-nowrap">
-                                <span x-text="item.stok"></span> Kg
-                            </td>
-                            <td class="p-4 text-right font-mono font-bold text-yellow-600 whitespace-nowrap">
-                                <span x-text="item.sisa_stok"></span> g
-                            </td>
-                            <td class="p-4 text-center whitespace-nowrap">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-600">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Masuk Gudang
-                                </span>
-                            </td>
-                            @if(auth()->user() && in_array(strtolower(auth()->user()->role), ['pic', 'operator']))
-                            <td class="p-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <button @click="openModal('edit', 'roastedbean', item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Edit Stok Batch">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                    </button>
-                                    <form :action="'/inventory/roasted-bean/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data Batch Roasting ini? Total stok Gudang juga akan otomatis berkurang.');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus Batch">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                            @endif
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
-        </div>
-        <!-- Mobile Card List View -->
-        <div class="grid grid-cols-1 gap-4 p-4 md:hidden">
-            <template x-for="item in paginatedRoastingBatches" :key="item.id">
                 <div class="bg-background border border-border/50 rounded-xl p-4 space-y-3 shadow-sm relative group">
                     <div class="flex justify-between items-start">
                         <div>
@@ -427,20 +356,6 @@
                 >Selanjutnya</button>
             </div>
         </div>
-    </div>
-
-    <!-- Tab Content: Produk Kemasan -->
-    <div x-show="activeTab === 'produk'" x-transition.opacity.duration.300ms class="space-y-6" style="display: none;">
-        
-        <!-- Tabel Produk Siap Jual -->
-        <div class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="hidden md:table w-full text-left border-collapse table-fixed">
-                    <colgroup>
-                        <col class="w-3/5">
-                        <col class="w-1/5">
-                        <col class="w-1/5">
-                    </colgroup>
                     <thead>
                         <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                             <th class="p-4">Nama Produk (Kopi & Kemasan)</th>
@@ -538,21 +453,6 @@
                     >Selanjutnya</button>
                 </div>
             </div>
-        </div>
-
-        <!-- Tabel Kemasan Kosong -->
-        <div class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="hidden md:table w-full text-left border-collapse table-fixed">
-                    <colgroup>
-                        <col class="w-[40%]">
-                        <col class="w-[20%]">
-                        <col class="w-[14%]">
-                        <col class="w-[16%]">
-                        @if(auth()->user() && in_array(strtolower(auth()->user()->role), ['pic', 'operator']))
-                        <col class="w-[10%]">
-                        @endif
-                    </colgroup>
                     <thead>
                         <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
                             <th class="p-4">Nama Kemasan Kosong</th>
