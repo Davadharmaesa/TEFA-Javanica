@@ -213,6 +213,20 @@ class SalesController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->filled('finished_good_id') && $request->filled('jumlah_pcs')) {
+            $parts = explode('-', (string) $request->input('finished_good_id'));
+            $rBeanId = (int) ($parts[0] ?? $request->input('roasted_bean_id'));
+            $bGram = (int) ($parts[1] ?? 0);
+            $pouch = Packaging::where('kapasitas_gram', $bGram)->first();
+            $pricing = $this->calculateProductPricing($rBeanId, $pouch);
+            $pcs = (int) $request->input('jumlah_pcs');
+            if ($pcs > 0 && ($pricing['harga_jual_per_pcs'] ?? 0) > 0) {
+                $request->merge([
+                    'harga_jual_pesanan' => $pcs * $pricing['harga_jual_per_pcs'],
+                ]);
+            }
+        }
+
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
             'roasted_bean_id' => 'required|exists:roasted_bean,id',
@@ -221,11 +235,11 @@ class SalesController extends Controller
             'status_pengiriman' => 'required|string',
             'finished_good_id' => 'nullable|string',
             'jumlah_pcs' => 'nullable|integer|min:1',
-            'tanggal_pesanan' => 'nullable|date|after_or_equal:today',
-            'metode_pembayaran' => 'nullable|string|in:lunas,belum_bayar',
+            'tanggal_pesanan' => 'nullable|date',
+            'metode_pembayaran' => 'nullable|string|in:lunas,belum_bayar,dp',
             'nominal_dp' => 'nullable|integer|min:0|lte:harga_jual_pesanan',
             'tanggal_bayar_dp' => 'nullable|date',
-            'batas_waktu_pembayaran' => 'nullable|date|after_or_equal:today',
+            'batas_waktu_pembayaran' => 'nullable|date',
             'status_pengambilan' => 'nullable|string|in:Belum Diambil,Sudah Diambil',
             'tipe_pesanan'       => 'nullable|string|in:internal,eksternal',
         ]);
@@ -261,6 +275,13 @@ class SalesController extends Controller
                     }
                 }
             }
+        }
+
+        // Automatic transaction total calculation based on product pricing
+        $packaging = $packagingId ? Packaging::find($packagingId) : null;
+        $pricing = $this->calculateProductPricing($roastedBean->id, $packaging);
+        if ($jumlahPcs > 0 && ($pricing['harga_jual_per_pcs'] ?? 0) > 0) {
+            $validated['harga_jual_pesanan'] = $jumlahPcs * $pricing['harga_jual_per_pcs'];
         }
 
         try {
@@ -322,13 +343,14 @@ class SalesController extends Controller
 
             // Prepare payment
             $total = $validated['harga_jual_pesanan'];
-            $metode = $validated['metode_pembayaran'] ?? 'lunas';
+            $rawMetode = $validated['metode_pembayaran'] ?? 'lunas';
+            $metode = ($rawMetode === 'dp' || $rawMetode === 'belum_bayar') ? 'belum_bayar' : 'lunas';
             $nominalDp = $validated['nominal_dp'] ?? null;
             $sisa = null;
             if ($metode === 'belum_bayar') {
-                $nominalDp = (int) ($nominalDp ?? 0);
+                $nominalDp = min((int) ($nominalDp ?? 0), $total);
                 $sisa = max(0, $total - $nominalDp);
-                $statusPembayaran = $sisa === 0 ? 'lunas' : 'belum_bayar';
+                $statusPembayaran = ($rawMetode === 'dp' && $nominalDp > 0 && $sisa > 0) ? 'dp' : ($sisa === 0 ? 'lunas' : 'belum_bayar');
             } else {
                 $statusPembayaran = 'lunas';
                 $sisa = 0;
@@ -488,6 +510,20 @@ class SalesController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if ($request->filled('finished_good_id') && $request->filled('jumlah_pcs')) {
+            $parts = explode('-', (string) $request->input('finished_good_id'));
+            $rBeanId = (int) ($parts[0] ?? $request->input('roasted_bean_id'));
+            $bGram = (int) ($parts[1] ?? 0);
+            $pouch = Packaging::where('kapasitas_gram', $bGram)->first();
+            $pricing = $this->calculateProductPricing($rBeanId, $pouch);
+            $pcs = (int) $request->input('jumlah_pcs');
+            if ($pcs > 0 && ($pricing['harga_jual_per_pcs'] ?? 0) > 0) {
+                $request->merge([
+                    'harga_jual_pesanan' => $pcs * $pricing['harga_jual_per_pcs'],
+                ]);
+            }
+        }
+
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
             'roasted_bean_id' => 'required|exists:roasted_bean,id',
@@ -496,11 +532,11 @@ class SalesController extends Controller
             'status_pengiriman' => 'required|string',
             'finished_good_id' => 'nullable|string',
             'jumlah_pcs' => 'nullable|integer|min:1',
-            'tanggal_pesanan' => 'nullable|date|after_or_equal:today',
-            'metode_pembayaran' => 'nullable|string|in:lunas,belum_bayar',
+            'tanggal_pesanan' => 'nullable|date',
+            'metode_pembayaran' => 'nullable|string|in:lunas,belum_bayar,dp',
             'nominal_dp' => 'nullable|integer|min:0|lte:harga_jual_pesanan',
             'tanggal_bayar_dp' => 'nullable|date',
-            'batas_waktu_pembayaran' => 'nullable|date|after_or_equal:today',
+            'batas_waktu_pembayaran' => 'nullable|date',
             'status_pengambilan' => 'nullable|string|in:Belum Diambil,Sudah Diambil',
             'tipe_pesanan'       => 'nullable|string|in:internal,eksternal',
         ]);
@@ -637,15 +673,23 @@ class SalesController extends Controller
                 }
             }
 
+            // Automatic transaction total calculation based on product pricing
+            $packaging = $packagingId ? Packaging::find($packagingId) : null;
+            $pricing = $this->calculateProductPricing($roastedBean->id, $packaging);
+            if ($jumlahPcs > 0 && ($pricing['harga_jual_per_pcs'] ?? 0) > 0) {
+                $validated['harga_jual_pesanan'] = $jumlahPcs * $pricing['harga_jual_per_pcs'];
+            }
+
             // Prepare payment
             $total = $validated['harga_jual_pesanan'];
-            $metode = $validated['metode_pembayaran'] ?? 'lunas';
+            $rawMetode = $validated['metode_pembayaran'] ?? 'lunas';
+            $metode = ($rawMetode === 'dp' || $rawMetode === 'belum_bayar') ? 'belum_bayar' : 'lunas';
             $nominalDp = $validated['nominal_dp'] ?? null;
             $sisa = null;
             if ($metode === 'belum_bayar') {
-                $nominalDp = (int) ($nominalDp ?? 0);
+                $nominalDp = min((int) ($nominalDp ?? 0), $total);
                 $sisa = max(0, $total - $nominalDp);
-                $statusPembayaran = $sisa === 0 ? 'lunas' : 'belum_bayar';
+                $statusPembayaran = ($rawMetode === 'dp' && $nominalDp > 0 && $sisa > 0) ? 'dp' : ($sisa === 0 ? 'lunas' : 'belum_bayar');
             } else {
                 $statusPembayaran = 'lunas';
                 $sisa = 0;

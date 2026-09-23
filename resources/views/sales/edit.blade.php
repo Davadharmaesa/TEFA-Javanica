@@ -86,7 +86,7 @@
                 <!-- Dropdown Produk Jadi (Finished Goods) -->
                 <div class="space-y-1.5">
                     <label for="finished_good_id" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Produk Jadi (Kopi & Kemasan)</label>
-                    <select id="finished_good_id" name="finished_good_id" required x-model="selectedGoodId" @change="updateSelectedGood(true)" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
+                    <select id="finished_good_id" name="finished_good_id" required x-model="selectedGoodId" @change="updateSelectedGood()" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer">
                         <option value="" disabled>-- Pilih Produk Jadi --</option>
                         @foreach($finishedGoods as $good)
                             <option value="{{ $good['roasted_bean_id'] }}-{{ $good['berat_gram'] }}">
@@ -193,10 +193,21 @@
                 </div>
 
                 <!-- Sisa Pembayaran (Hanya jika Belum Bayar) -->
-                <div x-show="paymentMethod === 'belum_bayar'" x-transition class="space-y-1.5" style="display: none;">
-                    <label for="nominal_dp" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Sudah Dibayar / DP (Rp)</label>
-                    <input type="text" id="nominal_dp" name="nominal_dp" :value="window.formatRupiahString(nominalDp)" @input="nominalDp = window.parseRupiahString($event.target.value)" placeholder="0" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-xl font-mono font-black text-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
-                    <div class="w-full bg-muted/20 border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-muted-foreground" x-text="'Sisa: Rp ' + sisaPembayaran.toLocaleString('id-ID')"></div>
+                <div x-show="paymentMethod === 'belum_bayar'" x-transition class="space-y-3 bg-secondary/5 p-4 rounded-xl border border-secondary/20" style="display: none;">
+                    <div class="space-y-1.5">
+                        <label for="nominal_dp_display" class="text-xs font-bold text-secondary uppercase tracking-wider">Sudah Dibayar / DP (Rp)</label>
+                        <input type="text" id="nominal_dp_display" 
+                               :value="window.formatRupiahString(nominalDp)" 
+                               @input="nominalDp = window.parseRupiahString($event.target.value)" 
+                               placeholder="0" 
+                               class="w-full bg-background border-2 border-secondary/50 rounded-xl px-4 py-3 text-xl font-mono font-black focus:outline-none focus:ring-2 focus:ring-secondary/50 text-secondary transition-all">
+                        <input type="hidden" name="nominal_dp" id="nominal_dp" :value="nominalDp || 0">
+                    </div>
+                    
+                    <div class="flex justify-between items-center pt-2 border-t border-secondary/20">
+                        <span class="text-sm font-bold text-secondary uppercase tracking-wider">Sisa:</span>
+                        <span class="text-2xl font-mono font-black text-secondary" x-text="'Rp ' + Math.max(0, sisaPembayaran).toLocaleString('id-ID')"></span>
+                    </div>
                 </div>
 
                 <!-- Batas Waktu Pembayaran (Hanya jika Belum Bayar) -->
@@ -259,7 +270,31 @@
             submitForm(e) {
                 const nominalDpInput = e.target.querySelector('#nominal_dp');
                 if (nominalDpInput) {
-                    nominalDpInput.value = String(this.nominalDp || 0);
+                    nominalDpInput.value = String(this.paymentMethod === 'belum_bayar' ? (this.nominalDp || 0) : 0);
+                }
+
+                if (!this.selectedGood) {
+                    alert('Silakan pilih Produk Jadi terlebih dahulu!');
+                    return;
+                }
+                if (!this.quantityPcs || this.quantityPcs <= 0) {
+                    alert('Silakan masukkan Jumlah Pesanan (Pcs) yang valid!');
+                    return;
+                }
+                if (!this.totalPrice || this.totalPrice <= 0) {
+                    alert('Total harga transaksi belum terhitung!');
+                    return;
+                }
+
+                if (this.paymentMethod === 'belum_bayar') {
+                    if (this.nominalDp === null || this.nominalDp === '' || this.nominalDp < 0) {
+                        alert('Silakan masukkan nominal yang sudah dibayar (DP) dari pelanggan!');
+                        return;
+                    }
+                    if (parseInt(this.nominalDp) > parseInt(this.totalPrice)) {
+                        alert('Nominal DP (Rp ' + parseInt(this.nominalDp).toLocaleString('id-ID') + ') tidak boleh melebihi Total Harga Transaksi (Rp ' + parseInt(this.totalPrice).toLocaleString('id-ID') + ')!');
+                        return;
+                    }
                 }
 
                 if (this.isSellingBelowHpp) {
@@ -282,16 +317,14 @@
                 return 0;
             },
 
-            updateSelectedGood(recalculate = false) {
+            updateSelectedGood() {
                 if (this.selectedGoodId) {
                     const [beanId, berat] = this.selectedGoodId.split('-');
                     this.selectedGood = this.finishedGoods.find(g => g.roasted_bean_id == beanId && g.berat_gram == berat);
                 } else {
                     this.selectedGood = null;
                 }
-                if (recalculate) {
-                    this.calculatePrices();
-                }
+                this.calculatePrices();
             },
 
             calculatePrices() {
