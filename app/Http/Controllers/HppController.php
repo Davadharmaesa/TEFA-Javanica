@@ -13,11 +13,13 @@ class HppController extends Controller
 {
     public function index()
     {
+        $minPouch = Packaging::where('kapasitas_gram', '>', 0)->min('kapasitas_gram') ?? 100;
+        
         $batches = RoastingBatch::with(['greenBean', 'hppCalculation', 'roastedBean', 'logPekerjas'])
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get()
-            ->map(function ($batch) {
+            ->map(function ($batch) use ($minPouch) {
                 $gb = $batch->greenBean;
                 return [
                     'id' => $batch->id,
@@ -30,7 +32,7 @@ class HppController extends Controller
                     'berat_mentah_gudang' => $batch->berat_mentah_gudang, // kg
                     'berat_matang_bersih' => $batch->berat_matang_bersih, // kg
                     'harga_bahan_baku' => $batch->biaya_bahan_baku, // Total harga bahan baku dari DB (FIFO)
-                    'sudah_dihitung' => $batch->hppCalculation ? true : false,
+                    'sudah_dihitung' => $batch->roastedBean ? ($batch->roastedBean->sisa_stok < $minPouch) : false,
                     'hpp' => $batch->hppCalculation,
                     'log_pekerja_total_upah' => $batch->logPekerjas->sum('total_upah'),
                     'pekerja_list' => $batch->logPekerjas->pluck('nama_pekerja')->unique()->values()->toArray()
@@ -147,11 +149,13 @@ class HppController extends Controller
             'biaya_kemasan' => 'required|numeric',
             'total_hpp' => 'required|numeric',
             'harga_jual_final' => 'required|numeric',
+            'packaging_id' => 'required|exists:packagings,id',
         ]);
 
-        // Prevent duplicate calculation for the same batch
-        if (HppCalculation::where('roasting_batch_id', $request->roasting_batch_id)->exists()) {
-            return back()->with('error', 'Batch ini sudah dihitung HPP-nya.');
+        // Prevent duplicate calculation for the SAME batch and SAME packaging
+        if (HppCalculation::where('roasting_batch_id', $request->roasting_batch_id)
+            ->where('packaging_id', $request->packaging_id)->exists()) {
+            return back()->with('error', 'Batch ini sudah dihitung HPP-nya untuk ukuran kemasan tersebut.');
         }
 
         HppCalculation::create([
@@ -164,6 +168,7 @@ class HppController extends Controller
             'biaya_kemasan' => $request->biaya_kemasan,
             'total_hpp' => $request->total_hpp,
             'harga_jual_final' => $request->harga_jual_final,
+            'packaging_id' => $request->packaging_id,
         ]);
 
         return redirect()->route('hpp.index')->with('success', 'Laporan HPP berhasil disimpan.');

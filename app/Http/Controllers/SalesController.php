@@ -151,7 +151,7 @@ class SalesController extends Controller
 
         $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function ($query) use ($roastedBeanId) {
             $query->where('roasted_bean_id', $roastedBeanId);
-        })->latest()->first();
+        })->where('packaging_id', $packaging->id)->latest()->first();
 
         if ($latestHpp && $latestHpp->hasil_kemasan_pcs > 0) {
             $hppPerPcs = round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs);

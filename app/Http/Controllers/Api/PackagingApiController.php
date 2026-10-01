@@ -119,4 +119,40 @@ class PackagingApiController extends Controller
             ], 500);
         }
     }
+
+    public function clearResidue(Request $request)
+    {
+        $request->validate([
+            'roasted_bean_id' => 'required|exists:roasted_beans,id'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $roastedBean = RoastedBean::findOrFail($request->roasted_bean_id);
+            $sisa = $roastedBean->sisa_stok;
+
+            if ($sisa <= 0) {
+                return response()->json(['message' => 'Tidak ada sisa stok / residu untuk dibersihkan.'], 400);
+            }
+
+            // Set sisa_stok to 0
+            $roastedBean->sisa_stok = 0;
+            $roastedBean->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => "Sisa residu sebanyak {$sisa}g berhasil dibersihkan (Penyusutan).",
+                'data' => [
+                    'cleared_gram' => $sisa
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

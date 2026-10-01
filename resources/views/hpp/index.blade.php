@@ -46,7 +46,10 @@
                 <div class="p-5 space-y-4">
                     <div>
                         <label class="block text-sm font-bold text-primary mb-1">Pilih Batch Roasting (Selesai)</label>
-                        <select x-model="form.selectedBatch" @change="fetchPreview()" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        <select 
+                        x-model="form.selectedBatch" 
+                        @change="fetchPreview()" 
+                        class="w-full bg-background border border-border rounded-xl px-4 py-3 font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
                             <option value="">-- Pilih Batch --</option>
                             <template x-for="batch in batches" :key="batch.id">
                                 <option :value="JSON.stringify(batch)" x-text="batch.kode_batch + ' | ' + batch.green_bean_nama + ' | Berat: ' + batch.berat_matang_bersih + ' kg'"></option>
@@ -78,7 +81,10 @@
 
                     <div>
                         <label class="block text-sm font-bold text-primary mb-1">Pilih Kemasan Utama (Pouch)</label>
-                        <select x-model="form.selectedPouch" @change="onPouchChange($event)" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        <select 
+                        x-model="form.selectedPouch" 
+                        @change="onPouchChange($event)" 
+                        class="w-full bg-background border border-border rounded-xl px-4 py-3 font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
                             <option value="">-- Pilih Pouch --</option>
                             @foreach($packagings->filter(fn($p) => $p->kapasitas_gram > 0) as $pack)
                                 <option value="{{ $pack->id }}" data-hpp="{{ $pack->harga_satuan }}" data-capacity="{{ $pack->kapasitas_gram }}" data-stock="{{ $pack->stok_pcs }}">{{ $pack->nama_kemasan }} (Rp{{ number_format($pack->harga_satuan, 0, ',', '.') }}/pcs)</option>
@@ -88,7 +94,10 @@
 
                     <div>
                         <label class="block text-sm font-bold text-primary mb-1">Pilih Label / Stiker</label>
-                        <select x-model="form.selectedSticker" @change="onStickerChange($event)" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all">
+                        <select 
+                        x-model="form.selectedSticker" 
+                        @change="onStickerChange($event)" 
+                        class="w-full bg-background border border-border rounded-xl px-4 py-3 font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
                             <option value="">-- Pilih Stiker --</option>
                             @foreach($packagings->filter(fn($p) => $p->kapasitas_gram == 0) as $pack)
                                 <option value="{{ $pack->id }}" data-hpp="{{ $pack->harga_satuan }}" data-stock="{{ $pack->stok_pcs }}">{{ $pack->nama_kemasan }} (Rp{{ number_format($pack->harga_satuan, 0, ',', '.') }}/pcs)</option>
@@ -97,12 +106,12 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-primary mb-1">Total Output (Pcs)</label>
+                        <label class="block text-sm font-bold font text-primary mb-1">Total Output (Pcs)</label>
                         <input type="number"
                                readonly
                                x-model="form.hasil_kemasan_pcs" 
-                               class="w-full bg-muted border border-border rounded-xl px-4 py-2.5 focus:outline-none text-foreground cursor-not-allowed font-bold" 
-                               placeholder="Otomatis dihitung dari kapasitas">
+                               class="w-full bg-muted border border-border rounded-xl px-4 py-3 text-primary font-mono focus:outline-none cursor-not-allowed font-bold" 
+                               placeholder="Auto">
                         <p class="text-[10px] text-muted-foreground mt-1" x-show="form.selectedBatch && form.selectedPouch && getMaxPcs() > 0">
                             Maksimum output dari batch & stok kemasan: <span class="font-bold text-secondary" x-text="getMaxPcs() + ' Pcs'"></span>
                         </p>
@@ -116,7 +125,7 @@
                         <input type="number"
                                min="0"
                                x-model="form.harga_jual_final" 
-                               class="w-full bg-background border border-border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all font-black text-xl" 
+                               class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-primary font-mono focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" 
                                placeholder="Contoh: 20000">
                         <p class="text-[10px] text-muted-foreground mt-1">
                             Harga jual ini akan dikunci dan digunakan paten oleh Kasir.
@@ -135,7 +144,7 @@
                         <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-secondary animate-pulse" x-show="loading"></span>
                             <span class="w-2 h-2 rounded-full bg-primary" x-show="!loading"></span>
-                            Rincian HPP Dinamis
+                            Rincian HPP 
                         </h3>
                         
                         <div class="space-y-4">
@@ -221,6 +230,7 @@
                     <input type="hidden" name="biaya_kemasan" :value="preview.biaya_kemasan">
                     <input type="hidden" name="total_hpp" :value="preview.total_hpp">
                     <input type="hidden" name="harga_jual_final" :value="form.harga_jual_final">
+                    <input type="hidden" name="packaging_id" :value="form.selectedPouch">
                     
                     <button type="submit" 
                         class="px-6 py-3 bg-secondary text-white font-bold rounded-xl shadow-md hover:bg-secondary/90 transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed flex items-center gap-2"

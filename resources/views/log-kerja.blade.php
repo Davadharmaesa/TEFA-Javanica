@@ -53,7 +53,11 @@
                     </div>
                     <div class="space-y-1.5">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Nama Pekerja</label>
-                        <input type="text" x-model="form.nama_pekerja" placeholder="Contoh: Budi, Siti" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" required />
+                        <input 
+                        type="text" 
+                        x-model="form.nama_pekerja" 
+                        placeholder="Contoh: Budi, Siti" 
+                        class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" required />
                     </div>
                 </div>
 
@@ -77,9 +81,15 @@
                             Jumlah Kerja
                             <span class="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-black normal-case tracking-wider uppercase" x-text="'Satuan: ' + selectedSatuan"></span>
                         </label>
-                        <!-- REFAKTOR: Input angka diperbesar, tidak ada default 0, spinner hilang -->
-                        <input type="number" min="0.1" step="0.1" x-model="form.jumlah" @wheel="$event.target.blur()" class="w-full bg-background border-2 border-border/80 rounded-xl px-4 py-2.5 text-xl font-mono font-black text-primary text-center focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-muted/50 placeholder:text-sm placeholder:font-sans" placeholder="Ketik jumlah..." required />
-                    </div>
+                        <input 
+                        type="number" 
+                        min="0.1" 
+                        step="0.1" 
+                        x-model="form.jumlah" 
+                        @wheel="$event.target.blur()" 
+                        class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder:text-muted/50 placeholder:font-sans" 
+                        placeholder="Ketik jumlah..." required />
+                    </div>  
                 </div>
 
                 <div class="pt-4 mt-auto flex gap-3">

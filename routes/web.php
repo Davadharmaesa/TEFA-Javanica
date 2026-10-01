@@ -93,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
 
             // Proses Pengemasan
             Route::post('/pengemasan/process', [\App\Http\Controllers\Api\PackagingApiController::class, 'storePackagingProcess']);
+            Route::post('/pengemasan/clear-residue', [\App\Http\Controllers\Api\PackagingApiController::class, 'clearResidue']);
 
             // Log Pekerja API
             Route::get('/log-kerja/batches', [\App\Http\Controllers\Api\LogPekerjaApiController::class, 'getActiveBatches']);
@@ -133,6 +134,7 @@ Route::middleware(['auth'])->group(function () {
             // Reports
             Route::prefix('reports')->name('reports.')->group(function () {
                 Route::get('/', [\App\Http\Controllers\ReportController::class, 'index'])->name('index');
+                Route::get('/export', [\App\Http\Controllers\ReportController::class, 'exportExcel'])->name('export');
             });
 
             // Kalkulator HPP
