@@ -8,8 +8,10 @@ use App\Models\RoastingBatch;
 use App\Models\PesananKeluar;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
+use App\Exports\LaporanKeuanganExport;
+use Maatwebsite\Excel\Facades\Excel;
 
-class ReportController extends Controller
+class ReportController extends Controller 
 {
     public function index(Request $request)
     {
@@ -153,7 +155,20 @@ class ReportController extends Controller
         $start = $request->query('start_date', now()->startOfMonth()->toDateString());
         $end = $request->query('end_date', now()->endOfMonth()->toDateString());
 
-        // Get Inflow
+        // 1. Data Green Bean Entries
+        $greenBeanStockEntries = GreenBeanStock::with('greenBean')
+            ->whereBetween('tanggal_beli', [$start, $end])
+            ->orderBy('tanggal_beli', 'desc')
+            ->get();
+
+        // 2. Data Roasting Batch Entries
+        $roastingBatchEntries = RoastingBatch::with(['user', 'roastedBean'])
+            ->whereBetween('tanggal_roasting', [$start, $end])
+            ->where('status_batch', 'completed')
+            ->orderBy('tanggal_roasting', 'desc')
+            ->get();
+
+        // 3. Data Inflow
         $inflowData = PesananKeluar::whereBetween('pesanan_keluar.created_at', [$start . ' 00:00:00', $end . ' 23:59:59'])
             ->where('status_pembayaran', 'lunas')
             ->join('roasted_bean', 'pesanan_keluar.roasted_bean_id', '=', 'roasted_bean.id')
@@ -161,9 +176,8 @@ class ReportController extends Controller
             ->groupBy('roasted_bean.bentuk_akhir')
             ->get();
 
-        // Get Outflow
+        // 4. Data Outflow
         $outflowByCategory = [];
-        $totalOutflow = 0;
 
         $greenBeanPurchases = GreenBeanStock::whereBetween('tanggal_beli', [$start, $end])->get();
         $totalBelanjaGB = 0;
@@ -172,64 +186,38 @@ class ReportController extends Controller
         }
         if ($totalBelanjaGB > 0) {
             $outflowByCategory['Belanja Bahan Baku (Green Bean)'] = $totalBelanjaGB;
-            $totalOutflow += $totalBelanjaGB;
         }
 
         $totalUpah = LogPekerja::whereBetween('created_at', [$start . ' 00:00:00', $end . ' 23:59:59'])->sum('total_upah');
         if ($totalUpah > 0) {
             $outflowByCategory['Upah Tenaga Kerja'] = $totalUpah;
-            $totalOutflow += $totalUpah;
         }
 
         $hpps = \App\Models\HppCalculation::whereHas('roastingBatch', function ($q) use ($start, $end) {
             $q->whereBetween('tanggal_roasting', [$start, $end]);
         })->get();
+
         if ($hpps->sum('biaya_listrik') > 0) $outflowByCategory['Biaya Listrik Mesin'] = $hpps->sum('biaya_listrik');
         if ($hpps->sum('biaya_penyusutan') > 0) $outflowByCategory['Penyusutan Mesin'] = $hpps->sum('biaya_penyusutan');
         if ($hpps->sum('biaya_kemasan') > 0) $outflowByCategory['Biaya Kemasan'] = $hpps->sum('biaya_kemasan');
-        
-        $totalOutflow += array_sum($outflowByCategory);
+
+        $totalOutflow = array_sum($outflowByCategory);
         $totalInflow = $inflowData->sum('total');
+        $labaBersih = $totalInflow - $totalOutflow;
 
-        // Build CSV
-        $filename = "Laporan_Keuangan_{$start}_{$end}.csv";
-        $headers = [
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$filename",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
-        ];
+        $filename = "Laporan_Lengkap_{$start}_{$end}.xlsx";
 
-        $callback = function() use($inflowData, $outflowByCategory, $totalInflow, $totalOutflow) {
-            $file = fopen('php://output', 'w');
-            
-            // Laporan Keuangan Header
-            fputcsv($file, ['LAPORAN KEUANGAN TEFA JAVANICA']);
-            fputcsv($file, ['']);
-            
-            // INFLOW
-            fputcsv($file, ['PENDAPATAN (INFLOW)', 'JUMLAH (Rp)']);
-            foreach ($inflowData as $item) {
-                fputcsv($file, [$item->kategori ?: 'Lainnya', $item->total]);
-            }
-            fputcsv($file, ['TOTAL PENDAPATAN', $totalInflow]);
-            fputcsv($file, ['']);
-            
-            // OUTFLOW
-            fputcsv($file, ['PENGELUARAN (OUTFLOW)', 'JUMLAH (Rp)']);
-            foreach ($outflowByCategory as $cat => $amount) {
-                fputcsv($file, [$cat, $amount]);
-            }
-            fputcsv($file, ['TOTAL PENGELUARAN', $totalOutflow]);
-            fputcsv($file, ['']);
-            
-            // NET PROFIT
-            fputcsv($file, ['LABA/RUGI BERSIH', $totalInflow - $totalOutflow]);
-            
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return Excel::download(
+            new LaporanKeuanganExport(
+                $inflowData, 
+                $outflowByCategory, 
+                $totalInflow, 
+                $totalOutflow, 
+                $labaBersih, 
+                $greenBeanStockEntries, 
+                $roastingBatchEntries
+            ), 
+            $filename
+        );
     }
 }
