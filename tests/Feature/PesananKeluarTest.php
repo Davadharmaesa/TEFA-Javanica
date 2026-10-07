@@ -487,4 +487,105 @@ class PesananKeluarTest extends TestCase
             'status_pembayaran' => 'belum_bayar',
         ]);
     }
+
+    /**
+     * Test that pre-order sale is rejected if finished good stock is insufficient.
+     */
+    public function test_pre_order_sales_rejected_if_finished_good_stock_insufficient(): void
+    {
+        $user = User::factory()->create(['role' => 'PIC']);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Arabica Stock Validation Test',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 5000,
+            'satuan_dasar' => 'gram',
+            'tanggal_roasting' => '2026-05-25',
+            'tanggal_expire' => '2026-06-25',
+            'sisa_stok' => 0,
+        ]);
+
+        $packaging = \App\Models\Packaging::create([
+            'tipe' => 'Pouch Stand',
+            'nama_kemasan' => 'Pouch 250g Stock',
+            'kapasitas_gram' => 250,
+            'harga_satuan' => 2000,
+            'stok_pcs' => 100,
+        ]);
+
+        // Buat produk jadi dengan stok hanya 70 pcs
+        \App\Models\FinishedGood::create([
+            'roasted_bean_id' => $roastedBean->id,
+            'packaging_id' => $packaging->id,
+            'stok_pcs' => 70,
+        ]);
+
+        // Coba jual 80 pcs saat stok hanya 70 pcs
+        $response = $this->actingAs($user)->post('/sales/store', [
+            'customer_name' => 'Pembeli Lebih Dari Stok',
+            'roasted_bean_id' => $roastedBean->id,
+            'finished_good_id' => $roastedBean->id . '-250',
+            'jumlah_pcs' => 80,
+            'jumlah_gram_pesanan' => 20000,
+            'harga_jual_pesanan' => 800000,
+            'status_pengiriman' => 'Menunggu Konfirmasi',
+            'metode_pembayaran' => 'lunas',
+        ]);
+
+        $response->assertSessionHasErrors(['jumlah_pcs']);
+        $this->assertDatabaseMissing('pesanan_keluar', [
+            'nama_pesanan' => 'Pembeli Lebih Dari Stok',
+        ]);
+    }
+
+    /**
+     * Test that pre-order sale is rejected if finished good stock is 0 (kosong).
+     */
+    public function test_pre_order_sales_rejected_if_finished_good_stock_is_zero(): void
+    {
+        $user = User::factory()->create(['role' => 'PIC']);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Arabica Zero Stock Test',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 5000,
+            'satuan_dasar' => 'gram',
+            'tanggal_roasting' => '2026-05-25',
+            'tanggal_expire' => '2026-06-25',
+            'sisa_stok' => 0,
+        ]);
+
+        $packaging = \App\Models\Packaging::create([
+            'tipe' => 'Pouch Stand',
+            'nama_kemasan' => 'Pouch 250g Zero',
+            'kapasitas_gram' => 250,
+            'harga_satuan' => 2000,
+            'stok_pcs' => 100,
+        ]);
+
+        // Stok 0 Pcs
+        \App\Models\FinishedGood::create([
+            'roasted_bean_id' => $roastedBean->id,
+            'packaging_id' => $packaging->id,
+            'stok_pcs' => 0,
+        ]);
+
+        $response = $this->actingAs($user)->post('/sales/store', [
+            'customer_name' => 'Pembeli Stok Kosong',
+            'roasted_bean_id' => $roastedBean->id,
+            'finished_good_id' => $roastedBean->id . '-250',
+            'jumlah_pcs' => 1,
+            'jumlah_gram_pesanan' => 250,
+            'harga_jual_pesanan' => 30000,
+            'status_pengiriman' => 'Menunggu Konfirmasi',
+            'metode_pembayaran' => 'lunas',
+        ]);
+
+        $response->assertSessionHasErrors(['jumlah_pcs']);
+        $this->assertDatabaseMissing('pesanan_keluar', [
+            'nama_pesanan' => 'Pembeli Stok Kosong',
+        ]);
+    }
 }
+
+

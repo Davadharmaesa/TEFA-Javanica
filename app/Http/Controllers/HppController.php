@@ -7,19 +7,20 @@ use App\Models\HppCalculation;
 use App\Models\Biaya;
 use App\Models\Packaging;
 use App\Models\GreenBean;
+use App\Models\PesananKeluar;
 use Illuminate\Http\Request;
 
 class HppController extends Controller
 {
     public function index()
     {
-        $minPouch = Packaging::where('kapasitas_gram', '>', 0)->min('kapasitas_gram') ?? 100;
-        
-        $batches = RoastingBatch::with(['greenBean', 'hppCalculation', 'roastedBean', 'logPekerjas'])
-            ->orderBy('created_at', 'desc')
-            ->take(10)
+        // Hanya ambil batch yang completed dan BELUM PERNAH dihitung HPP-nya
+        $batches = RoastingBatch::with(['greenBean', 'logPekerjas'])
+            ->where('status_batch', 'completed')
+            ->whereDoesntHave('hppCalculation')
+            ->orderBy('tanggal_roasting', 'desc')
             ->get()
-            ->map(function ($batch) use ($minPouch) {
+            ->map(function ($batch) {
                 $gb = $batch->greenBean;
                 return [
                     'id' => $batch->id,
@@ -31,14 +32,44 @@ class HppController extends Controller
                     'waktu_development' => $batch->waktu_development,
                     'berat_mentah_gudang' => $batch->berat_mentah_gudang, // kg
                     'berat_matang_bersih' => $batch->berat_matang_bersih, // kg
-                    'harga_bahan_baku' => $batch->biaya_bahan_baku, // Total harga bahan baku dari DB (FIFO)
-                    'sudah_dihitung' => $batch->roastedBean ? ($batch->roastedBean->sisa_stok < $minPouch) : false,
-                    'hpp' => $batch->hppCalculation,
+                    'harga_bahan_baku' => $batch->biaya_bahan_baku,
                     'log_pekerja_total_upah' => $batch->logPekerjas->sum('total_upah'),
                     'pekerja_list' => $batch->logPekerjas->pluck('nama_pekerja')->unique()->values()->toArray()
                 ];
             });
             
+        // Ambil riwayat kalkulasi HPP yang sudah tersimpan
+        $hppHistory = HppCalculation::with(['roastingBatch.greenBean', 'packaging'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($hpp) {
+                $batch = $hpp->roastingBatch;
+                $gb = $batch?->greenBean;
+                $pkg = $hpp->packaging;
+
+                // Cek apakah produk dari batch ini sudah pernah memiliki pesanan keluar
+                $hasSales = false;
+                if ($batch && $pkg) {
+                    $hasSales = PesananKeluar::where('roasted_bean_id', $batch->roasted_bean_id)
+                        ->where('packaging_id', $pkg->id)
+                        ->exists();
+                }
+
+                return [
+                    'id' => $hpp->id,
+                    'roasting_batch_id' => $hpp->roasting_batch_id,
+                    'kode_batch' => $batch ? $batch->kode_batch : 'N/A',
+                    'created_at' => $hpp->created_at ? $hpp->created_at->toIso8601String() : now()->toIso8601String(),
+                    'produk_nama' => ($gb ? $gb->nama_biji : 'Kopi') . ($pkg ? ' - ' . $pkg->nama_kemasan : ''),
+                    'kemasan_nama' => $pkg ? $pkg->nama_kemasan : '-',
+                    'hasil_kemasan_pcs' => $hpp->hasil_kemasan_pcs,
+                    'total_hpp' => (float) $hpp->total_hpp,
+                    'hpp_per_pcs' => $hpp->hasil_kemasan_pcs > 0 ? (float) ($hpp->total_hpp / $hpp->hasil_kemasan_pcs) : 0,
+                    'harga_jual_final' => (float) $hpp->harga_jual_final,
+                    'has_sales' => $hasSales,
+                ];
+            });
+
         $packagings = Packaging::all();
 
         // Ambil master biaya
@@ -46,7 +77,7 @@ class HppController extends Controller
         $biayaPenyusutan = Biaya::where('nama', 'like', '%Penyusutan%')->first() ?? (object)['harga' => 10000]; // per batch
         $biayaGaji = Biaya::where('kategori', 'Tenaga Kerja')->first() ?? (object)['harga' => 15000]; // per batch
 
-        return view('hpp.index', compact('batches', 'packagings', 'biayaListrik', 'biayaPenyusutan', 'biayaGaji'));
+        return view('hpp.index', compact('batches', 'hppHistory', 'packagings', 'biayaListrik', 'biayaPenyusutan', 'biayaGaji'));
     }
 
     public function calculatePreview(Request $request)

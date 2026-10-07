@@ -89,7 +89,7 @@
                         <option value="" disabled selected>-- Pilih Produk Jadi --</option>
                         @foreach($finishedGoods as $good)
                             <option value="{{ $good['roasted_bean_id'] }}-{{ $good['berat_gram'] }}" {{ old('finished_good_id') == ($good['roasted_bean_id'].'-'.$good['berat_gram']) ? 'selected' : '' }}>
-                                {{ $good['nama'] }} (Stok: {{ $good['stok_pcs'] }} Pcs)
+                                {{ $good['nama'] }} (Stok: {{ $good['stok_pcs'] }} Pcs{{ $good['stok_pcs'] <= 0 ? ' - HABIS' : '' }})
                             </option>
                         @endforeach
                     </select>
@@ -97,8 +97,36 @@
                 
                 <!-- QTY Pcs -->
                 <div class="space-y-1.5">
-                    <label for="jumlah_pcs" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Jumlah Pesanan (Pcs)</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9]+" id="jumlah_pcs" name="jumlah_pcs" required x-model.number="quantityPcs" @input="quantityPcs = parseInt($event.target.value.replace(/[^0-9]/g, ''), 10) || null; calculatePrices()" @wheel.prevent placeholder="Contoh: 12" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-mono font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                    <div class="flex justify-between items-center">
+                        <label for="jumlah_pcs" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Jumlah Pesanan (Pcs)</label>
+                        <template x-if="selectedGood">
+                            <span class="text-xs font-bold" :class="selectedGood.stok_pcs > 0 ? 'text-[#526B42]' : 'text-red-500 font-black'">
+                                Stok Tersedia: <span x-text="selectedGood.stok_pcs"></span> Pcs
+                            </span>
+                        </template>
+                    </div>
+                    <input type="text" inputmode="numeric" pattern="[0-9]+" id="jumlah_pcs" name="jumlah_pcs" required 
+                           x-model.number="quantityPcs" 
+                           @input="quantityPcs = parseInt($event.target.value.replace(/[^0-9]/g, ''), 10) || null; calculatePrices()" 
+                           @wheel.prevent placeholder="Contoh: 12" 
+                           :class="isStockInsufficient ? 'border-red-500 focus:ring-red-500/50 bg-red-500/5' : 'border-border/60 focus:ring-primary/50'"
+                           class="w-full bg-background border rounded-xl px-4 py-3 text-sm font-mono font-bold text-primary focus:outline-none focus:ring-2 focus:border-primary transition-all">
+                    
+                    <!-- Peringatan Visual Jika Stok Kosong (0 Pcs) -->
+                    <template x-if="selectedGood && selectedGood.stok_pcs <= 0">
+                        <div class="p-3 bg-red-500/10 border border-red-500/30 text-red-600 rounded-xl text-xs font-bold flex items-center gap-2 mt-1.5 animate-pulse">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <span>PERINGATAN: Stok produk ini sedang <strong>KOSONG (0 Pcs)</strong>. Tidak dapat melakukan transaksi penjualan.</span>
+                        </div>
+                    </template>
+
+                    <!-- Peringatan Visual Jika Stok Kurang (misal stok 70, dijual 80) -->
+                    <template x-if="selectedGood && selectedGood.stok_pcs > 0 && quantityPcs > selectedGood.stok_pcs">
+                        <div class="p-3 bg-red-500/10 border border-red-500/30 text-red-600 rounded-xl text-xs font-bold flex items-center gap-2 mt-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                            <span>PERINGATAN: Stok tidak mencukupi! Stok hanya tersedia <strong x-text="selectedGood.stok_pcs + ' Pcs'"></strong>, pesanan Anda <strong x-text="quantityPcs + ' Pcs'"></strong> (Kurang <strong x-text="(quantityPcs - selectedGood.stok_pcs) + ' Pcs'"></strong>).</span>
+                        </div>
+                    </template>
                 </div>
             </div>
 
@@ -113,13 +141,10 @@
                         <span class="text-muted-foreground">Estimasi Berat Total:</span>
                         <span class="font-bold text-primary" x-text="(quantityPcs * selectedGood.berat_gram).toLocaleString('id-ID') + ' Gram (' + ((quantityPcs * selectedGood.berat_gram)/1000).toFixed(2) + ' Kg)'"></span>
                     </div>
+
                     <div class="flex justify-between">
-                        <span class="text-muted-foreground">HPP per Pcs (Terhitung):</span>
-                        <span class="font-bold text-primary" x-text="'Rp ' + selectedGood.hpp_per_pcs.toLocaleString('id-ID')"></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-muted-foreground">Harga Jual :</span>
-                        <span class="font-bold text-secondary" x-text="'Rp ' + selectedGood.harga_jual_per_pcs.toLocaleString('id-ID') + ' / Pcs'"></span>
+                        <span class="text-muted-foreground">Harga Satuan (per Pcs):</span>
+                        <span class="font-bold text-secondary" x-text="'Rp ' + Number(selectedGood.harga_jual_per_pcs).toLocaleString('id-ID') + ' / Pcs'"></span>
                     </div>
                 </div>
             </template>
@@ -249,8 +274,19 @@
             </div>
 
             <div class="pt-6 border-t border-border/30">
-                <button type="submit" class="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-md transition-all flex justify-center items-center gap-2 hover:-translate-y-0.5 active:translate-y-0">
-                    Proses Transaksi
+                <button type="submit" 
+                        :disabled="isStockInsufficient"
+                        :class="isStockInsufficient ? 'opacity-60 cursor-not-allowed bg-red-600 hover:bg-red-600' : 'bg-primary hover:bg-primary/90'"
+                        class="w-full text-primary-foreground py-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-md transition-all flex justify-center items-center gap-2 hover:-translate-y-0.5 active:translate-y-0">
+                    <template x-if="isStockInsufficient">
+                        <span class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            Stok Tidak Mencukupi
+                        </span>
+                    </template>
+                    <template x-if="!isStockInsufficient">
+                        <span>Proses Transaksi</span>
+                    </template>
                 </button>
             </div>
         </div>
@@ -314,6 +350,13 @@
                 return 0;
             },
 
+            get isStockInsufficient() {
+                if (!this.selectedGood) return false;
+                if (this.selectedGood.stok_pcs <= 0) return true;
+                if (this.quantityPcs && this.quantityPcs > this.selectedGood.stok_pcs) return true;
+                return false;
+            },
+
             submitForm(e) {
                 const nominalDpInput = e.target.querySelector('#nominal_dp');
                 if (nominalDpInput) {
@@ -324,10 +367,22 @@
                     alert('Silakan pilih Produk Jadi terlebih dahulu!');
                     return;
                 }
+
+                if (this.selectedGood.stok_pcs <= 0) {
+                    alert('Gagal memproses transaksi: Stok produk ini sedang KOSONG (0 Pcs)! Silakan pilih produk lain atau tunggu proses pengemasan.');
+                    return;
+                }
+
                 if (!this.quantityPcs || this.quantityPcs <= 0) {
                     alert('Silakan masukkan Jumlah Pesanan (Pcs) yang valid!');
                     return;
                 }
+
+                if (this.quantityPcs > this.selectedGood.stok_pcs) {
+                    alert('Gagal memproses transaksi: Stok tidak mencukupi!\n\nStok tersedia: ' + this.selectedGood.stok_pcs + ' Pcs\nJumlah pesanan: ' + this.quantityPcs + ' Pcs\nKekurangan: ' + (this.quantityPcs - this.selectedGood.stok_pcs) + ' Pcs.\n\nSilakan sesuaikan jumlah pesanan Anda.');
+                    return;
+                }
+
                 if (!this.totalPrice || this.totalPrice <= 0) {
                     alert('Total harga transaksi belum terhitung!');
                     return;

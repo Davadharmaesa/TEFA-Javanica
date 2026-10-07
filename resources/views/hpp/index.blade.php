@@ -121,14 +121,14 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-primary mb-1">Harga Jual Final (Rp)</label>
+                        <label class="block text-sm font-bold text-primary mb-1">Harga Jual Final per Pcs (Rp)</label>
                         <input type="number"
                                min="0"
                                x-model="form.harga_jual_final" 
                                class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-primary font-mono focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" 
                                placeholder="Contoh: 20000">
                         <p class="text-[10px] text-muted-foreground mt-1">
-                            Harga jual ini akan dikunci dan digunakan paten oleh Kasir.
+                            Harga jual satuan per pcs ini yang akan dikunci dan digunakan kasir (Total Transaksi = Qty × Harga per Pcs).
                         </p>
                     </div>
                 </div>

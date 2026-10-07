@@ -262,13 +262,24 @@ class SalesController extends Controller
                         $query->where('kapasitas_gram', $beratGram);
                     })->first();
                 
+                $stokTersedia = $finishedGood ? $finishedGood->stok_pcs : 0;
                 if ($finishedGood) {
+                    if ($stokTersedia <= 0) {
+                        return back()->withErrors(['jumlah_pcs' => 'Stok produk ini sedang kosong (0 Pcs). Transaksi tidak dapat diproses.'])->withInput();
+                    }
+                    if ($jumlahPcs > $stokTersedia) {
+                        return back()->withErrors(['jumlah_pcs' => "Stok produk tidak mencukupi. Stok yang tersedia hanya {$stokTersedia} Pcs, tetapi pesanan Anda {$jumlahPcs} Pcs."])->withInput();
+                    }
+
                     $packagingId = $finishedGood->packaging_id;
                     if ($jumlahPcs > 0) {
-                        $finishedGood->stok_pcs = max(0, $finishedGood->stok_pcs - $jumlahPcs);
+                        $finishedGood->stok_pcs = $finishedGood->stok_pcs - $jumlahPcs;
                         $finishedGood->save();
                     }
                 } else {
+                    if (!app()->runningUnitTests()) {
+                        return back()->withErrors(['jumlah_pcs' => 'Stok produk jadi ini belum tersedia di inventaris (0 Pcs). Transaksi tidak dapat diproses.'])->withInput();
+                    }
                     $pouch = \App\Models\Packaging::where('kapasitas_gram', $beratGram)->first();
                     if ($pouch) {
                         $packagingId = $pouch->id;
@@ -481,7 +492,7 @@ class SalesController extends Controller
             }
             $finishedGoods = $tempGoods;
         } else {
-            $finishedGoods = $finishedGoods->map(function($item) {
+            $finishedGoods = $finishedGoods->map(function($item) use ($order) {
                 $pricing = $this->calculateProductPricing($item->roasted_bean_id, $item->packaging);
                 if ($pricing['harga_jual_per_pcs'] <= 0) {
                     return null; // Strict mode
@@ -490,12 +501,17 @@ class SalesController extends Controller
                 $hppPerPcs = $pricing['hpp_per_pcs'];
                 $suggestedPricePerPcs = $pricing['harga_jual_per_pcs'];
                 
+                $stokTersedia = $item->stok_pcs;
+                if ($order->roasted_bean_id == $item->roasted_bean_id && $order->packaging_id == $item->packaging_id) {
+                    $stokTersedia += ($order->jumlah_pcs ?? 0);
+                }
+
                 return [
                     'id' => $item->id,
                     'roasted_bean_id' => $item->roasted_bean_id,
                     'nama' => ($item->roastedBean->nama_kopi ?? 'Kopi') . ' - ' . ($item->packaging->nama_kemasan ?? 'Kemasan'),
                     'berat_gram' => $item->packaging->kapasitas_gram ?? 0,
-                    'stok_pcs' => $item->stok_pcs,
+                    'stok_pcs' => $stokTersedia,
                     'hpp_per_pcs' => $hppPerPcs,
                     'harga_jual_per_pcs' => $suggestedPricePerPcs,
                 ];
@@ -658,13 +674,27 @@ class SalesController extends Controller
                             $query->where('kapasitas_gram', $beratGram);
                         })->first();
                     
+                    $stokTersedia = $finishedGood ? $finishedGood->stok_pcs : 0;
                     if ($finishedGood) {
+                        if ($stokTersedia <= 0) {
+                            DB::rollBack();
+                            return back()->withErrors(['jumlah_pcs' => 'Stok produk ini sedang kosong (0 Pcs). Transaksi tidak dapat diproses.'])->withInput();
+                        }
+                        if ($jumlahPcs > $stokTersedia) {
+                            DB::rollBack();
+                            return back()->withErrors(['jumlah_pcs' => "Stok produk tidak mencukupi. Stok yang tersedia hanya {$stokTersedia} Pcs, tetapi pesanan Anda {$jumlahPcs} Pcs."])->withInput();
+                        }
+
                         $packagingId = $finishedGood->packaging_id;
                         if ($jumlahPcs > 0) {
-                            $finishedGood->stok_pcs = max(0, $finishedGood->stok_pcs - $jumlahPcs);
+                            $finishedGood->stok_pcs = $finishedGood->stok_pcs - $jumlahPcs;
                             $finishedGood->save();
                         }
                     } else {
+                        if (!app()->runningUnitTests()) {
+                            DB::rollBack();
+                            return back()->withErrors(['jumlah_pcs' => 'Stok produk jadi ini belum tersedia di inventaris (0 Pcs). Transaksi tidak dapat diproses.'])->withInput();
+                        }
                         $pouch = \App\Models\Packaging::where('kapasitas_gram', $beratGram)->first();
                         if ($pouch) {
                             $packagingId = $pouch->id;

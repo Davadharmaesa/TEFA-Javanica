@@ -141,6 +141,8 @@ Route::middleware(['auth'])->group(function () {
             Route::prefix('hpp-calculator')->name('hpp.')->group(function () {
                 Route::get('/', [\App\Http\Controllers\HppController::class, 'index'])->name('index');
                 Route::post('/store', [\App\Http\Controllers\HppController::class, 'store'])->name('store');
+                Route::put('/{id}', [\App\Http\Controllers\HppController::class, 'update'])->name('update');
+                Route::delete('/{id}', [\App\Http\Controllers\HppController::class, 'destroy'])->name('destroy');
             });
 
             // INTERNAL API KHUSUS ADMIN
