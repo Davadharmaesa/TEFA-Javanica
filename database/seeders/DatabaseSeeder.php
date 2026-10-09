@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,34 +16,37 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        $operator = User::factory()->create([
+        // --- DATA USER MASTER ---
+        $operator = User::create([
             'name' => 'Pak Deka',
             'email' => 'pakdeka@tefa.com',
-            'password' => bcrypt('kopi123'),
-            'role' =>  'Operator',
+            'password' => Hash::make('kopi123'),
+            'role' => 'Operator',
+            'email_verified_at' => now(),
         ]);
 
-        User::factory()->create([
+        User::create([
             'name' => 'Habib',
             'email' => 'habib@mahasiswa.com',
-            'password' => bcrypt('password'),
-            'role' =>  'Mahasiswa Magang',
+            'password' => Hash::make('password'),
+            'role' => 'Mahasiswa Magang',
+            'email_verified_at' => now(),
         ]);
 
-        User::factory()->create([
+        User::create([
             'name' => 'Nain',
             'email' => 'nain@mahasiswa.com',
-            'password' => bcrypt('password'),
-            'role' =>  'Mahasiswa Magang',
+            'password' => Hash::make('password'),
+            'role' => 'Mahasiswa Magang',
+            'email_verified_at' => now(),
         ]);
 
-        User::factory()->create([
+        User::create([
             'name' => 'Bu Astri',
             'email' => 'buastri@tefa.com',
-            'password' => bcrypt('kopi123'),
-            'role' =>  'PIC',
+            'password' => Hash::make('kopi123'),
+            'role' => 'PIC',
+            'email_verified_at' => now(),
         ]); 
 
         // --- STOK GUDANG MENTAH (Seeder) ---
