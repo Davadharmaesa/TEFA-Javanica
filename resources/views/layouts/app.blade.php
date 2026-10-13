@@ -172,7 +172,7 @@
 <body class="antialiased" x-data="{
     isCollapsed: localStorage.getItem('sidebarCollapsed') === 'true',
     isMobileOpen: false
-}">
+}" x-init="$nextTick(() => { document.documentElement.classList.remove('sidebar-collapsed'); })">
 
     <div class="flex h-screen overflow-hidden">
         

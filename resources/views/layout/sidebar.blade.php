@@ -45,7 +45,7 @@
 
     <!-- Toggle Button (Desktop/Tablet only) -->
     <button
-        @click="isCollapsed = !isCollapsed; try { localStorage.setItem('sidebarCollapsed', isCollapsed) } catch (e) {}"
+        @click="isCollapsed = !isCollapsed; try { localStorage.setItem('sidebarCollapsed', String(isCollapsed)) } catch (e) {}"
         class="hidden md:block absolute -right-3 top-8 bg-secondary text-secondary-foreground rounded-full p-1 shadow-md hover:bg-secondary/90 transition-transform hover:scale-110 z-30">
         <template x-if="isCollapsed">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

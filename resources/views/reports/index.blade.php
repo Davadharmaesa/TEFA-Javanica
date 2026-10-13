@@ -43,16 +43,7 @@
     </div>
 
     <!-- Period Summaries -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div class="bg-card border border-border/40 rounded-2xl p-4">
-            <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Green Bean Masuk (Periode)</p>
-            <p class="text-xl font-mono text-primary mt-1">{{ number_format(($greenBeanIncoming ?? 0) / 1000, 2, ',', '.') }} Kg</p>
-            <p class="text-xs text-muted-foreground mt-0.5">Sisa stok: {{ number_format(($greenBeanRemaining ?? 0) / 1000, 2, ',', '.') }} Kg</p>
-        </div>
-        <div class="bg-card border border-border/40 rounded-2xl p-4">
-            <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Aktivitas Roasting (Periode)</p>
-            <p class="text-xl font-mono text-primary mt-1">{{ $roastingCount ?? 0 }} Batch</p>
-        </div>
+    <div class="grid grid-cols-1 gap-3">
         <div class="bg-card border border-border/40 rounded-2xl p-4">
             <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Transaksi (Periode)</p>
             <div class="mt-1 space-y-0.5">
@@ -106,162 +97,17 @@
         </div>
     </div>
 
-    <!-- Report Section Navigation -->
-    <div class="print:hidden flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-muted/30 rounded-xl border border-border/50">
-        <button @click="activeSection = 'keuangan'" 
-            class="flex-1 min-w-0 text-xs px-2 py-2.5 md:min-w-[150px] md:text-sm md:py-3 md:px-4 rounded-lg font-bold transition-all duration-300 flex justify-center items-center gap-1.5"
-            :class="activeSection === 'keuangan' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-            Keuangan
-        </button>
-        <button @click="activeSection = 'greenbean'" 
-            class="flex-1 min-w-0 text-xs px-2 py-2.5 md:min-w-[150px] md:text-sm md:py-3 md:px-4 rounded-lg font-bold transition-all duration-300 flex justify-center items-center gap-1.5"
-            :class="activeSection === 'greenbean' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-45 12 12)"><rect x="5" y="3" width="14" height="18" rx="7"/><path d="M12 3c-1.5 3 1.5 6 0 9s-1.5 6 0 9"/></g></svg>
-            Green Bean
-        </button>
-        <button @click="activeSection = 'roastedbean'" 
-            class="flex-1 min-w-0 text-xs px-2 py-2.5 md:min-w-[150px] md:text-sm md:py-3 md:px-4 rounded-lg font-bold transition-all duration-300 flex justify-center items-center gap-1.5"
-            :class="activeSection === 'roastedbean' ? 'bg-card text-primary shadow-sm ring-1 ring-border/50' : 'text-muted-foreground hover:bg-muted/50'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>
-            Roasted Bean
-        </button>
-    </div>
 
 
 
-    <!-- Green Bean Report -->
-    <div x-show="activeSection === 'greenbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden print:border-none print:shadow-none print:rounded-none">
-        <div class="p-6 border-b border-primary/40 bg-primary text-primary-foreground">
-            <h2 class="text-xl font-heading font-bold text-white">Laporan Green Bean</h2>
-            <p class="text-sm text-white/80">Periode: {{ \Carbon\Carbon::parse($start)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($end)->translatedFormat('d F Y') }}</p>
-        </div>
-        <div class="overflow-x-auto hidden md:block print:block">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
-                        <th class="p-4">Tanggal Masuk</th>
-                        <th class="p-4">Nama Green Bean</th>
-                        <th class="p-4">Supplier</th>
-                        <th class="p-4 text-right">Qty Masuk</th>
-                        <th class="p-4 text-right">Sisa Stok</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-border/30">
-                    @forelse($greenBeanStockEntries as $stock)
-                        <tr class="hover:bg-muted/10 transition-colors">
-                            <td class="p-4 text-sm font-mono text-muted-foreground">{{ $stock->tanggal_beli }}</td>
-                            <td class="p-4 font-bold text-foreground">{{ $stock->greenBean?->nama_biji ?? 'Tidak diketahui' }}</td>
-                            <td class="p-4 text-muted-foreground">{{ $stock->greenBean?->asal_kopi ?? '-' }}</td>
-                            <td class="p-4 text-right font-mono font-medium text-foreground">{{ number_format($stock->stok_gram / 1000, 2, ',', '.') }} Kg</td>
-                            <td class="p-4 text-right font-mono font-medium text-foreground">{{ number_format($stock->stok_gram / 1000, 2, ',', '.') }} Kg</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="p-4 text-center text-sm text-muted-foreground">Tidak ada data Green Bean untuk periode ini.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <!-- Mobile Card List for Green Bean Report -->
-        <div class="grid grid-cols-1 gap-4 p-4 md:hidden print:hidden bg-muted/10">
-            @forelse($greenBeanStockEntries as $stock)
-                <div class="bg-card border border-border/40 rounded-xl p-4 space-y-3 shadow-sm">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h4 class="font-bold text-foreground text-sm">{{ $stock->greenBean?->nama_biji ?? 'Tidak diketahui' }}</h4>
-                            <p class="text-[11px] text-muted-foreground font-mono mt-0.5">{{ $stock->tanggal_beli }}</p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs border-t border-border/20 pt-2">
-                        <div>
-                            <p class="text-muted-foreground font-semibold">Supplier/Asal</p>
-                            <p class="font-medium text-foreground">{{ $stock->greenBean?->asal_kopi ?? '-' }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-muted-foreground font-semibold">Qty Masuk / Sisa</p>
-                            <p class="font-mono font-bold text-foreground">
-                                {{ number_format($stock->stok_gram / 1000, 2, ',', '.') }} Kg
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            @empty
-                <div class="text-center py-6 text-sm text-muted-foreground">Tidak ada data Green Bean untuk periode ini.</div>
-            @endforelse
-        </div>
-    </div>
 
-    <!-- Roasted Bean Report -->
-    <div x-show="activeSection === 'roastedbean'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden print:border-none print:shadow-none print:rounded-none">
-        <div class="p-6 border-b border-primary/40 bg-primary text-primary-foreground">
-            <h2 class="text-xl font-heading font-bold text-white">Laporan Roasted Bean</h2>
-            <p class="text-sm text-white/80">Periode: {{ \Carbon\Carbon::parse($start)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($end)->translatedFormat('d F Y') }}</p>
-        </div>
-        <div class="overflow-x-auto hidden md:block print:block">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-muted/30 border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground font-bold">
-                        <th class="p-4">Tanggal Roasting</th>
-                        <th class="p-4">Nama Batch</th>
-                        <th class="p-4">Roast Profile</th>
-                        <th class="p-4 text-right">Hasil Roasting</th>
-                        <th class="p-4 text-right">Operator</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-border/30">
-                    @forelse($roastingBatchEntries as $batch)
-                        <tr class="hover:bg-muted/10 transition-colors">
-                            <td class="p-4 text-sm font-mono text-muted-foreground">{{ $batch->tanggal_roasting }}</td>
-                            <td class="p-4 font-bold text-foreground">{{ $batch->kode_batch }}</td>
-                            <td class="p-4 text-muted-foreground">{{ $batch->profil_sangrai }}</td>
-                            <td class="p-4 text-right font-mono font-medium text-foreground">{{ number_format($batch->berat_matang_bersih, 2, ',', '.') }} Kg</td>
-                            <td class="p-4 text-right font-bold text-foreground">{{ $batch->user?->name ?? 'Operator tidak diketahui' }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="p-4 text-center text-sm text-muted-foreground">Tidak ada data Roasted Bean untuk periode ini.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <!-- Mobile Card List for Roasted Bean Report -->
-        <div class="grid grid-cols-1 gap-4 p-4 md:hidden print:hidden bg-muted/10">
-            @forelse($roastingBatchEntries as $batch)
-                <div class="bg-card border border-border/40 rounded-xl p-4 space-y-3 shadow-sm">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h4 class="font-bold text-foreground text-sm">{{ $batch->kode_batch }}</h4>
-                            <p class="text-[11px] text-muted-foreground font-mono mt-0.5">{{ $batch->tanggal_roasting }}</p>
-                        </div>
-                        <span class="px-2 py-0.5 bg-secondary/10 text-secondary border border-secondary/20 text-[10px] font-bold rounded-full">
-                            {{ $batch->profil_sangrai }}
-                        </span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs border-t border-border/20 pt-2">
-                        <div>
-                            <p class="text-muted-foreground font-semibold">Operator</p>
-                            <p class="font-medium text-foreground">{{ $batch->user?->name ?? 'Operator tidak diketahui' }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-muted-foreground font-semibold">Hasil Roasting</p>
-                            <p class="font-mono font-bold text-foreground">{{ number_format($batch->berat_matang_bersih, 2, ',', '.') }} Kg</p>
-                        </div>
-                    </div>
-                </div>
-            @empty
-                <div class="text-center py-6 text-sm text-muted-foreground">Tidak ada data Roasted Bean untuk periode ini.</div>
-            @endforelse
-        </div>
-    </div>
+
 
     <!-- Print Header -->
     <div class="hidden print:block text-center mb-8 pb-4 border-b-2 border-primary">
         <h1 class="text-3xl font-heading font-black text-primary">TEFA Javanica</h1>
-        <p class="text-lg font-bold text-foreground mt-1">Laporan Roastery</p>
-        <p class="text-sm text-muted-foreground mt-1" x-text="activeSection === 'keuangan' ? (activeTab === 'labarugi' ? 'Laporan Laba Rugi - Periode: {{ $start }} hingga {{ $end }}' : 'Riwayat Arus Kas - Periode: {{ $start }} hingga {{ $end }}') : (activeSection === 'greenbean' ? 'Laporan Green Bean - Periode: {{ $start }} hingga {{ $end }}' : 'Laporan Roasted Bean - Periode: {{ $start }} hingga {{ $end }}')"></p>
+        <p class="text-lg font-bold text-foreground mt-1">Laporan Keuangan</p>
+        <p class="text-sm text-muted-foreground mt-1">Laporan Laba Rugi - Periode: {{ $start }} hingga {{ $end }}</p>
     </div>
 
     <!-- Tab Content: Arus Kas (Inflow & Outflow) -->
