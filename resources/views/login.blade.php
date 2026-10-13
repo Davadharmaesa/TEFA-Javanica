@@ -8,6 +8,7 @@
     <title>Sign In - TEFA Javanica</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
@@ -33,10 +34,32 @@
         }
 
         body {
-            background-color: hsl(var(--background));
+            background-color: #edebe8;
             color: hsl(var(--foreground));
-            background-image: radial-gradient(hsl(var(--primary)/0.05) 1px, transparent 1px);
-            background-size: 20px 20px;
+            min-height: 100vh;
+        }
+
+        .bg-coffee-container {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+            background-color: #edebe8;
+        }
+
+        .bg-coffee-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100vh;
+            height: 100vw;
+            transform: translate(-50%, -50%) rotate(90deg);
+            background-image: url('{{ asset('images/background.webp') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            image-rendering: -webkit-optimize-contrast;
         }
 
         .slide-in {
@@ -48,6 +71,7 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -92,16 +116,21 @@
     </script>
 </head>
 
-<body class="min-h-screen flex items-center justify-center p-4 antialiased" x-data="loginComponent()">
+<body class="min-h-screen flex items-center justify-center p-4 antialiased relative overflow-x-hidden" x-data="loginComponent()">
 
-    <div class="w-full max-w-md bg-card border-2 border-border/20 shadow-2xl rounded-3xl overflow-hidden transition-all duration-700 relative">
-        
+    <!-- Background Rotated (Biji Kopi di Bawah & Tajam) -->
+    <div class="bg-coffee-container">
+        <div class="bg-coffee-image"></div>
+    </div>
+
+    <div class="w-full max-w-md bg-white/95 backdrop-blur-md border border-white/60 shadow-[0_25px_60px_-15px_rgba(40,25,15,0.25)] rounded-3xl overflow-hidden transition-all duration-700 relative z-10">
+
         <!-- Decoration -->
         <div class="absolute -top-24 -right-24 w-48 h-48 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
         <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <!-- Header Banner -->
-        <div class="bg-primary p-8 text-center relative overflow-hidden">
+        <div class="bg-gradient-to-r from-primary to-[#7a4e39] p-8 text-center relative overflow-hidden shadow-sm">
             <div class="absolute top-0 right-0 p-4 opacity-10">
                 <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white transform rotate-12">
                     <rect width="20" height="8" x="2" y="2" rx="2" ry="2" />
@@ -111,14 +140,10 @@
                 </svg>
             </div>
 
-            <div class="inline-flex items-center justify-center p-3.5 bg-white/10 rounded-2xl mb-4 backdrop-blur-md border border-white/20 shadow-inner">
-                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white">
-                    <path d="M10 2v2" />
-                    <path d="M14 2v2" />
-                    <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" />
-                    <path d="M6 2v2" />
-                </svg>
+            <div class="inline-flex items-center justify-center p-2.5 bg-white rounded-2xl mb-4 shadow-md border border-white/40">
+                <img src="{{ asset('images/favicon.png') }}" alt="Logo TEFA Javanica" class="w-10 h-10 object-contain" />
             </div>
+
             <h1 class="text-3xl font-heading font-black text-white mb-1 tracking-tight">TEFA Javanica</h1>
             <p class="text-white/80 font-sans text-xs font-semibold tracking-widest uppercase">Industrial Roastery System</p>
         </div>
@@ -127,7 +152,11 @@
             <!-- Alerts -->
             <template x-if="error">
                 <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 text-red-700 rounded-xl text-sm font-bold flex items-start gap-3 slide-in shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" x2="12" y1="8" y2="12" />
+                        <line x1="12" x2="12.01" y1="16" y2="16" />
+                    </svg>
                     <span x-text="error" class="leading-relaxed"></span>
                 </div>
             </template>
@@ -164,7 +193,10 @@
                     <button type="submit" :disabled="loading" class="w-full py-3.5 bg-secondary text-secondary-foreground font-black text-sm uppercase tracking-widest rounded-xl hover:bg-secondary/90 disabled:opacity-70 disabled:cursor-not-allowed transition-all shadow-[0_8px_20px_rgba(100,130,80,0.2)] hover:-translate-y-0.5 active:translate-y-0 flex justify-center items-center mt-4">
                         <span x-show="!loading">Sign In</span>
                         <span x-show="loading" x-cloak class="animate-pulse flex items-center gap-2">
-                            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
                             Authorizing...
                         </span>
                     </button>
@@ -176,7 +208,10 @@
                 <form @submit.prevent="submitMfa" class="space-y-6">
                     <div class="text-center mb-6">
                         <div class="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-3 text-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                <path d="m9 12 2 2 4-4" />
+                            </svg>
                         </div>
                         <h3 class="font-heading font-black text-xl text-primary mb-1">Verifikasi Dua Langkah</h3>
                         <p class="text-xs font-medium text-muted-foreground">
@@ -212,7 +247,7 @@
 
             <div class="mt-10 pt-6 border-t border-border/50 text-center">
                 <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                    Akses Khusus Internal &bull; Semua Aktivitas Direkam
+                    Hak Cipta © 2026 TEFA Javanica Roastery
                 </p>
             </div>
         </div>

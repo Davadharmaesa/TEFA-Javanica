@@ -268,7 +268,7 @@
     <div x-show="activeSection === 'keuangan'" x-transition.opacity.duration.300ms class="bg-card border border-border/40 rounded-2xl shadow-sm overflow-hidden print:border-none print:shadow-none print:rounded-none">
         <div class="p-6 border-b border-primary/40 bg-primary text-primary-foreground flex justify-between items-center">
             <div>
-                <h2 class="text-xl font-heading font-bold text-white">Laporan Arus Kas (Inflow & Outflow)</h2>
+                <h2 class="text-xl font-heading font-bold text-white">Laporan Laba Rugi</h2>
                 <p class="text-sm text-white/80">Periode: {{ \Carbon\Carbon::parse($start)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($end)->translatedFormat('d F Y') }}</p>
             </div>
             <a href="{{ route('reports.export', ['start_date' => $start, 'end_date' => $end]) }}" class="hidden md:flex bg-white/10 text-white hover:bg-white hover:text-primary border border-white/20 px-3 py-2 rounded-lg text-xs font-bold transition-all items-center gap-2">
@@ -279,9 +279,9 @@
         <div class="p-6 overflow-x-auto">
             <table class="w-full text-left min-w-[500px]">
                 <tbody>
-                    <!-- Pendapatan (INFLOW) -->
+                    <!-- Pendapatan Penjualan -->
                     <tr class="border-b border-border/30">
-                        <td class="py-4 font-bold text-foreground text-lg" colspan="2">Pendapatan (Inflow)</td>
+                        <td class="py-4 font-bold text-foreground text-lg" colspan="2">Pendapatan Penjualan</td>
                     </tr>
                     @forelse($inflowByCategory as $kategori => $total)
                     <tr class="hover:bg-muted/10 border-b border-border/10">
@@ -298,9 +298,9 @@
                         <td class="py-3 text-right font-mono font-bold text-green-600">Rp {{ number_format($totalInflow, 0, ',', '.') }}</td>
                     </tr>
 
-                    <!-- Pengeluaran (OUTFLOW) -->
+                    <!-- Beban Operasional -->
                     <tr>
-                        <td class="py-4 font-bold text-foreground text-lg" colspan="2">Pengeluaran (Outflow)</td>
+                        <td class="py-4 font-bold text-foreground text-lg" colspan="2">Beban Operasional</td>
                     </tr>
                     @forelse($outflowByCategory as $kategori => $total)
                     <tr class="hover:bg-muted/10 border-b border-border/10">

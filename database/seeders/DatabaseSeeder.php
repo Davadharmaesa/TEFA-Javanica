@@ -152,5 +152,21 @@ class DatabaseSeeder extends Seeder
             'status_batch' => 'completed',
             'biaya_bahan_baku' => 1200000 // 10 Kg * 120,000/Kg
         ]);
+
+        $batch = \App\Models\RoastingBatch::where('kode_batch', 'BATCH-001')->first();
+        $packaging = \App\Models\Packaging::where('kapasitas_gram', 100)->first();
+
+        if ($batch) {
+            \App\Models\HppCalculation::create([
+                'roasting_batch_id' => $batch->id,
+                'biaya_bahan_baku' => 1200000,
+                'biaya_listrik' => 1500,
+                'biaya_penyusutan' => 2000,
+                'biaya_gaji' => 15000,
+                'biaya_kemasan' => 82000, // 82 pcs * 1000
+                'hasil_kemasan_pcs' => 82,
+                'total_hpp' => 1300500,
+            ]);
+        }
     }
 }

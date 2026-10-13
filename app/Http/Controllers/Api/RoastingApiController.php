@@ -171,6 +171,7 @@ class RoastingApiController extends Controller
                 'berat_mentah_sortasi' => $validated['berat_mentah_sortasi'],
                 'berat_matang_kotor' => $validated['berat_matang_kotor'],
                 'berat_matang_bersih' => $validated['berat_matang_bersih'],
+                'sisa_stok' => $beratMatangGram,
                 'persentase_susut' => round($susut, 2),
                 'tanggal_roasting' => date('Y-m-d'),
                 'status_batch' => 'completed',

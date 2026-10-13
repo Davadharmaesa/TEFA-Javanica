@@ -25,6 +25,7 @@ class InventoryController extends Controller
                     'stok' => $item->stok_gram / 1000,
                     'stok_raw' => $item->stok_gram,
                     'harga_beli' => $item->harga_beli,
+                    'total_harga' => $item->total_harga > 0 ? (float) $item->total_harga : round(($item->stok_gram / 1000) * $item->harga_beli),
                     'tanggal_beli' => \Carbon\Carbon::parse($item->tanggal_beli)->format('d/m/Y'),
                 ];
             });
@@ -38,17 +39,27 @@ class InventoryController extends Controller
         });
 
         $roastedBeans = RoastedBean::all()->map(function ($item) {
+            // Ambil semua roasting batch yang statusnya completed untuk roasted_bean_id ini
+            $batches = \App\Models\RoastingBatch::where('roasted_bean_id', $item->id)
+                ->where('status_batch', 'completed')
+                ->get();
+
+            // Hitung total sisa stok riil dari batch aktif
+            $realStokGram = $batches->sum(function($batch) {
+                return $batch->sisa_stok !== null ? $batch->sisa_stok : ($batch->berat_matang_bersih * 1000);
+            });
+
             return [
                 'id' => $item->id,
                 'kode' => 'RB-' . str_pad($item->id, 3, '0', STR_PAD_LEFT),
                 'nama' => $item->nama_kopi,
                 'bentuk' => $item->bentuk_akhir,
-                'stok' => $item->total_stok / 1000,
-                'stok_raw' => $item->total_stok,
+                'stok' => $realStokGram / 1000, // Dikonversi ke Kg
+                'stok_raw' => $realStokGram,     // Dikonversi ke gram murni (misal: 4500 g)
                 'satuan_dasar' => $item->satuan_dasar,
-                'tanggal_roasting' => $item->tanggal_roasting,
-                'tanggal_expire' => $item->tanggal_expire,
-                'sisa_stok' => $item->sisa_stok,
+                'tanggal_roasting' => $batches->max('created_at'),
+                'tanggal_expire' => $batches->max('created_at') ? \Carbon\Carbon::parse($batches->max('created_at'))->addDays(30)->format('Y-m-d') : null,
+                'sisa_stok' => $realStokGram,
             ];
         });
 
@@ -84,7 +95,7 @@ class InventoryController extends Controller
                 'stok' => $batch->berat_matang_bersih,
                 'tanggal_roasting' => \Carbon\Carbon::parse($batch->created_at)->format('d-m-Y H:i'),
                 'tanggal_expire' => \Carbon\Carbon::parse($batch->created_at)->addDays(30)->format('d-m-Y'),
-                'sisa_stok' => $batch->berat_matang_bersih * 1000, // Simulasi sisa stok sama dengan hasil
+                'sisa_stok' => $batch->sisa_stok ?? ($batch->berat_matang_bersih * 1000),
             ];
         });
 
@@ -97,7 +108,7 @@ class InventoryController extends Controller
             'green_bean_id' => 'required|exists:green_bean,id',
             'stok_gram' => 'required|numeric|min:0',
             'tanggal_beli' => 'required|string',
-            'total_harga' => 'nullable|numeric|min:0'
+            'total_harga' => 'required|numeric|min:0' // Pastikan required atau menyesuaikan form
         ]);
 
         $stokKg = $validated['stok_gram'] / 1000;
@@ -118,10 +129,12 @@ class InventoryController extends Controller
 
         $tanggalBeli = $tanggalBeliCarbon->toDateString();
 
+        // SIMPAN JUGA TOTAL_HARGA KE DATABASE
         \App\Models\GreenBeanStock::create([
             'green_bean_id' => $validated['green_bean_id'],
             'stok_gram' => $validated['stok_gram'],
             'harga_beli' => $hargaBeli,
+            'total_harga' => $validated['total_harga'], // <-- INI YANG KURANG SEBELUMNYA
             'tanggal_beli' => $tanggalBeli,
         ]);
 
@@ -132,8 +145,15 @@ class InventoryController extends Controller
     {
         $validated = $request->validate([
             'stok_gram' => 'required|numeric|min:0',
-            'tanggal_beli' => 'required|string'
+            'tanggal_beli' => 'required|string',
+            'total_harga' => 'required|numeric|min:0' // Tambahkan validasi total_harga saat update
         ]);
+
+        $stokKg = $validated['stok_gram'] / 1000;
+        $hargaBeli = 0;
+        if ($stokKg > 0 && isset($validated['total_harga']) && $validated['total_harga'] > 0) {
+            $hargaBeli = round($validated['total_harga'] / $stokKg);
+        }
 
         try {
             $tanggalBeliCarbon = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['tanggal_beli'])->startOfDay();
@@ -148,8 +168,12 @@ class InventoryController extends Controller
         $tanggalBeli = $tanggalBeliCarbon->toDateString();
         
         $stock = \App\Models\GreenBeanStock::findOrFail($id);
+        
+        // UPDATE JUGA TOTAL_HARGA DAN HARGA_BELI
         $stock->update([
             'stok_gram' => $validated['stok_gram'],
+            'harga_beli' => $hargaBeli,
+            'total_harga' => $validated['total_harga'], // <-- INI IKUT DI-UPDATE
             'tanggal_beli' => $tanggalBeli,
         ]);
         
@@ -195,37 +219,43 @@ class InventoryController extends Controller
         ]);
         
         $batch = \App\Models\RoastingBatch::findOrFail($id);
-        
-        $oldStokGram = $batch->berat_matang_bersih * 1000;
-        $newStokGram = $validated['total_stok'];
-        $diffGram = $newStokGram - $oldStokGram;
+        $newStokGram = (float) $validated['total_stok'];
 
+        // Update sisa_stok dan berat_matang_bersih pada batch
+        $batch->sisa_stok = $newStokGram;
         $batch->berat_matang_bersih = $newStokGram / 1000;
         $batch->save();
 
+        // Sinkronkan total_stok master RoastedBean dengan total sisa batch aktif
         if ($batch->roasted_bean_id) {
             $master = \App\Models\RoastedBean::find($batch->roasted_bean_id);
             if ($master) {
-                $master->total_stok = max(0, $master->total_stok + $diffGram);
+                $totalSisa = \App\Models\RoastingBatch::where('roasted_bean_id', $batch->roasted_bean_id)
+                    ->where('status_batch', 'completed')
+                    ->sum('sisa_stok');
+                $master->total_stok = $totalSisa;
                 $master->save();
             }
         }
 
-        return redirect()->route('inventory.index', ['tab' => 'roastedbean'])->with('success', 'Batch Roasting berhasil diperbarui!');
+        return redirect()->route('inventory.index', ['tab' => 'roastedbean'])->with('success', 'Stok Batch Roasting berhasil diperbarui!');
     }
     
     public function destroyRoastedBean($id)
     {
         $batch = \App\Models\RoastingBatch::findOrFail($id);
-        
-        if ($batch->roasted_bean_id) {
-            $master = \App\Models\RoastedBean::find($batch->roasted_bean_id);
+        $rbId = $batch->roasted_bean_id;
+        $batch->delete();
+
+        if ($rbId) {
+            $master = \App\Models\RoastedBean::find($rbId);
             if ($master) {
-                $master->total_stok = max(0, $master->total_stok - ($batch->berat_matang_bersih * 1000));
+                $master->total_stok = \App\Models\RoastingBatch::where('roasted_bean_id', $rbId)
+                    ->where('status_batch', 'completed')
+                    ->sum('sisa_stok');
                 $master->save();
             }
         }
-        $batch->delete();
         
         return redirect()->route('inventory.index', ['tab' => 'roastedbean'])->with('success', 'Batch Roasting berhasil dihapus!');
     }

@@ -45,7 +45,7 @@
                     <div class="space-y-1.5">
                         <label class="text-xs font-bold text-primary uppercase tracking-widest drop-shadow-sm">Pilih ID Batch</label>
                         <select x-model="form.batch_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer" required>
-                            <option value="" disabled selected>-- PILIH BATCH --</option>
+                            <option value="" disabled selected> PILIH BATCH </option>
                             <template x-for="batch in activeBatches" :key="batch.id">
                                 <option :value="batch.id" x-text="batch.kode + ' (' + batch.produk + ')'"></option>
                             </template>
@@ -69,7 +69,7 @@
                             <span class="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-black normal-case">Wajib Pilih</span>
                         </label>
                         <select x-model="form.komponen_id" class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer" required>
-                            <option value="" disabled selected>-- PILIH TUGAS --</option>
+                            <option value="" disabled selected> PILIH TUGAS </option>
                             <template x-for="tugas in tugasList" :key="tugas.id">
                                 <option :value="tugas.id" x-text="tugas.nama + ' (Rp ' + formatRupiah(tugas.harga || tugas.tarif || 0) + '/' + tugas.satuan + ')'"></option>
                             </template>

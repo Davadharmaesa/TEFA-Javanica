@@ -194,7 +194,7 @@
                             <span class="text-[9px] bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-black normal-case">Wajib Pilih</span>
                         </label>
                         <select x-model="form.roasted_bean_id" class="w-full h-20 bg-white border border-border/60 rounded-xl px-4 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" required>
-                            <option value="">-- DAFTAR PRODUK JAVANICA --</option>
+                            <option value=""> DAFTAR PRODUK JAVANICA </option>
                             <template x-for="item in roastedBeans" :key="item.id">
                                 <option :value="item.id" x-text="item.nama_kopi"></option>
                             </template>

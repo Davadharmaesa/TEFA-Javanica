@@ -15,6 +15,7 @@ class GreenBeanStock extends Model
         'green_bean_id',
         'stok_gram',
         'harga_beli',
+        'total_harga',
         'tanggal_beli',
     ];
 

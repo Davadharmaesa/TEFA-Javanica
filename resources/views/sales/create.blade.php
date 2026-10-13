@@ -200,11 +200,19 @@
 
                 <!-- Total Harga Jual (harga_jual_pesanan) -->
                 <div class="space-y-1.5">
-                    <label for="harga_jual_pesanan_display" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Harga Transaksi (Rp)</label>
+                    <div class="flex justify-between items-center">
+                        <label for="harga_jual_pesanan_display" class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Harga Transaksi (Rp)</label>
+                        <template x-if="isCustomPrice">
+                            <button type="button" @click="resetToStandardPrice()" class="text-xs font-bold text-amber-600 hover:text-amber-700 underline flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                Reset ke Standar
+                            </button>
+                        </template>
+                    </div>
                     @if(auth()->check() && auth()->user()->role === 'PIC')
                         <input type="text" id="harga_jual_pesanan_display" required 
                                :value="window.formatRupiahString(totalPrice)" 
-                               @input="totalPrice = window.parseRupiahString($event.target.value)" 
+                               @input="totalPrice = window.parseRupiahString($event.target.value); isCustomPrice = true" 
                                placeholder="0" 
                                :class="isSellingBelowHpp ? 'border-red-500 text-red-600 focus:border-red-500 focus:ring-red-500/50' : 'border-border text-primary focus:border-primary focus:ring-primary/50'"
                                class="w-full bg-background border-2 rounded-xl px-4 py-3.5 text-2xl font-mono font-black focus:outline-none focus:ring-2 transition-all">
@@ -302,6 +310,7 @@
             selectedGood: null,
             quantityPcs: {{ old('jumlah_pcs') !== null ? old('jumlah_pcs') : 'null' }},
             totalPrice: null,
+            isCustomPrice: false,
             timeObj: new Date(),
             paymentMethod: '{{ old('metode_pembayaran', 'lunas') }}',
             tipePesanan: '{{ old('tipe_pesanan', request('tab') === 'internal' ? 'internal' : 'eksternal') }}',
@@ -435,10 +444,19 @@
                 } else {
                     this.selectedGood = null;
                 }
+                this.isCustomPrice = false;
+                this.calculatePrices();
+            },
+
+            resetToStandardPrice() {
+                this.isCustomPrice = false;
                 this.calculatePrices();
             },
 
             calculatePrices() {
+                if (this.isCustomPrice) {
+                    return;
+                }
                 const quantity = Number(this.quantityPcs) || 0;
                 const recommendedPrice = Number(this.selectedGood?.harga_jual_per_pcs) || 0;
                 if (this.selectedGood && quantity > 0) {

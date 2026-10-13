@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'TEFA Javanica')</title>
 
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}?v=2">
+
     <!--
         Anti-FOUC: Script ini HARUS berada di sini (sebelum Tailwind & Alpine)
         agar browser bisa menerapkan state sidebar sebelum merender elemen apapun.

@@ -45,12 +45,12 @@
                 </div>
                 <div class="p-5 space-y-4">
                     <div>
-                        <label class="block text-sm font-bold text-primary mb-1">Pilih Batch Roasting (Selesai)</label>
+                        <label class="block text-sm font-bold text-muted-foreground mb-1">Pilih Batch Roasting</label>
                         <select 
                         x-model="form.selectedBatch" 
                         @change="fetchPreview()" 
                         class="w-full bg-background border border-border rounded-xl px-4 py-3 font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
-                            <option value="">-- Pilih Batch --</option>
+                            <option value=""> Pilih Batch </option>
                             <template x-for="batch in batches" :key="batch.id">
                                 <option :value="JSON.stringify(batch)" x-text="batch.kode_batch + ' | ' + batch.green_bean_nama + ' | Berat: ' + batch.berat_matang_bersih + ' kg'"></option>
                             </template>
@@ -80,12 +80,12 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-primary mb-1">Pilih Kemasan Utama (Pouch)</label>
+                        <label class="block text-sm font-bold text-muted-foreground mb-1">Pilih Kemasan</label>
                         <select 
                         x-model="form.selectedPouch" 
                         @change="onPouchChange($event)" 
                         class="w-full bg-background border border-border rounded-xl px-4 py-3 font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
-                            <option value="">-- Pilih Pouch --</option>
+                            <option value=""> Pilih Pouch </option>
                             @foreach($packagings->filter(fn($p) => $p->kapasitas_gram > 0) as $pack)
                                 <option value="{{ $pack->id }}" data-hpp="{{ $pack->harga_satuan }}" data-capacity="{{ $pack->kapasitas_gram }}" data-stock="{{ $pack->stok_pcs }}">{{ $pack->nama_kemasan }} (Rp{{ number_format($pack->harga_satuan, 0, ',', '.') }}/pcs)</option>
                             @endforeach
@@ -93,12 +93,12 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-primary mb-1">Pilih Label / Stiker</label>
+                        <label class="block text-sm font-bold text-muted-foreground mb-1">Pilih Label / Stiker</label>
                         <select 
                         x-model="form.selectedSticker" 
                         @change="onStickerChange($event)" 
                         class="w-full bg-background border border-border rounded-xl px-4 py-3 font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
-                            <option value="">-- Pilih Stiker --</option>
+                            <option value=""> Pilih Stiker </option>
                             @foreach($packagings->filter(fn($p) => $p->kapasitas_gram == 0) as $pack)
                                 <option value="{{ $pack->id }}" data-hpp="{{ $pack->harga_satuan }}" data-stock="{{ $pack->stok_pcs }}">{{ $pack->nama_kemasan }} (Rp{{ number_format($pack->harga_satuan, 0, ',', '.') }}/pcs)</option>
                             @endforeach
@@ -106,7 +106,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold font text-primary mb-1">Total Output (Pcs)</label>
+                        <label class="block text-sm font-bold text-muted-foreground mb-1">Total Output (Pcs)</label>
                         <input type="number"
                                readonly
                                x-model="form.hasil_kemasan_pcs" 
@@ -121,7 +121,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-primary mb-1">Harga Jual Final per Pcs (Rp)</label>
+                        <label class="block text-sm font-bold text-muted-foreground mb-1">Harga Jual Final per Pcs (Rp)</label>
                         <input type="number"
                                min="0"
                                x-model="form.harga_jual_final" 
@@ -310,14 +310,28 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('hppCalculator', () => ({
-            batches: @json($batches),
+            // Ubah jadi hppHistory agar jelas menampung data riwayat
+            hppHistory: @json($hppHistory),
+            batches: @json($batches ?? []), // Data batch untuk form input di atas
             loading: false,
 
             // Pagination States
             hppPage: 1,
             hppLimit: 10,
+            
             get filteredHppBatches() {
-                return this.batches.filter(b => b.sudah_dihitung);
+                // Mapping data riwayat hpp agar strukturnya sesuai dengan yang dipanggil tabel HTML
+                return this.hppHistory.map(item => {
+                    return {
+                        id: item.id,
+                        kode_batch: item.roasting_batch ? item.roasting_batch.kode_batch : 'BATCH-' + item.roasting_batch_id,
+                        hpp: {
+                            created_at: item.created_at,
+                            hasil_kemasan_pcs: item.hasil_kemasan_pcs,
+                            total_hpp: item.total_hpp
+                        }
+                    };
+                });
             },
             get totalHppPages() {
                 return Math.ceil(this.filteredHppBatches.length / this.hppLimit) || 1;
@@ -327,6 +341,8 @@
                 const start = (this.hppPage - 1) * this.hppLimit;
                 return this.filteredHppBatches.slice(start, start + this.hppLimit);
             },
+            
+            // ... biarkan sisa fungsi form, preview, onPouchChange, dll tetap sama ...
             form: {
                 selectedBatch: '',
                 selectedPouch: '',

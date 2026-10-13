@@ -14,7 +14,7 @@
             <h1 class="text-3xl font-heading font-black text-primary tracking-tight">Beranda PIC Eksekutif</h1>
             <!-- Subtitle -->
             <p class="text-muted-foreground font-sans text-sm mt-1">
-                Pusat Kendali Mesin Sangrai & Pencatatan Inventaris Barang Jadi.
+                Dashboard Pengelolaan Proses Roasting, Kalkulasi Biaya Produksi, dan Stok Barang Jadi.
             </p>
         </div>
         

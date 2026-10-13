@@ -42,6 +42,7 @@ class RoastingBatch extends Model
         'berat_mentah_sortasi',
         'berat_matang_kotor',
         'berat_matang_bersih',
+        'sisa_stok',
         'biaya_bahan_baku',
         'persentase_susut',
         'tanggal_roasting',

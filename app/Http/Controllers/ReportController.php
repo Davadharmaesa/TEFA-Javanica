@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use App\Exports\LaporanKeuanganExport;
 use Maatwebsite\Excel\Facades\Excel;
 
-class ReportController extends Controller 
+class ReportController extends Controller
 {
     public function index(Request $request)
     {
@@ -88,8 +88,9 @@ class ReportController extends Controller
         $greenBeanPurchases = GreenBeanStock::whereBetween('tanggal_beli', [$start, $end])->get();
         $totalBelanjaGB = 0;
         foreach ($greenBeanPurchases as $gb) {
-            $totalBelanjaGB += ($gb->stok_gram / 1000) * $gb->harga_beli;
+            $totalBelanjaGB += ($gb->total_harga > 0) ? (float) $gb->total_harga : (($gb->stok_gram / 1000) * $gb->harga_beli);
         }
+
         if ($totalBelanjaGB > 0) {
             $outflowByCategory['Belanja Bahan Baku (Green Bean)'] = $totalBelanjaGB;
             $totalOutflow += $totalBelanjaGB;
@@ -110,7 +111,7 @@ class ReportController extends Controller
         $hpps = \App\Models\HppCalculation::whereHas('roastingBatch', function ($q) use ($start, $end) {
             $q->whereBetween('tanggal_roasting', [$start, $end]);
         })->get();
-        
+
         $totalListrik = $hpps->sum('biaya_listrik');
         $totalPenyusutan = $hpps->sum('biaya_penyusutan');
         $totalKemasan = $hpps->sum('biaya_kemasan');
@@ -182,7 +183,7 @@ class ReportController extends Controller
         $greenBeanPurchases = GreenBeanStock::whereBetween('tanggal_beli', [$start, $end])->get();
         $totalBelanjaGB = 0;
         foreach ($greenBeanPurchases as $gb) {
-            $totalBelanjaGB += ($gb->stok_gram / 1000) * $gb->harga_beli;
+            $totalBelanjaGB += ($gb->total_harga > 0) ? (float) $gb->total_harga : (($gb->stok_gram / 1000) * $gb->harga_beli);
         }
         if ($totalBelanjaGB > 0) {
             $outflowByCategory['Belanja Bahan Baku (Green Bean)'] = $totalBelanjaGB;
@@ -209,14 +210,14 @@ class ReportController extends Controller
 
         return Excel::download(
             new LaporanKeuanganExport(
-                $inflowData, 
-                $outflowByCategory, 
-                $totalInflow, 
-                $totalOutflow, 
-                $labaBersih, 
-                $greenBeanStockEntries, 
+                $inflowData,
+                $outflowByCategory,
+                $totalInflow,
+                $totalOutflow,
+                $labaBersih,
+                $greenBeanStockEntries,
                 $roastingBatchEntries
-            ), 
+            ),
             $filename
         );
     }
