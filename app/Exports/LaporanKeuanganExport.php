@@ -6,26 +6,18 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class LaporanKeuanganExport implements WithMultipleSheets
 {
-    protected $inflowData, $outflowByCategory, $totalInflow, $totalOutflow, $labaBersih;
-    protected $greenBeanStockEntries, $roastingBatchEntries;
+    protected $data;
 
-    public function __construct($inflowData, $outflowByCategory, $totalInflow, $totalOutflow, $labaBersih, $greenBeanStockEntries, $roastingBatchEntries)
+    public function __construct(array $data)
     {
-        $this->inflowData = $inflowData;
-        $this->outflowByCategory = $outflowByCategory;
-        $this->totalInflow = $totalInflow;
-        $this->totalOutflow = $totalOutflow;
-        $this->labaBersih = $labaBersih;
-        $this->greenBeanStockEntries = $greenBeanStockEntries;
-        $this->roastingBatchEntries = $roastingBatchEntries;
+        $this->data = $data;
     }
 
     public function sheets(): array
     {
         return [
-            new KeuanganSheetExport($this->inflowData, $this->outflowByCategory, $this->totalInflow, $this->totalOutflow, $this->labaBersih),
-            new GreenBeanSheetExport($this->greenBeanStockEntries),
-            new RoastingSheetExport($this->roastingBatchEntries),
+            new LabaRugiSheetExport($this->data),
+            new ArusKasSheetExport($this->data),
         ];
     }
 }
