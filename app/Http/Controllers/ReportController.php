@@ -62,7 +62,7 @@ class ReportController extends Controller
         }
 
         // ==========================================
-        // DYNAMIC INFLOW (Pendapatan)
+        // 1. DATA LAPORAN LABA RUGI (PROFIT & LOSS)
         // ==========================================
         $inflowData = (clone $transactions)->where('pesanan_keluar.status_pembayaran', 'lunas')
             ->join('roasted_bean', 'pesanan_keluar.roasted_bean_id', '=', 'roasted_bean.id')
@@ -70,66 +70,86 @@ class ReportController extends Controller
             ->groupBy('roasted_bean.bentuk_akhir')
             ->get();
 
-        $inflowByCategory = [];
-        $totalInflow = 0;
+        $pendapatanByCategory = [];
+        $totalPendapatan = 0;
         foreach ($inflowData as $item) {
-            $cat = $item->kategori ?: 'Lainnya';
-            $inflowByCategory[$cat] = $item->total;
-            $totalInflow += $item->total;
+            $cat = $item->kategori ?: 'Penjualan Kopi';
+            $pendapatanByCategory[$cat] = (float) $item->total;
+            $totalPendapatan += (float) $item->total;
         }
 
-        // ==========================================
-        // DYNAMIC OUTFLOW (Pengeluaran)
-        // ==========================================
-        $outflowByCategory = [];
-        $totalOutflow = 0;
+        // Beban Pokok & Beban Operasional (Laba Rugi)
+        $bebanLabaRugiByCategory = [];
+        $hpps = \App\Models\HppCalculation::whereHas('roastingBatch', function ($q) use ($start, $end) {
+            $q->whereBetween('tanggal_roasting', [$start, $end]);
+        })->get();
 
-        // 1. Belanja Green Bean
+        $roastingBahanBaku = RoastingBatch::whereBetween('tanggal_roasting', [$start, $end])
+            ->where('status_batch', 'completed')
+            ->sum('biaya_bahan_baku');
+        $biayaBahanBakuTerpakai = $hpps->sum('biaya_bahan_baku') > 0 ? (float) $hpps->sum('biaya_bahan_baku') : (float) $roastingBahanBaku;
+        if ($biayaBahanBakuTerpakai > 0) {
+            $bebanLabaRugiByCategory['Bahan Baku Terpakai (HPP Sangrai)'] = $biayaBahanBakuTerpakai;
+        }
+
+        $totalUpah = (float) LogPekerja::whereBetween('created_at', [$start . ' 00:00:00', $end . ' 23:59:59'])->sum('total_upah');
+        if ($totalUpah > 0) {
+            $bebanLabaRugiByCategory['Beban Upah Tenaga Kerja'] = $totalUpah;
+        }
+
+        $totalListrik = (float) $hpps->sum('biaya_listrik');
+        if ($totalListrik > 0) {
+            $bebanLabaRugiByCategory['Beban Listrik Mesin Roasting'] = $totalListrik;
+        }
+
+        $totalPenyusutan = (float) $hpps->sum('biaya_penyusutan');
+        if ($totalPenyusutan > 0) {
+            $bebanLabaRugiByCategory['Beban Penyusutan Mesin'] = $totalPenyusutan;
+        }
+
+        $totalKemasan = (float) $hpps->sum('biaya_kemasan');
+        if ($totalKemasan > 0) {
+            $bebanLabaRugiByCategory['Beban Kemasan Terpakai'] = $totalKemasan;
+        }
+
+        $totalBebanLabaRugi = array_sum($bebanLabaRugiByCategory);
+        $labaBersih = $totalPendapatan - $totalBebanLabaRugi;
+
+        // ==========================================
+        // 2. DATA LAPORAN ARUS KAS (CASH FLOW)
+        // ==========================================
+        // Kas Masuk (Cash Inflows)
+        $cashInflowByCategory = [];
+        if ($totalLunas > 0) {
+            $cashInflowByCategory['Penerimaan Penjualan (Lunas)'] = (float) $totalLunas;
+        }
+        if ($totalDP > 0) {
+            $cashInflowByCategory['Penerimaan Uang Muka (DP)'] = (float) $totalDP;
+        }
+        $totalCashInflow = (float) $totalLunas + (float) $totalDP;
+
+        // Kas Keluar (Cash Outflows)
+        $cashOutflowByCategory = [];
         $greenBeanPurchases = GreenBeanStock::whereBetween('tanggal_beli', [$start, $end])->get();
         $totalBelanjaGB = 0;
         foreach ($greenBeanPurchases as $gb) {
             $totalBelanjaGB += ($gb->total_harga > 0) ? (float) $gb->total_harga : (($gb->stok_gram / 1000) * $gb->harga_beli);
         }
-
         if ($totalBelanjaGB > 0) {
-            $outflowByCategory['Belanja Bahan Baku (Green Bean)'] = $totalBelanjaGB;
-            $totalOutflow += $totalBelanjaGB;
+            $cashOutflowByCategory['Pengadaan Bahan Baku (Green Bean)'] = (float) $totalBelanjaGB;
         }
-
-        // 2. Upah Pekerja
-        $totalUpah = LogPekerja::whereBetween('created_at', [$start . ' 00:00:00', $end . ' 23:59:59'])->sum('total_upah');
         if ($totalUpah > 0) {
-            $outflowByCategory['Upah Tenaga Kerja'] = $totalUpah;
-            $totalOutflow += $totalUpah;
+            $cashOutflowByCategory['Pembayaran Upah Tenaga Kerja'] = (float) $totalUpah;
         }
 
-        // 3. Biaya Operasional (Listrik, Penyusutan, dll dari HPP)
-        // For simplicity, we just aggregate HppCalculation within this period
-        // Wait, HppCalculation is just calculation. Has it been realized?
-        // Roasting activities already happened. We can take total_upah + biaya_listrik + biaya_penyusutan from HPP?
-        // Actually, let's just get it from HppCalculation for batches within this period.
-        $hpps = \App\Models\HppCalculation::whereHas('roastingBatch', function ($q) use ($start, $end) {
-            $q->whereBetween('tanggal_roasting', [$start, $end]);
-        })->get();
+        $totalCashOutflow = array_sum($cashOutflowByCategory);
+        $netCashFlow = $totalCashInflow - $totalCashOutflow;
 
-        $totalListrik = $hpps->sum('biaya_listrik');
-        $totalPenyusutan = $hpps->sum('biaya_penyusutan');
-        $totalKemasan = $hpps->sum('biaya_kemasan');
-
-        if ($totalListrik > 0) {
-            $outflowByCategory['Biaya Listrik Mesin'] = $totalListrik;
-            $totalOutflow += $totalListrik;
-        }
-        if ($totalPenyusutan > 0) {
-            $outflowByCategory['Penyusutan Mesin'] = $totalPenyusutan;
-            $totalOutflow += $totalPenyusutan;
-        }
-        if ($totalKemasan > 0) {
-            $outflowByCategory['Biaya Kemasan'] = $totalKemasan;
-            $totalOutflow += $totalKemasan;
-        }
-
-        $labaBersih = $totalInflow - $totalOutflow;
+        // Backward compatibility
+        $inflowByCategory = $pendapatanByCategory;
+        $outflowByCategory = $cashOutflowByCategory;
+        $totalInflow = $totalPendapatan;
+        $totalOutflow = $totalCashOutflow;
 
         return view('reports.index', compact(
             'totalUpahPekerja',
@@ -143,11 +163,23 @@ class ReportController extends Controller
             'totalLunas',
             'totalDP',
             'totalSisaPiutang',
+            // Laba Rugi
+            'pendapatanByCategory',
+            'totalPendapatan',
+            'bebanLabaRugiByCategory',
+            'totalBebanLabaRugi',
+            'labaBersih',
+            // Arus Kas
+            'cashInflowByCategory',
+            'totalCashInflow',
+            'cashOutflowByCategory',
+            'totalCashOutflow',
+            'netCashFlow',
+            // Legacy aliases
             'inflowByCategory',
             'outflowByCategory',
             'totalInflow',
-            'totalOutflow',
-            'labaBersih'
+            'totalOutflow'
         ));
     }
 
@@ -169,7 +201,7 @@ class ReportController extends Controller
             ->orderBy('tanggal_roasting', 'desc')
             ->get();
 
-        // 3. Data Inflow
+        // 3. Data Laba Rugi
         $inflowData = PesananKeluar::whereBetween('pesanan_keluar.created_at', [$start . ' 00:00:00', $end . ' 23:59:59'])
             ->where('status_pembayaran', 'lunas')
             ->join('roasted_bean', 'pesanan_keluar.roasted_bean_id', '=', 'roasted_bean.id')
@@ -177,46 +209,92 @@ class ReportController extends Controller
             ->groupBy('roasted_bean.bentuk_akhir')
             ->get();
 
-        // 4. Data Outflow
-        $outflowByCategory = [];
-
-        $greenBeanPurchases = GreenBeanStock::whereBetween('tanggal_beli', [$start, $end])->get();
-        $totalBelanjaGB = 0;
-        foreach ($greenBeanPurchases as $gb) {
-            $totalBelanjaGB += ($gb->total_harga > 0) ? (float) $gb->total_harga : (($gb->stok_gram / 1000) * $gb->harga_beli);
-        }
-        if ($totalBelanjaGB > 0) {
-            $outflowByCategory['Belanja Bahan Baku (Green Bean)'] = $totalBelanjaGB;
-        }
-
-        $totalUpah = LogPekerja::whereBetween('created_at', [$start . ' 00:00:00', $end . ' 23:59:59'])->sum('total_upah');
-        if ($totalUpah > 0) {
-            $outflowByCategory['Upah Tenaga Kerja'] = $totalUpah;
+        $pendapatanByCategory = [];
+        $totalPendapatan = 0;
+        foreach ($inflowData as $item) {
+            $cat = $item->kategori ?: 'Penjualan Kopi';
+            $pendapatanByCategory[$cat] = (float) $item->total;
+            $totalPendapatan += (float) $item->total;
         }
 
         $hpps = \App\Models\HppCalculation::whereHas('roastingBatch', function ($q) use ($start, $end) {
             $q->whereBetween('tanggal_roasting', [$start, $end]);
         })->get();
 
-        if ($hpps->sum('biaya_listrik') > 0) $outflowByCategory['Biaya Listrik Mesin'] = $hpps->sum('biaya_listrik');
-        if ($hpps->sum('biaya_penyusutan') > 0) $outflowByCategory['Penyusutan Mesin'] = $hpps->sum('biaya_penyusutan');
-        if ($hpps->sum('biaya_kemasan') > 0) $outflowByCategory['Biaya Kemasan'] = $hpps->sum('biaya_kemasan');
+        $bebanLabaRugiByCategory = [];
+        $roastingBahanBaku = RoastingBatch::whereBetween('tanggal_roasting', [$start, $end])
+            ->where('status_batch', 'completed')
+            ->sum('biaya_bahan_baku');
+        $biayaBahanBakuTerpakai = $hpps->sum('biaya_bahan_baku') > 0 ? (float) $hpps->sum('biaya_bahan_baku') : (float) $roastingBahanBaku;
+        if ($biayaBahanBakuTerpakai > 0) {
+            $bebanLabaRugiByCategory['Bahan Baku Terpakai (HPP Sangrai)'] = $biayaBahanBakuTerpakai;
+        }
 
-        $totalOutflow = array_sum($outflowByCategory);
-        $totalInflow = $inflowData->sum('total');
-        $labaBersih = $totalInflow - $totalOutflow;
+        $totalUpah = (float) LogPekerja::whereBetween('created_at', [$start . ' 00:00:00', $end . ' 23:59:59'])->sum('total_upah');
+        if ($totalUpah > 0) {
+            $bebanLabaRugiByCategory['Beban Upah Tenaga Kerja'] = $totalUpah;
+        }
 
-        $filename = "Laporan_Lengkap_{$start}_{$end}.xlsx";
+        $totalListrik = (float) $hpps->sum('biaya_listrik');
+        if ($totalListrik > 0) $bebanLabaRugiByCategory['Beban Listrik Mesin Roasting'] = $totalListrik;
+
+        $totalPenyusutan = (float) $hpps->sum('biaya_penyusutan');
+        if ($totalPenyusutan > 0) $bebanLabaRugiByCategory['Beban Penyusutan Mesin'] = $totalPenyusutan;
+
+        $totalKemasan = (float) $hpps->sum('biaya_kemasan');
+        if ($totalKemasan > 0) $bebanLabaRugiByCategory['Beban Kemasan Terpakai'] = $totalKemasan;
+
+        $totalBeban = array_sum($bebanLabaRugiByCategory);
+        $labaBersih = $totalPendapatan - $totalBeban;
+
+        // 4. Data Arus Kas
+        $transactions = PesananKeluar::whereBetween('pesanan_keluar.created_at', [$start . ' 00:00:00', $end . ' 23:59:59']);
+        $totalLunas = (float) (clone $transactions)->where('pesanan_keluar.status_pembayaran', 'lunas')->sum('pesanan_keluar.total_pembayaran');
+        $totalDP = 0;
+        if (Schema::hasColumn('pesanan_keluar', 'metode_pembayaran') && Schema::hasColumn('pesanan_keluar', 'nominal_dp')) {
+            $totalDP = (float) (clone $transactions)->where('metode_pembayaran', 'dp')->sum('nominal_dp');
+        }
+        $totalSisaPiutang = 0;
+        if (Schema::hasColumn('pesanan_keluar', 'sisa_pembayaran')) {
+            $totalSisaPiutang = (float) (clone $transactions)->sum('sisa_pembayaran');
+        }
+
+        $cashInflowByCategory = [];
+        if ($totalLunas > 0) $cashInflowByCategory['Penerimaan Penjualan (Lunas)'] = $totalLunas;
+        if ($totalDP > 0) $cashInflowByCategory['Penerimaan Uang Muka (DP)'] = $totalDP;
+        $totalCashInflow = $totalLunas + $totalDP;
+
+        $cashOutflowByCategory = [];
+        $greenBeanPurchases = GreenBeanStock::whereBetween('tanggal_beli', [$start, $end])->get();
+        $totalBelanjaGB = 0;
+        foreach ($greenBeanPurchases as $gb) {
+            $totalBelanjaGB += ($gb->total_harga > 0) ? (float) $gb->total_harga : (($gb->stok_gram / 1000) * $gb->harga_beli);
+        }
+        if ($totalBelanjaGB > 0) $cashOutflowByCategory['Pengadaan Bahan Baku (Green Bean)'] = (float) $totalBelanjaGB;
+        if ($totalUpah > 0) $cashOutflowByCategory['Pembayaran Upah Tenaga Kerja'] = (float) $totalUpah;
+
+        $totalCashOutflow = array_sum($cashOutflowByCategory);
+        $netCashFlow = $totalCashInflow - $totalCashOutflow;
+
+        $filename = "Laporan_Keuangan_Lengkap_{$start}_{$end}.xlsx";
 
         return Excel::download(
             new LaporanKeuanganExport(
-                $inflowData,
-                $outflowByCategory,
-                $totalInflow,
-                $totalOutflow,
+                $pendapatanByCategory,
+                $bebanLabaRugiByCategory,
+                $totalPendapatan,
+                $totalBeban,
                 $labaBersih,
+                $cashInflowByCategory,
+                $cashOutflowByCategory,
+                $totalCashInflow,
+                $totalCashOutflow,
+                $netCashFlow,
+                $totalSisaPiutang,
                 $greenBeanStockEntries,
-                $roastingBatchEntries
+                $roastingBatchEntries,
+                $start,
+                $end
             ),
             $filename
         );

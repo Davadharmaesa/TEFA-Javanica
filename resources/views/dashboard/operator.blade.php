@@ -78,7 +78,7 @@
             <div class="flex justify-between items-start mb-4">
                 <div>
                     <h3 class="text-primary/80 font-bold uppercase tracking-tighter text-xs mb-1">Rata-Rata Penyusutan</h3>
-                    <div class="flex items-baseline gap-1.5 {{ $avg_burnoff > 20 ? 'text-destructive' : 'text-primary' }}">
+                    <div class="flex items-baseline gap-1.5 text-primary ">
                         <span class="text-4xl font-mono font-extrabold">{{ $avg_burnoff }}</span>
                         <span class="text-lg font-bold font-sans">%</span>
                     </div>
