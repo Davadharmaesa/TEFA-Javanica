@@ -144,28 +144,40 @@ class SalesController extends Controller
      * Show the form for creating a new Pre-Order
      */
     private function calculateProductPricing(int $roastedBeanId, ?Packaging $packaging): array
-    {
-        if (!$packaging || $packaging->kapasitas_gram <= 0) {
-            return ['hpp_per_pcs' => 0, 'harga_jual_per_pcs' => 0];
-        }
-
-        $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function ($query) use ($roastedBeanId) {
-            $query->where('roasted_bean_id', $roastedBeanId);
-        })->where('packaging_id', $packaging->id)->latest()->first();
-
-        if ($latestHpp && $latestHpp->hasil_kemasan_pcs > 0) {
-            $hppPerPcs = round($latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs);
-            $hargaJualFinal = $latestHpp->harga_jual_final ?? 0;
-        } else {
-            $hppPerPcs = 0;
-            $hargaJualFinal = 0;
-        }
-
+{
+    if (!$packaging || $packaging->kapasitas_gram <= 0) {
         return [
-            'hpp_per_pcs' => $hppPerPcs,
-            'harga_jual_per_pcs' => $hargaJualFinal,
+            'hpp_per_pcs' => 0,
+            'harga_jual_per_pcs' => 0
         ];
     }
+
+    $latestHpp = \App\Models\HppCalculation::whereHas('roastingBatch', function ($query) use ($roastedBeanId) {
+        $query->where('roasted_bean_id', $roastedBeanId);
+    })->where('packaging_id', $packaging->id)->latest()->first();
+
+    if ($latestHpp && $latestHpp->hasil_kemasan_pcs > 0) {
+        $hppPerPcs = round(
+            $latestHpp->total_hpp / $latestHpp->hasil_kemasan_pcs
+        );
+
+        $hargaJualFinal = $latestHpp->harga_jual_final ?? 0;
+
+        // Gunakan harga alternatif jika harga dari HPP belum tersedia
+        if ($hargaJualFinal <= 0) {
+            $hargaJualFinal = round($packaging->harga_satuan * 10 * 1.5);
+        }
+    } else {
+        // Fallback ketika belum ada data HPP
+        $hppPerPcs = 0;
+        $hargaJualFinal = round($packaging->harga_satuan * 10 * 1.5);
+    }
+
+    return [
+        'hpp_per_pcs' => $hppPerPcs,
+        'harga_jual_per_pcs' => $hargaJualFinal,
+    ];
+}
 
     public function create()
     {

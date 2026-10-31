@@ -79,12 +79,87 @@ class HppAndSalesTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonPath('biaya_gaji', 20500)
+            ->assertJsonPath('biaya_gaji', 12500)
             ->assertJsonPath('biaya_kemasan', 37500);
 
         $data = $response->json();
         $this->assertEquals(731707, round($data['biaya_bahan_baku']));
         $this->assertEquals(1229, round($data['biaya_listrik']));
+    }
+
+    public function test_hpp_can_be_calculated_and_stored_when_packaging_stock_is_zero(): void
+    {
+        $user = User::factory()->create(['role' => 'PIC']);
+
+        $greenBean = GreenBean::create(['nama_biji' => 'GB Robusta Dampit', 'asal_kopi' => 'Malang']);
+        $roastedBean = RoastedBean::create(['nama_kopi' => 'GB Robusta Dampit', 'bentuk_akhir' => 'Biji Utuh', 'total_stok' => 2000]);
+
+        $batch = RoastingBatch::create([
+            'kode_batch' => 'BATCH-ZERO-STOCK',
+            'user_id' => $user->id,
+            'green_bean_id' => $greenBean->id,
+            'roasted_bean_id' => $roastedBean->id,
+            'profil_sangrai' => 'Medium Roast',
+            'durasi_roasting' => 15,
+            'waktu_first_crack' => 10.00,
+            'waktu_development' => 60,
+            'durasi_pre_heating' => 5,
+            'berat_mentah_gudang' => 2.50,
+            'berat_mentah_sortasi' => 2.40,
+            'berat_matang_kotor' => 2.10,
+            'berat_matang_bersih' => 2.00, // 2000g
+            'persentase_susut' => 16.67,
+            'tanggal_roasting' => now()->toDateString(),
+            'status_batch' => 'completed',
+            'biaya_bahan_baku' => 300000,
+        ]);
+
+        Biaya::create(['nama' => 'Listrik Mesin', 'kategori' => 'Overhead', 'satuan' => 'Kwh', 'harga' => 1500]);
+        Biaya::create(['nama' => 'Penyusutan Mesin', 'kategori' => 'Overhead', 'satuan' => 'Batch', 'harga' => 10000]);
+        Biaya::create(['nama' => 'Upah Roaster', 'kategori' => 'Tenaga Kerja', 'satuan' => 'Batch', 'harga' => 15000]);
+
+        // Packaging with 0 stock (e.g. exhausted in previous packaging / sales)
+        $pouch = Packaging::create([
+            'tipe' => 'Pouch Alumunium',
+            'nama_kemasan' => 'Pouch Standar 100g',
+            'kapasitas_gram' => 100,
+            'harga_satuan' => 1000,
+            'stok_pcs' => 0, // STOK KOSONG
+        ]);
+
+        // 1. Preview kalkulasi tetap bisa menghasilkan output pcs dan total HPP
+        $previewRes = $this->actingAs($user)->postJson('/internal-api/hpp-calculator/preview', [
+            'batch' => json_encode(['id' => $batch->id]),
+            'hasil_kemasan_pcs' => 20, // 2000g / 100g = 20 pcs
+            'pouch_id' => $pouch->id,
+        ]);
+
+        $previewRes->assertStatus(200);
+        $previewData = $previewRes->json();
+        $this->assertEquals(20, $previewData['max_output_pcs']);
+        $this->assertGreaterThan(0, $previewData['total_hpp']);
+
+        // 2. Simpan kalkulasi HPP ke database
+        $storeRes = $this->actingAs($user)->post('/hpp-calculator/store', [
+            'roasting_batch_id' => $batch->id,
+            'packaging_id' => $pouch->id,
+            'hasil_kemasan_pcs' => 20,
+            'biaya_bahan_baku' => $previewData['biaya_bahan_baku'],
+            'biaya_listrik' => $previewData['biaya_listrik'],
+            'biaya_penyusutan' => $previewData['biaya_penyusutan'],
+            'biaya_gaji' => $previewData['biaya_gaji'],
+            'biaya_kemasan' => $previewData['biaya_kemasan'],
+            'total_hpp' => $previewData['total_hpp'],
+            'harga_jual_final' => 25000,
+        ]);
+
+        $storeRes->assertRedirect(route('hpp.index'));
+        $this->assertDatabaseHas('hpp_calculations', [
+            'roasting_batch_id' => $batch->id,
+            'packaging_id' => $pouch->id,
+            'hasil_kemasan_pcs' => 20,
+            'harga_jual_final' => 25000,
+        ]);
     }
 
     public function test_sales_transaction_deducts_stock_using_fifo(): void

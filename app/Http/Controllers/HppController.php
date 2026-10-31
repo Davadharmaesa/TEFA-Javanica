@@ -113,11 +113,9 @@ class HppController extends Controller
 
         $totalRoastedGram = $batch->berat_matang_bersih * 1000; // in grams
         
-        // Hitung batas maksimum pcs hasil kemasan secara fisik & stok
+        // Hitung batas maksimum pcs hasil kemasan berdasarkan kapasitas batch kopi
         $maxPcsByCoffee = $pouch_capacity_gram > 0 ? floor($totalRoastedGram / $pouch_capacity_gram) : 0;
-        $maxPcsByPouch = $pouch ? $pouch->stok_pcs : 999999;
-        $maxPcsBySticker = $sticker ? $sticker->stok_pcs : 999999;
-        $maxOutputPcs = min($maxPcsByCoffee, $maxPcsByPouch, $maxPcsBySticker);
+        $maxOutputPcs = $maxPcsByCoffee;
 
         $share = 1.0;
         if ($totalRoastedGram > 0 && $pouch_capacity_gram > 0) {

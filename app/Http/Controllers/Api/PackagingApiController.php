@@ -7,7 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\RoastedBean;
 use App\Models\Packaging;
 use App\Models\FinishedGood;
+use App\Models\RoastingBatch;
+use App\Models\RoastedBeanStock;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class PackagingApiController extends Controller
 {
@@ -49,7 +52,12 @@ class PackagingApiController extends Controller
             }
 
             // Validasi apakah stok roasted bean cukup
-            if ($roastedBean->total_stok < $stokDigunakan) {
+            $batchStockSum = RoastingBatch::where('roasted_bean_id', $roastedBean->id)
+                ->where('status_batch', 'completed')
+                ->sum('sisa_stok');
+            $availableStock = max((float) $roastedBean->total_stok, (float) $batchStockSum);
+
+            if ($availableStock < $stokDigunakan) {
                 return response()->json(['message' => 'Stok Roasted Bean tidak mencukupi.'], 400);
             }
 
@@ -69,12 +77,73 @@ class PackagingApiController extends Controller
             // Output pcs yang dikemas wajib sama dengan kebutuhan riil
             $hasilKemasanPcs = $requiredPcs;
 
-            // 3. Update Stok Roasted Bean
-            // Kurangi stok utama hanya sebesar yang sukses dikemas ke dalam pouch (tidak termasuk sisa residu)
+            // 3. Update Stok Roasted Bean & RoastingBatch (FIFO)
             $stokTerkemas = $hasilKemasanPcs * $ukuranKemasan;
-            $roastedBean->total_stok -= $stokTerkemas;
 
-            // Perbarui sisa_stok sesuai dengan sisa residu ril yang dihasilkan
+            // Kurangi stok riil dari RoastingBatch menggunakan FIFO
+            $batches = RoastingBatch::where('roasted_bean_id', $roastedBean->id)
+                ->where('status_batch', 'completed')
+                ->where(function($q) {
+                    $q->where('sisa_stok', '>', 0)
+                      ->orWhere(function($sub) {
+                          $sub->whereNull('sisa_stok')
+                              ->where('berat_matang_bersih', '>', 0);
+                      });
+                })
+                ->orderBy('tanggal_roasting', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            $remainingToDeduct = $stokTerkemas;
+            foreach ($batches as $batch) {
+                if ($remainingToDeduct <= 0) break;
+
+                $batchStock = $batch->sisa_stok !== null ? (int) $batch->sisa_stok : (int) ($batch->berat_matang_bersih * 1000);
+
+                if ($batchStock >= $remainingToDeduct) {
+                    $newBatchStock = $batchStock - $remainingToDeduct;
+                    $batch->sisa_stok = $newBatchStock;
+                    $batch->berat_matang_bersih = round($newBatchStock / 1000, 2);
+                    $batch->save();
+                    $remainingToDeduct = 0;
+                } else {
+                    $remainingToDeduct -= $batchStock;
+                    $batch->sisa_stok = 0;
+                    $batch->berat_matang_bersih = 0;
+                    $batch->save();
+                }
+            }
+
+            // Kurangi juga dari RoastedBeanStock jika tabel ada (FIFO)
+            if (Schema::hasTable('roasted_bean_stock')) {
+                $stocks = RoastedBeanStock::where('roasted_bean_id', $roastedBean->id)
+                    ->where('stok_gram', '>', 0)
+                    ->orderBy('tanggal_roasting', 'asc')
+                    ->orderBy('id', 'asc')
+                    ->get();
+
+                $remainingToDeductStocks = $stokTerkemas;
+                foreach ($stocks as $stock) {
+                    if ($remainingToDeductStocks <= 0) break;
+
+                    if ($stock->stok_gram >= $remainingToDeductStocks) {
+                        $stock->stok_gram -= $remainingToDeductStocks;
+                        $stock->save();
+                        $remainingToDeductStocks = 0;
+                    } else {
+                        $remainingToDeductStocks -= $stock->stok_gram;
+                        $stock->stok_gram = 0;
+                        $stock->save();
+                    }
+                }
+            }
+
+            // Sinkronkan total_stok master RoastedBean dari sisa seluruh batch aktif
+            $totalBatchSisa = RoastingBatch::where('roasted_bean_id', $roastedBean->id)
+                ->where('status_batch', 'completed')
+                ->sum('sisa_stok');
+
+            $roastedBean->total_stok = $totalBatchSisa;
             $sisaGram = $stokDigunakan - $stokTerkemas;
             $roastedBean->sisa_stok = $sisaGram;
             $roastedBean->save();
@@ -123,29 +192,64 @@ class PackagingApiController extends Controller
     public function clearResidue(Request $request)
     {
         $request->validate([
-            'roasted_bean_id' => 'required|exists:roasted_beans,id'
+            'batch_id' => 'nullable|exists:roasting_batch,id',
+            'roasted_bean_id' => 'nullable'
         ]);
 
         try {
             DB::beginTransaction();
 
-            $roastedBean = RoastedBean::findOrFail($request->roasted_bean_id);
-            $sisa = $roastedBean->sisa_stok;
+            $clearedGram = 0;
 
-            if ($sisa <= 0) {
-                return response()->json(['message' => 'Tidak ada sisa stok / residu untuk dibersihkan.'], 400);
+            if ($request->filled('batch_id')) {
+                $batch = RoastingBatch::findOrFail($request->batch_id);
+                $clearedGram = $batch->sisa_stok;
+                $batch->sisa_stok = 0;
+                $batch->berat_matang_bersih = 0;
+                $batch->save();
+
+                if ($batch->roasted_bean_id) {
+                    $roastedBean = RoastedBean::find($batch->roasted_bean_id);
+                    if ($roastedBean) {
+                        $roastedBean->total_stok = RoastingBatch::where('roasted_bean_id', $batch->roasted_bean_id)
+                            ->where('status_batch', 'completed')
+                            ->sum('sisa_stok');
+                        $roastedBean->sisa_stok = 0;
+                        $roastedBean->save();
+                    }
+                }
+            } elseif ($request->filled('roasted_bean_id')) {
+                $batch = RoastingBatch::find($request->roasted_bean_id);
+                if ($batch) {
+                    $clearedGram = $batch->sisa_stok;
+                    $batch->sisa_stok = 0;
+                    $batch->berat_matang_bersih = 0;
+                    $batch->save();
+
+                    $roastedBean = RoastedBean::find($batch->roasted_bean_id);
+                    if ($roastedBean) {
+                        $roastedBean->total_stok = RoastingBatch::where('roasted_bean_id', $batch->roasted_bean_id)
+                            ->where('status_batch', 'completed')
+                            ->sum('sisa_stok');
+                        $roastedBean->sisa_stok = 0;
+                        $roastedBean->save();
+                    }
+                } else {
+                    $roastedBean = RoastedBean::find($request->roasted_bean_id);
+                    if ($roastedBean) {
+                        $clearedGram = $roastedBean->sisa_stok;
+                        $roastedBean->sisa_stok = 0;
+                        $roastedBean->save();
+                    }
+                }
             }
-
-            // Set sisa_stok to 0
-            $roastedBean->sisa_stok = 0;
-            $roastedBean->save();
 
             DB::commit();
 
             return response()->json([
-                'message' => "Sisa residu sebanyak {$sisa}g berhasil dibersihkan (Penyusutan).",
+                'message' => "Sisa residu sebanyak {$clearedGram}g berhasil dibersihkan (Penyusutan).",
                 'data' => [
-                    'cleared_gram' => $sisa
+                    'cleared_gram' => $clearedGram
                 ]
             ], 200);
         } catch (\Exception $e) {

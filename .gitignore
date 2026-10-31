@@ -25,3 +25,6 @@ Homestead.yaml
 Thumbs.db
 baileys_auth_info/
 .agent/
+/coverage.xml
+/coverage-xml/
+/infection.log

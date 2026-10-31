@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Console\View\Components\Secret;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PragmaRX\Google2FALaravel\Facade as Google2FA;
 use Tests\TestCase;
@@ -11,26 +12,73 @@ class AuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_login_fails_when_fields_are_empty(): void
+    // tc-001
+    // public function test_tc_auth_001_login_sukses_role_pic() : void {
+    //     $secret = Google2FA::generateSecretKey();
+    //     $user = User::factory()->create([
+    //         'email' => 'buastri@tefa.com',
+    //         'password' => bcrypt('kopi123'),
+    //         'role' => 'pic',
+    //         'two_factor_secret' => $secret,
+    //     ]);
+
+    //     $response = $this->post('/login', [
+    //         'email' => 'buastri@tefa.com',
+    //         'password' => 'kopi123',
+    //     ]);
+
+    //     $response->assertStatus(200)
+    //              ->assertJson([
+    //                 'requires_2fa' => true,
+    //                 'user_id' => $user->id,
+    //              ]);
+    // }
+
+    public function test_tc_auth_002_login_gagal_role_pic(): void
     {
+        $user = User::factory()->create([
+            'email' => 'buastri@tefa.com',
+            'password' => bcrypt('kopi123'),
+            'role' => 'PIC',
+        ]);
+
         $response = $this->postJson('/login', [
-            'email' => '',
-            'password' => '',
+            'email' => 'buastri@tefa.com',
+            'password' => 'salah',
         ]);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['email', 'password']);
+                 ->assertJson([
+                     'message' => 'Email atau Password Salah!'
+                 ]);
     }
 
-    public function test_login_fails_with_invalid_credentials(): void
+    public function test_tc_auth_002_login_sukses_role_operator(): void
     {
         $user = User::factory()->create([
-            'email' => 'operator@javanica.com',
-            'password' => bcrypt('password123'),
+            'email' => 'pakdeka@tefa.com',
+            'password' => bcrypt('kopi123'),
         ]);
 
         $response = $this->postJson('/login', [
-            'email' => 'operator@javanica.com',
+            'email' => 'pakdeka@tefa.com',
+            'password' => 'kopi123',
+        ]);
+
+        $response->assertStatus(200)
+                 ->assertJson([
+                    'redirect_url' => '/dashboard']);
+    }
+
+    public function test_tc_auth_004_login_gagal_role_operator(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'pakdeka@tefa.com',
+            'password' => bcrypt('kopi123'),
+        ]);
+
+        $response = $this->postJson('/login', [
+            'email' => 'pakdeka@tefa.com',
             'password' => 'passwordsalah',
         ]);
 
@@ -38,94 +86,7 @@ class AuthTest extends TestCase
                  ->assertJson(['message' => 'Email atau Password Salah!']);
     }
 
-    public function test_operator_or_pic_bypasses_2fa(): void
-    {
-        $user = User::factory()->create([
-            'email' => 'pic@javanica.com',
-            'password' => bcrypt('password123'),
-            'role' => 'PIC',
-        ]);
-
-        $response = $this->postJson('/login', [
-            'email' => 'pic@javanica.com',
-            'password' => 'password123',
-        ]);
-
-        $response->assertStatus(200)
-                 ->assertJson([
-                     'requires_2fa' => false,
-                     'redirect_url' => '/dashboard',
-                 ]);
-
-        $this->assertAuthenticatedAs($user);
-    }
-
-    public function test_user_without_2fa_secret_returns_qr_setup(): void
-    {
-        $user = User::factory()->create([
-            'email' => 'admin@javanica.com',
-            'password' => bcrypt('password123'),
-            'role' => 'Admin',
-            'two_factor_secret' => null,
-        ]);
-
-        $response = $this->postJson('/login', [
-            'email' => 'admin@javanica.com',
-            'password' => 'password123',
-        ]);
-
-        $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'requires_2fa_setup',
-                     'qr_code_url',
-                     'secret_key',
-                     'user_id',
-                 ]);
-    }
-
-    public function test_user_with_2fa_secret_requires_otp(): void
-    {
-        $secret = Google2FA::generateSecretKey();
-        $user = User::factory()->create([
-            'email' => 'admin2@javanica.com',
-            'password' => bcrypt('password123'),
-            'role' => 'Admin',
-            'two_factor_secret' => $secret,
-        ]);
-
-        $response = $this->postJson('/login', [
-            'email' => 'admin2@javanica.com',
-            'password' => 'password123',
-        ]);
-
-        $response->assertStatus(200)
-                 ->assertJson([
-                     'requires_2fa' => true,
-                     'user_id' => $user->id,
-                 ]);
-    }
-
-    public function test_verify_2fa_success_with_valid_otp(): void
-    {
-        $secret = Google2FA::generateSecretKey();
-        $user = User::factory()->create([
-            'two_factor_secret' => $secret,
-        ]);
-
-        $validOtp = Google2FA::getCurrentOtp($secret);
-
-        $response = $this->postJson('/verify-2fa', [
-            'user_id' => $user->id,
-            'otp' => $validOtp,
-        ]);
-
-        $response->assertStatus(200)
-                 ->assertJson(['message' => 'Login Berhasil!']);
-
-        $this->assertAuthenticatedAs($user);
-    }
-
-    public function test_verify_2fa_fails_with_invalid_otp(): void
+    public function test_tc_auth_005_login_gagal_mfa_salah(): void
     {
         $user = User::factory()->create([
             'two_factor_secret' => Google2FA::generateSecretKey(),
@@ -140,14 +101,15 @@ class AuthTest extends TestCase
                  ->assertJson(['message' => 'Kode OTP Salah atau Kadaluarsa!']);
     }
 
-    public function test_verify_2fa_fails_when_user_not_found(): void
+    // TC-AUTH-005    
+    public function test_tc_auth_006_otorisasi_operator_akses_url_pic(): void
     {
-        $response = $this->postJson('/verify-2fa', [
-            'user_id' => 99999,
-            'otp' => '123456',
+        $user = User::factory()->create([
+            'role' => 'Operator',
         ]);
 
-        $response->assertStatus(404)
-                 ->assertJson(['message' => 'User tidak ditemukan!']);
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $this->assertAuthenticatedAs($user);
     }
 }

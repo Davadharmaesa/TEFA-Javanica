@@ -1274,7 +1274,8 @@
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
                         body: JSON.stringify({
-                            roasted_bean_id: item.id
+                            batch_id: item.id,
+                            roasted_bean_id: item.roasted_bean_id || item.id
                         })
                     });
 

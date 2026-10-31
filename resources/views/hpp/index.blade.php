@@ -31,6 +31,23 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl font-bold">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl font-bold">
+            <p class="font-black mb-1">Gagal menyimpan Laporan HPP:</p>
+            <ul class="list-disc list-inside text-sm font-normal space-y-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Form Hitung (Kiri) -->
         <div class="lg:col-span-5 space-y-6">
@@ -113,22 +130,27 @@
                                class="w-full bg-muted border border-border rounded-xl px-4 py-3 text-primary font-mono focus:outline-none cursor-not-allowed font-bold" 
                                placeholder="Auto">
                         <p class="text-[10px] text-muted-foreground mt-1" x-show="form.selectedBatch && form.selectedPouch && getMaxPcs() > 0">
-                            Maksimum output dari batch & stok kemasan: <span class="font-bold text-secondary" x-text="getMaxPcs() + ' Pcs'"></span>
-                        </p>
-                        <p class="text-[10px] text-red-500 font-bold mt-1" x-show="form.selectedBatch && form.selectedPouch && getMaxPcs() > 0 && parseFloat(form.hasil_kemasan_pcs) > getMaxPcs()">
-                            Peringatan: Output melebihi kapasitas batch kopi atau stok bahan kemasan 
+                            Maksimum output dari kapasitas batch kopi: <span class="font-bold text-secondary" x-text="getMaxPcs() + ' Pcs'"></span>
                         </p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-muted-foreground mb-1">Harga Jual Final per Pcs (Rp)</label>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-sm font-bold text-muted-foreground">Harga Jual Final per Pcs (Rp) <span class="text-red-500">*</span></label>
+                            <button type="button" 
+                                    x-show="preview.hpp_per_pcs > 0"
+                                    @click="form.harga_jual_final = Math.ceil((preview.hpp_per_pcs * 1.5) / 500) * 500" 
+                                    class="text-xs text-primary underline font-bold hover:text-primary/80 transition-colors">
+                                Gunakan Saran (+50%)
+                            </button>
+                        </div>
                         <input type="number"
-                               min="0"
+                               min="1"
                                x-model="form.harga_jual_final" 
                                class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-primary font-mono focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" 
                                placeholder="Contoh: 20000">
                         <p class="text-[10px] text-muted-foreground mt-1">
-                            Harga jual satuan per pcs ini yang akan dikunci dan digunakan kasir (Total Transaksi = Qty × Harga per Pcs).
+                            Wajib diisi. Harga satuan per pcs ini yang akan dikunci dan digunakan kasir pada menu Penjualan.
                         </p>
                     </div>
                 </div>
@@ -324,7 +346,7 @@
                 return this.hppHistory.map(item => {
                     return {
                         id: item.id,
-                        kode_batch: item.roasting_batch ? item.roasting_batch.kode_batch : 'BATCH-' + item.roasting_batch_id,
+                        kode_batch: item.kode_batch || (item.roasting_batch ? item.roasting_batch.kode_batch : 'BATCH-' + item.roasting_batch_id),
                         hpp: {
                             created_at: item.created_at,
                             hasil_kemasan_pcs: item.hasil_kemasan_pcs,
@@ -392,11 +414,7 @@
                     const batchObj = JSON.parse(this.form.selectedBatch);
                     const totalRoastedGram = batchObj.berat_matang_bersih * 1000;
                     
-                    const maxPcsByCoffee = Math.floor(totalRoastedGram / this.form.pouch_capacity_gram);
-                    const maxPcsByPouch = this.form.pouch_stock !== undefined ? this.form.pouch_stock : 999999;
-                    const maxPcsBySticker = this.form.sticker_stock !== undefined ? this.form.sticker_stock : 999999;
-                    
-                    return Math.min(maxPcsByCoffee, maxPcsByPouch, maxPcsBySticker);
+                    return Math.floor(totalRoastedGram / this.form.pouch_capacity_gram);
                 } catch (e) {
                     return 0;
                 }
@@ -405,13 +423,14 @@
             get canSubmit() {
                 const max = this.getMaxPcs();
                 const inputVal = parseFloat(this.form.hasil_kemasan_pcs) || 0;
+                const finalPrice = parseFloat(this.form.harga_jual_final) || 0;
                 return this.form.selectedBatch !== '' && 
                        this.form.selectedPouch !== '' &&
-                       this.form.selectedSticker !== '' &&
                        inputVal > 0 && 
                        (max === 0 || inputVal <= max) &&
                        (this.preview.max_output_pcs === undefined || inputVal <= this.preview.max_output_pcs) &&
                        this.preview.total_hpp > 0 &&
+                       finalPrice > 0 &&
                        !this.loading;
             },
 
@@ -441,12 +460,11 @@
                     this.form.sticker_hpp = 0;
                     this.form.sticker_stock = 999999;
                 }
-                this.form.hasil_kemasan_pcs = this.getMaxPcs();
                 this.fetchPreview();
             },
 
             async fetchPreview() {
-                if (!this.form.selectedBatch || !this.form.selectedPouch || !this.form.selectedSticker || !this.form.hasil_kemasan_pcs) {
+                if (!this.form.selectedBatch || !this.form.selectedPouch || !this.form.hasil_kemasan_pcs) {
                     this.preview = { biaya_bahan_baku: 0, biaya_listrik: 0, biaya_penyusutan: 0, biaya_gaji: 0, biaya_kemasan: 0, total_hpp: 0, hpp_per_pcs: 0, pekerja_list: [], biaya_tenaga_kerja_batch: 0, is_fallback_gaji: false, max_output_pcs: 999999 };
                     return;
                 }
@@ -464,12 +482,15 @@
                             batch: this.form.selectedBatch,
                             hasil_kemasan_pcs: this.form.hasil_kemasan_pcs,
                             pouch_id: this.form.selectedPouch,
-                            sticker_id: this.form.selectedSticker
+                            sticker_id: this.form.selectedSticker || null
                         })
                     });
                     
                     if(res.ok) {
                         this.preview = await res.json();
+                        if (!this.form.harga_jual_final && this.preview.hpp_per_pcs > 0) {
+                            this.form.harga_jual_final = Math.ceil((this.preview.hpp_per_pcs * 1.5) / 500) * 500;
+                        }
                     }
                 } catch(e) {
                     console.error('Failed to fetch preview', e);

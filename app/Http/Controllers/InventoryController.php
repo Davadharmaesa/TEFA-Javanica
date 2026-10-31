@@ -87,15 +87,17 @@ class InventoryController extends Controller
         });
 
         $roastingBatches = \App\Models\RoastingBatch::with('roastedBean')->where('status_batch', 'completed')->orderBy('created_at', 'desc')->get()->map(function ($batch) {
+            $sisaGram = $batch->sisa_stok !== null ? (int) $batch->sisa_stok : (int) ($batch->berat_matang_bersih * 1000);
             return [
                 'id' => $batch->id,
+                'roasted_bean_id' => $batch->roasted_bean_id,
                 'kode' => $batch->kode_batch,
                 'nama' => $batch->roastedBean ? $batch->roastedBean->nama_kopi : 'Produk',
                 'bentuk' => $batch->profil_sangrai,
-                'stok' => $batch->berat_matang_bersih,
+                'stok' => round($sisaGram / 1000, 2),
                 'tanggal_roasting' => \Carbon\Carbon::parse($batch->created_at)->format('d-m-Y H:i'),
                 'tanggal_expire' => \Carbon\Carbon::parse($batch->created_at)->addDays(30)->format('d-m-Y'),
-                'sisa_stok' => $batch->sisa_stok ?? ($batch->berat_matang_bersih * 1000),
+                'sisa_stok' => $sisaGram,
             ];
         });
 

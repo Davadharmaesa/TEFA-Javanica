@@ -20,7 +20,10 @@ jobs:
           script: |
             cd /var/www/TEFA-Javanica
             git pull origin main
+            docker compose down
+            docker compose up -d --build
             docker compose exec -T laravel.test php artisan migrate --force
+            docker compose exec -T laravel.test php artisan optimize:clear
             docker compose exec -T laravel.test php artisan config:cache
             docker compose exec -T laravel.test php artisan route:cache
             docker compose exec -T laravel.test php artisan view:cache
