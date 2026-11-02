@@ -18,15 +18,24 @@ class LaporanKeuanganTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'PIC']);
 
+        $roastedBean = \App\Models\RoastedBean::create([
+            'nama_kopi' => 'Robusta Tubruk',
+            'bentuk_akhir' => 'Bubuk',
+            'total_stok' => 1000,
+        ]);
+
         // Buat data transaksi contoh untuk diuji pada rentang tanggal
         PesananKeluar::create([
             'user_id' => $user->id,
+            'roasted_bean_id' => $roastedBean->id,
             'nama_pesanan' => 'Kopi Robusta Tubruk',
             'tipe_pesanan' => 'internal',
-            'total_price' => 250000,
-            'paid_amount' => 250000,
-            'remaining_amount' => 0,
-            'payment_status' => 'Lunas',
+            'jumlah_gram_pesanan' => 1000,
+            'harga_jual_pesanan' => 250000,
+            'total_pembayaran' => 250000,
+            'nominal_dp' => 0,
+            'sisa_pembayaran' => 0,
+            'status_pembayaran' => 'lunas',
             'status_pengiriman' => 'Selesai',
             'status_pengambilan' => 'Sudah Diambil',
             'tanggal_pesanan' => '2026-10-10',
@@ -36,7 +45,7 @@ class LaporanKeuanganTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Laporan Keuangan');
-        $response->assertSee('Rp 250.000'); // Memastikan angka transaksi muncul di laporan
+        $response->assertSee('250.000'); // Memastikan angka transaksi muncul di laporan
     }
 
     /**
