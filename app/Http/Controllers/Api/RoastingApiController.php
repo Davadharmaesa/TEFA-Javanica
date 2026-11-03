@@ -97,8 +97,6 @@ class RoastingApiController extends Controller
                 ->orderBy('id', 'asc')
                 ->get();
 
-
-
             $biayaBahanBaku = 0;
             $remainingToDeduct = $beratMentahGram;
             foreach ($stocks as $stock) {
