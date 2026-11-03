@@ -28,8 +28,6 @@ class PackagingApiController extends Controller
         ]);
 
         try {
-            DB::beginTransaction();
-
             $roastedBean = RoastedBean::findOrFail($validated['roasted_bean_id']);
             $pouch = Packaging::findOrFail($validated['packaging_id']);
             
@@ -76,6 +74,8 @@ class PackagingApiController extends Controller
 
             // Output pcs yang dikemas wajib sama dengan kebutuhan riil
             $hasilKemasanPcs = $requiredPcs;
+
+            DB::beginTransaction();
 
             // 3. Update Stok Roasted Bean & RoastingBatch (FIFO)
             $stokTerkemas = $hasilKemasanPcs * $ukuranKemasan;
