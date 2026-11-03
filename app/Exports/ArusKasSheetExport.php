@@ -37,35 +37,18 @@ class ArusKasSheetExport implements FromCollection, WithTitle, ShouldAutoSize, W
         // Header Tabel (Row 6)
         $rows[] = ['Akun & Kategori', $kolomTanggal];
 
-        // 1. Aktivitas Operasional
+        // 1. Aktivitas Operasional (Row 7-11)
         $rows[] = ['Arus Kas dari Aktivitas Operasional', ''];
-        $rows[] = ['  Penerimaan dari pelanggan', $d['penerimaanPelanggan']];
-        $rows[] = ['  Aset lancar lainnya', 0];
-        $rows[] = ['  Pembayaran ke pemasok', -$d['pembayaranPemasok']];
-        $rows[] = ['  Kartu kredit dan liabilitas jangka pendek lainnya', 0];
-        $rows[] = ['  Pendapatan lainnya', 0];
-        $rows[] = ['  Pengeluaran operasional', -$d['pengeluaranOperasional']];
+        $rows[] = ['  Penerimaan dari pelanggan (Lunas + DP)', $d['penerimaanPelanggan']];
+        $rows[] = ['  Pembayaran ke pemasok (Bahan Baku & Kemasan)', -$d['pembayaranPemasok']];
+        $rows[] = ['  Pengeluaran operasional (Upah & Listrik)', -$d['pengeluaranOperasional']];
         $rows[] = ['Kas Bersih dari Aktivitas Operasional', $d['kasBersihOperasional']];
         $rows[] = ['', ''];
 
-        // 2. Aktivitas Investasi
-        $rows[] = ['Arus Kas dari Aktivitas Investasi', ''];
-        $rows[] = ['  Perolehan/Penjualan aset', 0];
-        $rows[] = ['  Aktivitas investasi lainnya', 0];
-        $rows[] = ['Kas Bersih dari Aktivitas Investasi', $d['kasBersihInvestasi']];
-        $rows[] = ['', ''];
-
-        // 3. Aktivitas Pendanaan
-        $rows[] = ['Arus Kas dari Aktivitas Pendanaan', ''];
-        $rows[] = ['  Pembayaran/Penerimaan pinjaman', 0];
-        $rows[] = ['  Ekuitas/Modal', 0];
-        $rows[] = ['Kas Bersih dari Aktivitas Pendanaan', $d['kasBersihPendanaan']];
-        $rows[] = ['', ''];
-
-        // 4. Rekonsiliasi Saldo Kas
-        $rows[] = ['Kenaikan (penurunan) kas', $d['kenaikanKas']];
-        $rows[] = ['Total revaluasi bank', 0];
-        $rows[] = ['Saldo kas awal', $d['saldoKasAwal']];
+        // 2. Rekonsiliasi Saldo Kas (Row 13-16)
+        $rows[] = ['Rekonsiliasi Saldo Kas', ''];
+        $rows[] = ['  Kenaikan (penurunan) kas bersih', $d['kenaikanKas']];
+        $rows[] = ['  Saldo kas awal', $d['saldoKasAwal']];
         $rows[] = ['Saldo kas akhir', $d['saldoKasAkhir']];
 
         return collect($rows);
@@ -98,8 +81,8 @@ class ArusKasSheetExport implements FromCollection, WithTitle, ShouldAutoSize, W
         ]);
         $sheet->getStyle('B6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
-        // Kategori Utama
-        $categoryRows = [7, 16, 21];
+        // Kategori Utama (Row 7, Row 13)
+        $categoryRows = [7, 13];
         foreach ($categoryRows as $r) {
             $sheet->getStyle("A{$r}")->getFont()->setBold(true);
             $sheet->getStyle("A{$r}:B{$r}")->applyFromArray([
@@ -110,21 +93,19 @@ class ArusKasSheetExport implements FromCollection, WithTitle, ShouldAutoSize, W
             ]);
         }
 
-        // Subtotal
-        $subtotalRows = [14, 19, 24];
-        foreach ($subtotalRows as $r) {
-            $sheet->getStyle("A{$r}:B{$r}")->getFont()->setBold(true);
-            $sheet->getStyle("B{$r}")->applyFromArray([
-                'borders' => [
-                    'top' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D0C0B0']],
-                    'bottom' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D0C0B0']],
-                ],
-            ]);
-        }
+        // Subtotal Kas Bersih Operasional (Row 11)
+        $sheet->getStyle('A11:B11')->getFont()->setBold(true);
+        $sheet->getStyle('B11')->applyFromArray([
+            'borders' => [
+                'top' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D0C0B0']],
+                'bottom' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D0C0B0']],
+            ],
+        ]);
 
-        // Rekonsiliasi (Row 26-29)
-        $sheet->getStyle('A26:A29')->getFont()->setBold(true);
-        $sheet->getStyle('A29:B29')->applyFromArray([
+        // Rekonsiliasi Saldo Kas Akhir (Row 16)
+        $sheet->getStyle('A14:A16')->getFont()->setBold(true);
+        $sheet->getStyle('A16:B16')->applyFromArray([
+            'font' => ['bold' => true, 'size' => 11],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => ['rgb' => 'F5EBE6'],

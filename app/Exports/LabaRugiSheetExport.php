@@ -35,23 +35,20 @@ class LabaRugiSheetExport implements FromCollection, WithTitle, ShouldAutoSize, 
         // Header Tabel (Row 5)
         $rows[] = ['Akun & Keterangan', 'Rincian', 'Subtotal', 'Total'];
 
-        // 1. Pendapatan Penjualan
+        // 1. Pendapatan Penjualan (Row 6-7)
         $rows[] = ['Pendapatan dari Penjualan', '', '', ''];
-        $rows[] = ['  Penjualan', '', $d['penjualanKotor'], ''];
-        $rows[] = ['  -Retur dan Pot. Penjualan', $d['returPenjualan'], '', ''];
-        $rows[] = ['  Diskon Penjualan', $d['diskonPenjualan'], $d['potonganPenjualan'], ''];
-        $rows[] = ['Penjualan Bersih', '', '', $d['penjualanBersih']];
+        $rows[] = ['  Penjualan Produk Kopi', '', '', $d['penjualanBersih']];
 
-        // 2. HPP
+        // 2. HPP (Row 8-11)
         $rows[] = ['Harga Pokok Penjualan', '', '', ''];
         $rows[] = ['  Biaya Bahan Baku (Green Bean)', $d['hppBahanBaku'], '', ''];
         $rows[] = ['  Biaya Bahan Kemasan (Packaging)', $d['hppKemasan'], '', ''];
         $rows[] = ['Total Harga Pokok Penjualan', '', '', -$d['totalHpp']];
 
-        // 3. Laba Kotor
+        // 3. Laba Kotor (Row 12)
         $rows[] = ['Laba Kotor', '', '', $d['labaKotor']];
 
-        // 4. Beban Operasi
+        // 4. Beban Operasi (Row 13-21)
         $rows[] = ['Beban Operasi :', '', '', ''];
         $rows[] = ['Beban Penjualan / Operasional', '', '', ''];
         $rows[] = ['  Biaya Gaji / Upah Tenaga Kerja', $d['bebanGaji'], '', ''];
@@ -64,16 +61,8 @@ class LabaRugiSheetExport implements FromCollection, WithTitle, ShouldAutoSize, 
 
         $rows[] = ['Jumlah Beban Operasi', '', '', -$d['jumlahBebanOperasi']];
 
-        // 5. Laba Bersih Operasional
-        $rows[] = ['Laba Bersih Operasional', '', '', $d['labaBersihOperasional']];
-
-        // 6. Non-Operasi
-        $rows[] = ['Pendapatan dan Beban Non Operasi', '', '', ''];
-        $rows[] = ['  Pendapatan dan Beban Lainnya', 0, '', ''];
-        $rows[] = ['Jumlah Pendapatan dan Beban Lainnya', '', 0, 0];
-
-        // 7. Laba Bersih
-        $rows[] = ['Laba Bersih', '', '', $d['labaBersih']];
+        // 5. Laba Bersih Operasional (Row 22)
+        $rows[] = ['Laba Bersih Operasional', '', '', $d['labaBersih']];
 
         return collect($rows);
     }
@@ -104,13 +93,13 @@ class LabaRugiSheetExport implements FromCollection, WithTitle, ShouldAutoSize, 
         $sheet->getStyle('B5:D5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
         // Styling Bagian Judul Kategori
-        $boldRows = [6, 10, 15, 17, 18, 22, 23, 27, 28, 30];
+        $boldRows = [6, 8, 12, 13, 14, 17, 21, 22];
         foreach ($boldRows as $r) {
             $sheet->getStyle("A{$r}")->getFont()->setBold(true);
         }
 
         // Subtotal & Garis
-        $subtotalRows = [9, 13, 14, 21, 25, 26, 29, 32];
+        $subtotalRows = [7, 11, 12, 16, 20, 21];
         foreach ($subtotalRows as $r) {
             $sheet->getStyle("A{$r}:D{$r}")->getFont()->setBold(true);
             $sheet->getStyle("B{$r}:D{$r}")->applyFromArray([
@@ -120,8 +109,9 @@ class LabaRugiSheetExport implements FromCollection, WithTitle, ShouldAutoSize, 
             ]);
         }
 
-        // Total Akhir / Laba Bersih
-        $sheet->getStyle('A32:D32')->applyFromArray([
+        // Total Akhir / Laba Bersih (Row 22)
+        $sheet->getStyle('A22:D22')->applyFromArray([
+            'font' => ['bold' => true, 'size' => 11],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => ['rgb' => 'F5EBE6'],

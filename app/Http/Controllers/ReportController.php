@@ -110,10 +110,7 @@ class ReportController extends Controller
         // 3. LAPORAN LABA & RUGI (STANDAR AKUNTANSI - BASIS AKRUAL)
         // =============================================================
         // 3.1 Pendapatan Penjualan
-        $returPenjualan = 0;
-        $diskonPenjualan = 0;
-        $potonganPenjualan = $returPenjualan + $diskonPenjualan;
-        $penjualanBersih = $penjualanKotor - $potonganPenjualan;
+        $penjualanBersih = $penjualanKotor;
 
         // 3.2 Harga Pokok Penjualan (HPP)
         $hppBahanBaku = (float) $totalBelanjaGB;
@@ -133,16 +130,8 @@ class ReportController extends Controller
 
         $jumlahBebanOperasi = $totalBebanPenjualan + $totalBebanAdministrasi;
 
-        // 3.5 Laba Bersih Operasional
-        $labaBersihOperasional = $labaKotor - $jumlahBebanOperasi;
-
-        // 3.6 Pendapatan & Beban Non-Operasi
-        $pendapatanNonOperasi = 0;
-        $bebanNonOperasi = 0;
-        $totalNonOperasi = $pendapatanNonOperasi - $bebanNonOperasi;
-
-        // 3.7 Laba Bersih
-        $labaBersih = $labaBersihOperasional + $totalNonOperasi;
+        // 3.5 Laba Bersih
+        $labaBersih = $labaKotor - $jumlahBebanOperasi;
 
         // =============================================================
         // 4. LAPORAN ARUS KAS (STANDAR AKUNTANSI - BASIS KAS LANGSUNG)
@@ -152,10 +141,7 @@ class ReportController extends Controller
         $pengeluaranOperasional = (float) ($totalUpah + $totalListrik); // Tanpa penyusutan (beban non-kas)
 
         $kasBersihOperasional = $penerimaanPelanggan - $pembayaranPemasok - $pengeluaranOperasional;
-        $kasBersihInvestasi = 0;
-        $kasBersihPendanaan = 0;
-        $kenaikanKas = $kasBersihOperasional + $kasBersihInvestasi + $kasBersihPendanaan;
-        $totalRevaluasiBank = 0;
+        $kenaikanKas = $kasBersihOperasional;
 
         // Saldo Kas Awal: Akumulasi kas sebelum tanggal $start
         $priorTransactions = PesananKeluar::where(function ($q) use ($start) {
@@ -199,7 +185,7 @@ class ReportController extends Controller
 
         $priorOutflow = (float) ($priorBelanjaGB + $priorUpah + $priorListrik + $priorKemasan);
         $saldoKasAwal = $priorInflow - $priorOutflow;
-        $saldoKasAkhir = $saldoKasAwal + $kenaikanKas + $totalRevaluasiBank;
+        $saldoKasAkhir = $saldoKasAwal + $kenaikanKas;
 
         // Rincian Akun
         $detailOperasional = [
@@ -235,9 +221,6 @@ class ReportController extends Controller
 
             // Variabel Laba Rugi
             'penjualanKotor' => $penjualanKotor,
-            'returPenjualan' => $returPenjualan,
-            'diskonPenjualan' => $diskonPenjualan,
-            'potonganPenjualan' => $potonganPenjualan,
             'penjualanBersih' => $penjualanBersih,
             'hppBahanBaku' => $hppBahanBaku,
             'hppKemasan' => $hppKemasan,
@@ -249,28 +232,14 @@ class ReportController extends Controller
             'bebanPenyusutan' => $bebanPenyusutan,
             'totalBebanAdministrasi' => $totalBebanAdministrasi,
             'jumlahBebanOperasi' => $jumlahBebanOperasi,
-            'labaBersihOperasional' => $labaBersihOperasional,
-            'pendapatanNonOperasi' => $pendapatanNonOperasi,
-            'bebanNonOperasi' => $bebanNonOperasi,
-            'totalNonOperasi' => $totalNonOperasi,
             'labaBersih' => $labaBersih,
 
             // Variabel Arus Kas
             'penerimaanPelanggan' => $penerimaanPelanggan,
-            'asetLancarLainnya' => 0,
             'pembayaranPemasok' => $pembayaranPemasok,
-            'kartuKreditLiabilitas' => 0,
-            'pendapatanLainnya' => 0,
             'pengeluaranOperasional' => $pengeluaranOperasional,
             'kasBersihOperasional' => $kasBersihOperasional,
-            'perolehanAset' => 0,
-            'investasiLainnya' => 0,
-            'kasBersihInvestasi' => 0,
-            'pinjaman' => 0,
-            'ekuitasModal' => 0,
-            'kasBersihPendanaan' => 0,
             'kenaikanKas' => $kenaikanKas,
-            'totalRevaluasiBank' => 0,
             'saldoKasAwal' => $saldoKasAwal,
             'saldoKasAkhir' => $saldoKasAkhir,
             'detailOperasional' => $detailOperasional,

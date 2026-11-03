@@ -161,7 +161,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
                 </div>
             </div>
-            <p class="text-[11px] text-muted-foreground mt-2">Operasional + Investasi + Pendanaan</p>
+            <p class="text-[11px] text-muted-foreground mt-2">Penerimaan Kas - Pengeluaran Kas Riil</p>
         </div>
 
         <!-- Saldo Kas Awal -->
@@ -232,28 +232,10 @@
                         <td class="py-2.5 px-6 font-bold text-foreground" colspan="4">Pendapatan dari Penjualan</td>
                     </tr>
                     <tr class="hover:bg-muted/15">
-                        <td class="py-2 px-6 pl-10 text-foreground">Penjualan</td>
+                        <td class="py-2 px-6 pl-10 text-foreground">Penjualan Produk Kopi</td>
                         <td class="py-2 px-4 text-right font-mono text-muted-foreground"></td>
-                        <td class="py-2 px-4 text-right font-mono font-medium text-foreground">{{ number_format($penjualanKotor, 0, ',', '.') }}</td>
-                        <td class="py-2 px-6 text-right font-mono"></td>
-                    </tr>
-                    <tr class="hover:bg-muted/15">
-                        <td class="py-2 px-6 pl-10 text-foreground">-Retur dan Pot. Penjualan</td>
-                        <td class="py-2 px-4 text-right font-mono text-muted-foreground">{{ number_format($returPenjualan, 0, ',', '.') }}</td>
-                        <td class="py-2 px-4 text-right font-mono"></td>
-                        <td class="py-2 px-6 text-right font-mono"></td>
-                    </tr>
-                    <tr class="hover:bg-muted/15">
-                        <td class="py-2 px-6 pl-10 text-foreground">Diskon Penjualan</td>
-                        <td class="py-2 px-4 text-right font-mono text-muted-foreground">{{ number_format($diskonPenjualan, 0, ',', '.') }}</td>
-                        <td class="py-2 px-4 text-right font-mono text-muted-foreground">{{ number_format($potonganPenjualan, 0, ',', '.') }}</td>
-                        <td class="py-2 px-6 text-right font-mono"></td>
-                    </tr>
-                    <tr class="bg-muted/20 font-bold border-t border-border/40">
-                        <td class="py-2.5 px-6 font-bold text-foreground">Penjualan Bersih</td>
-                        <td class="py-2.5 px-4"></td>
-                        <td class="py-2.5 px-4"></td>
-                        <td class="py-2.5 px-6 text-right font-mono font-bold text-primary">{{ number_format($penjualanBersih, 0, ',', '.') }}</td>
+                        <td class="py-2 px-4 text-right font-mono font-medium text-foreground">{{ number_format($penjualanBersih, 0, ',', '.') }}</td>
+                        <td class="py-2 px-6 text-right font-mono font-bold text-primary">{{ number_format($penjualanBersih, 0, ',', '.') }}</td>
                     </tr>
 
                     <!-- 2. HARGA POKOK PENJUALAN -->
@@ -345,37 +327,10 @@
                         </td>
                     </tr>
 
-                    <!-- 5. LABA BERSIH OPERASIONAL -->
-                    <tr class="bg-muted/20 font-bold border-t border-b border-border/40">
-                        <td class="py-2.5 px-6 font-black text-foreground">Laba Bersih Operasional</td>
-                        <td class="py-2.5 px-4"></td>
-                        <td class="py-2.5 px-4"></td>
-                        <td class="py-2.5 px-6 text-right font-mono font-black text-foreground">
-                            {{ $labaBersihOperasional < 0 ? '(' . number_format(abs($labaBersihOperasional), 0, ',', '.') . ')' : number_format($labaBersihOperasional, 0, ',', '.') }}
-                        </td>
-                    </tr>
-
-                    <!-- 6. PENDAPATAN & BEBAN NON OPERASI -->
-                    <tr class="bg-primary/10">
-                        <td class="py-2.5 px-6 font-bold text-foreground" colspan="4">Pendapatan dan Beban Non Operasi</td>
-                    </tr>
-                    <tr class="hover:bg-muted/15">
-                        <td class="py-2 px-6 pl-10 text-foreground">Pendapatan dan Beban Lainnya</td>
-                        <td class="py-2 px-4 text-right font-mono text-muted-foreground">0</td>
-                        <td class="py-2 px-4"></td>
-                        <td class="py-2 px-6"></td>
-                    </tr>
-                    <tr class="hover:bg-muted/15">
-                        <td class="py-2 px-6 pl-10 text-foreground">Jumlah Pendapatan dan Beban Lainnya</td>
-                        <td class="py-2 px-4"></td>
-                        <td class="py-2 px-4 text-right font-mono text-muted-foreground">0</td>
-                        <td class="py-2 px-6 text-right font-mono text-muted-foreground">0</td>
-                    </tr>
-
-                    <!-- 7. LABA BERSIH AKHIR (DOUBLE UNDERLINE) -->
+                    <!-- 5. LABA BERSIH AKHIR (DOUBLE UNDERLINE) -->
                     <tr class="bg-primary/10 border-t-2 border-b-4 border-double border-primary/60">
                         <td class="py-3.5 px-6 font-black text-foreground text-base tracking-wide whitespace-nowrap">
-                            {{ $labaBersih >= 0 ? 'Laba Bersih' : 'Rugi Bersih' }}
+                            {{ $labaBersih >= 0 ? 'Laba Bersih Operasional' : 'Rugi Bersih Operasional' }}
                         </td>
                         <td class="py-3.5 px-4"></td>
                         <td class="py-3.5 px-4"></td>
@@ -443,10 +398,6 @@
                         </td>
                     </tr>
                     <tr class="hover:bg-muted/15 transition-colors">
-                        <td class="py-2 px-6 pl-10 text-foreground">Aset lancar lainnya</td>
-                        <td class="py-2 px-6 text-right font-mono font-medium text-foreground">0</td>
-                    </tr>
-                    <tr class="hover:bg-muted/15 transition-colors">
                         <td class="py-2.5 px-6 pl-10 text-foreground">
                             Pembayaran ke pemasok
                             <div x-show="showDetails" x-transition class="text-xs text-muted-foreground mt-1.5 space-y-1 pl-3 border-l-2 border-primary/50">
@@ -457,14 +408,6 @@
                         <td class="py-2.5 px-6 text-right font-mono font-medium text-foreground align-top">
                             {{ $pembayaranPemasok > 0 ? '(' . number_format($pembayaranPemasok, 0, ',', '.') . ')' : '0' }}
                         </td>
-                    </tr>
-                    <tr class="hover:bg-muted/15 transition-colors">
-                        <td class="py-2 px-6 pl-10 text-foreground">Kartu kredit dan liabilitas jangka pendek lainnya</td>
-                        <td class="py-2 px-6 text-right font-mono font-medium text-foreground">0</td>
-                    </tr>
-                    <tr class="hover:bg-muted/15 transition-colors">
-                        <td class="py-2 px-6 pl-10 text-foreground">Pendapatan lainnya</td>
-                        <td class="py-2 px-6 text-right font-mono font-medium text-foreground">0</td>
                     </tr>
                     <tr class="hover:bg-muted/15 transition-colors">
                         <td class="py-2.5 px-6 pl-10 text-foreground">
@@ -488,58 +431,12 @@
 
                     <tr class="h-3 bg-background"><td colspan="2"></td></tr>
 
-                    <!-- 2. INVESTASI -->
-                    <tr class="bg-primary/10 border-t border-b border-border/30">
-                        <td class="py-2.5 px-6 font-bold text-foreground text-sm tracking-wide" colspan="2">
-                            Arus Kas dari Aktivitas Investasi
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-muted/15 transition-colors">
-                        <td class="py-2 px-6 pl-10 text-foreground">Perolehan/Penjualan aset</td>
-                        <td class="py-2 px-6 text-right font-mono font-medium text-foreground">0</td>
-                    </tr>
-                    <tr class="hover:bg-muted/15 transition-colors">
-                        <td class="py-2 px-6 pl-10 text-foreground">Aktivitas investasi lainnya</td>
-                        <td class="py-2 px-6 text-right font-mono font-medium text-foreground">0</td>
-                    </tr>
-                    <tr class="bg-muted/30 font-bold border-t border-b border-border/60">
-                        <td class="py-2.5 px-6 font-bold text-foreground">Kas Bersih dari Aktivitas Investasi</td>
-                        <td class="py-2.5 px-6 text-right font-mono font-bold text-foreground">0</td>
-                    </tr>
-
-                    <tr class="h-3 bg-background"><td colspan="2"></td></tr>
-
-                    <!-- 3. PENDANAAN -->
-                    <tr class="bg-primary/10 border-t border-b border-border/30">
-                        <td class="py-2.5 px-6 font-bold text-foreground text-sm tracking-wide" colspan="2">
-                            Arus Kas dari Aktivitas Pendanaan
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-muted/15 transition-colors">
-                        <td class="py-2 px-6 pl-10 text-foreground">Pembayaran/Penerimaan pinjaman</td>
-                        <td class="py-2 px-6 text-right font-mono font-medium text-foreground">0</td>
-                    </tr>
-                    <tr class="hover:bg-muted/15 transition-colors">
-                        <td class="py-2 px-6 pl-10 text-foreground">Ekuitas/Modal</td>
-                        <td class="py-2 px-6 text-right font-mono font-medium text-foreground">0</td>
-                    </tr>
-                    <tr class="bg-muted/30 font-bold border-t border-b border-border/60">
-                        <td class="py-2.5 px-6 font-bold text-foreground">Kas Bersih dari Aktivitas Pendanaan</td>
-                        <td class="py-2.5 px-6 text-right font-mono font-bold text-foreground">0</td>
-                    </tr>
-
-                    <tr class="h-3 bg-background"><td colspan="2"></td></tr>
-
-                    <!-- 4. REKONSILIASI KAS -->
+                    <!-- 2. REKONSILIASI KAS -->
                     <tr class="hover:bg-muted/15 transition-colors border-t border-border/40">
-                        <td class="py-2.5 px-6 font-medium text-foreground">Kenaikan (penurunan) kas</td>
+                        <td class="py-2.5 px-6 font-medium text-foreground">Kenaikan (penurunan) kas bersih</td>
                         <td class="py-2.5 px-6 text-right font-mono font-semibold text-foreground">
                             {{ $kenaikanKas < 0 ? '(' . number_format(abs($kenaikanKas), 0, ',', '.') . ')' : number_format($kenaikanKas, 0, ',', '.') }}
                         </td>
-                    </tr>
-                    <tr class="hover:bg-muted/15 transition-colors">
-                        <td class="py-2.5 px-6 font-medium text-foreground">Total revaluasi bank</td>
-                        <td class="py-2.5 px-6 text-right font-mono font-semibold text-foreground">0</td>
                     </tr>
                     <tr class="hover:bg-muted/15 transition-colors">
                         <td class="py-2.5 px-6 font-medium text-foreground">Saldo kas awal</td>
