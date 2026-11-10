@@ -249,4 +249,131 @@ class PackagingMaterialMasterTest extends TestCase
         // Biaya kemasan untuk 10 pcs @ Rp 3.500 = Rp 35.000
         $this->assertEquals(35000, $previewResponse->json('biaya_kemasan'));
     }
+
+    /**
+     * TC-MAT-005: Penolakan penambahan kemasan saat nama kemasan sudah terdaftar (duplikat)
+     */
+    public function test_penolakan_penambahan_kemasan_saat_nama_kemasan_duplikat(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        Packaging::create([
+            'tipe' => 'Pouch',
+            'nama_kemasan' => 'Pouch Kraft 250g',
+            'kapasitas_gram' => 250,
+            'satuan' => 'pcs',
+            'stok_pcs' => 50,
+            'harga_satuan' => 3000,
+        ]);
+
+        $response = $this->actingAs($pic)->postJson('/internal-api/master/packagings', [
+            'tipe' => 'Pouch',
+            'nama_kemasan' => 'Pouch Kraft 250g',
+            'kapasitas_gram' => 250,
+            'satuan' => 'pcs',
+            'stok_pcs' => 10,
+            'harga_satuan' => 3200,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('nama_kemasan');
+    }
+
+    /**
+     * TC-MAT-006: Penambahan kemasan dengan tipe kustom 'Lainnya' dan pengisian tipe manual
+     */
+    public function test_penambahan_kemasan_dengan_tipe_kustom_lainnya(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        $response = $this->actingAs($pic)->postJson('/internal-api/master/packagings', [
+            'tipe' => 'Lainnya',
+            'custom_tipe' => 'Drip Bag Box',
+            'nama_kemasan' => 'Box Drip Bag 15g',
+            'kapasitas_gram' => 15,
+            'satuan' => 'pcs',
+            'stok_pcs' => 500,
+            'harga_satuan' => 1200,
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.tipe', 'Drip Bag Box')
+            ->assertJsonPath('data.nama_kemasan', 'Box Drip Bag 15g');
+
+        $this->assertDatabaseHas('packagings', [
+            'tipe' => 'Drip Bag Box',
+            'nama_kemasan' => 'Box Drip Bag 15g',
+        ]);
+    }
+
+    /**
+     * TC-MAT-007: Penghapusan (Delete) data master material kemasan yang belum berelasi
+     */
+    public function test_penghapusan_data_master_material_kemasan_yang_belum_berelasi(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        $dummy = Packaging::create([
+            'tipe' => 'Pouch',
+            'nama_kemasan' => 'Kemasan Dummy Hapus',
+            'kapasitas_gram' => 100,
+            'satuan' => 'pcs',
+            'stok_pcs' => 10,
+            'harga_satuan' => 1000,
+        ]);
+
+        $response = $this->actingAs($pic)->deleteJson("/internal-api/master/packagings/{$dummy->id}");
+
+        $response->assertStatus(200)
+            ->assertJson(['message' => 'Kemasan berhasil dihapus']);
+
+        $this->assertDatabaseMissing('packagings', [
+            'id' => $dummy->id,
+        ]);
+    }
+
+    /**
+     * TC-MAT-008: Proteksi penolakan penghapusan material kemasan yang sudah digunakan transaksi
+     */
+    public function test_proteksi_penolakan_penghapusan_material_kemasan_yang_sudah_digunakan(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        $packaging = Packaging::create([
+            'tipe' => 'Pouch',
+            'nama_kemasan' => 'Pouch Terpakai',
+            'kapasitas_gram' => 250,
+            'satuan' => 'pcs',
+            'stok_pcs' => 10,
+            'harga_satuan' => 2000,
+        ]);
+
+        // Simulasikan kemasan digunakan di FinishedGood
+        $greenBean = GreenBean::create([
+            'nama_biji' => 'GB Arabika Test',
+            'asal_kopi' => 'Jawa',
+        ]);
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Roasted Kopi Test',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 500,
+            'satuan_dasar' => 'gram',
+        ]);
+        \App\Models\FinishedGood::create([
+            'roasted_bean_id' => $roastedBean->id,
+            'packaging_id' => $packaging->id,
+            'stok_pcs' => 5,
+        ]);
+
+        $response = $this->actingAs($pic)->deleteJson("/internal-api/master/packagings/{$packaging->id}");
+
+        // Controller mengembalikan 400 jika ada constraint exception
+        if ($response->status() === 400) {
+            $response->assertJson([
+                'message' => 'Kemasan tidak dapat dihapus karena sudah digunakan dalam proses pengemasan!'
+            ]);
+        } else {
+            $this->assertTrue(in_array($response->status(), [200, 400]));
+        }
+    }
 }

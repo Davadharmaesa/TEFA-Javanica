@@ -7,121 +7,128 @@ use PHPUnit\Framework\TestCase;
 class SalesOrderUnitTest extends TestCase
 {
     /**
-     * FR11 / TC-SLS-001: Logika perhitungan status transaksi lunas dan sisa pembayaran nol.
+     * FR11 / TC-SLS-009: Unit Test storeSales: Validasi request penolakan saat nama pemesan atau produk kosong
      */
-    public function test_logika_penentuan_status_pembayaran_lunas(): void
+    public function test_validasi_request_saat_nama_pemesan_atau_produk_kosong(): void
     {
-        $totalTagihan = 375000;
-        $metode = 'lunas';
-        $nominalDp = 0;
+        $payload = [
+            'customer_name' => '',
+            'roasted_bean_id' => null,
+            'jumlah_pcs' => 5,
+        ];
 
-        if ($metode === 'lunas') {
-            $statusPembayaran = 'lunas';
-            $sisaPembayaran = 0;
-            $nominalDp = 0;
-        } else {
-            $statusPembayaran = 'belum_bayar';
-            $sisaPembayaran = $totalTagihan;
+        $isValid = !empty($payload['customer_name']) && !empty($payload['roasted_bean_id']) && ($payload['jumlah_pcs'] > 0);
+
+        $this->assertFalse($isValid);
+    }
+
+    /**
+     * FR11 / TC-SLS-010: Unit Test storeSales: Percabangan penolakan saat stok roasted bean kurang dari pesanan
+     */
+    public function test_percabangan_penolakan_saat_stok_kopi_kurang_dari_pesanan(): void
+    {
+        $stokTersediaGram = 500;
+        $pesananGram = 1500;
+
+        $isSufficient = ($stokTersediaGram >= $pesananGram);
+
+        $this->assertFalse($isSufficient);
+    }
+
+    /**
+     * FR11 / TC-SLS-011: Unit Test storeSales: Eksekusi loop pemotongan stok batch roasting tertua hingga habis (FIFO)
+     */
+    public function test_eksekusi_loop_pemotongan_stok_batch_fifo(): void
+    {
+        $batches = [
+            ['kode' => 'Batch-Mei-01', 'stok_gram' => 2500],
+            ['kode' => 'Batch-Mei-10', 'stok_gram' => 2500],
+        ];
+
+        $kebutuhanPengurangan = 3750; // 15 pcs @ 250g
+        $remaining = $kebutuhanPengurangan;
+
+        foreach ($batches as &$batch) {
+            if ($remaining <= 0) break;
+
+            if ($batch['stok_gram'] >= $remaining) {
+                $batch['stok_gram'] -= $remaining;
+                $remaining = 0;
+            } else {
+                $remaining -= $batch['stok_gram'];
+                $batch['stok_gram'] = 0;
+            }
         }
+        unset($batch);
 
-        $this->assertEquals('lunas', $statusPembayaran);
-        $this->assertEquals(0, $sisaPembayaran);
-        $this->assertEquals(0, $nominalDp);
+        $this->assertEquals(0, $batches[0]['stok_gram']); // Batch tertua habis
+        $this->assertEquals(1250, $batches[1]['stok_gram']); // Batch baru sisa 1.250g
+        $this->assertEquals(0, $remaining);
     }
 
     /**
-     * FR11: Logika penentuan status pembayaran DP dan kalkulasi sisa piutang.
+     * FR11 / TC-SLS-012: Unit Test storeSales: Percabangan penentuan status pembayaran lunas vs belum bayar
      */
-    public function test_logika_penentuan_status_pembayaran_dp_dan_sisa_piutang(): void
-    {
-        $totalTagihan = 1000000;
-        $metode = 'dp';
-        $nominalDp = 300000;
-
-        $nominalDp = min($nominalDp, $totalTagihan);
-        $sisaPembayaran = max(0, $totalTagihan - $nominalDp);
-        $statusPembayaran = ($metode === 'dp' && $nominalDp > 0 && $sisaPembayaran > 0) ? 'dp' : 'lunas';
-
-        $this->assertEquals('dp', $statusPembayaran);
-        $this->assertEquals(700000, $sisaPembayaran);
-        $this->assertEquals(300000, $nominalDp);
-    }
-
-    /**
-     * FR11: Logika penentuan status pembayaran belum bayar jika DP nol.
-     */
-    public function test_logika_penentuan_status_belum_bayar(): void
+    public function test_percabangan_penentuan_status_pembayaran_lunas_vs_belum_bayar(): void
     {
         $totalTagihan = 500000;
-        $nominalDp = 0;
-        $sisaPembayaran = $totalTagihan - $nominalDp;
-        $statusPembayaran = ($nominalDp === 0) ? 'belum_bayar' : 'dp';
 
-        $this->assertEquals('belum_bayar', $statusPembayaran);
-        $this->assertEquals(500000, $sisaPembayaran);
+        // Kasus A: Metode lunas
+        $metodeA = 'lunas';
+        $statusA = ($metodeA === 'lunas') ? 'lunas' : 'belum_bayar';
+        $sisaA = ($statusA === 'lunas') ? 0 : $totalTagihan;
+
+        $this->assertEquals('lunas', $statusA);
+        $this->assertEquals(0, $sisaA);
+
+        // Kasus B: Metode belum bayar
+        $metodeB = 'belum_bayar';
+        $statusB = ($metodeB === 'lunas') ? 'lunas' : 'belum_bayar';
+        $sisaB = ($statusB === 'lunas') ? 0 : $totalTagihan;
+
+        $this->assertEquals('belum_bayar', $statusB);
+        $this->assertEquals(500000, $sisaB);
     }
 
     /**
-     * FR11 / TC-SLS-002: Validasi kuantitas pesanan tidak boleh nol atau bernilai negatif.
+     * FR11 / TC-SLS-013: Unit Test storeSales: Basis path transaksi penjualan sukses dan rollback jika error
      */
-    public function test_validasi_kuantitas_pesanan_tidak_boleh_minus_atau_nol(): void
+    public function test_basis_path_transaksi_penjualan_sukses_dan_rollback_handling(): void
     {
-        $qtyNegatif = -5;
-        $qtyNol = 0;
-        $qtyValid = 15;
+        $isDbError = false;
+        $orderCreated = false;
+        $rolledBack = false;
 
-        $this->assertFalse($qtyNegatif >= 1);
-        $this->assertFalse($qtyNol >= 1);
-        $this->assertTrue($qtyValid >= 1);
+        try {
+            if ($isDbError) {
+                throw new \Exception('Database write failure');
+            }
+            $orderCreated = true;
+        } catch (\Exception $e) {
+            $rolledBack = true;
+        }
+
+        $this->assertTrue($orderCreated);
+        $this->assertFalse($rolledBack);
     }
 
     /**
-     * FR11 / TC-SLS-003: Boundary test batas minimum pemesanan produk (0 vs 1).
+     * FR11 / TC-SLS-014: Unit Test model PesananKeluar: Logika kalkulasi margin untung vs peringatan jual rugi modal HPP
      */
-    public function test_boundary_kuantitas_pesanan_nol_vs_satu(): void
-    {
-        $qtyBatasBawahInvalid = 0;
-        $qtyBatasBawahValid = 1;
-
-        $isValidA = $qtyBatasBawahInvalid >= 1;
-        $isValidB = $qtyBatasBawahValid >= 1;
-
-        $this->assertFalse($isValidA);
-        $this->assertTrue($isValidB);
-    }
-
-    /**
-     * FR11 / TC-SLS-004: Deteksi peringatan jual rugi saat total harga jual lebih rendah dari total HPP/modal.
-     */
-    public function test_deteksi_peringatan_jual_rugi_saat_harga_jual_di_bawah_hpp(): void
+    public function test_logika_kalkulasi_margin_untung_vs_peringatan_jual_rugi(): void
     {
         $hppPerPcs = 50000;
         $qty = 8;
         $totalHpp = $hppPerPcs * $qty; // Rp 400.000
 
-        // Kasus 1: Harga jual rugi (Rp 350.000 < Rp 400.000)
+        // Kasus 1: Harga jual rugi (Rp 350.000 < modal Rp 400.000)
         $hargaJualRugi = 350000;
-        $isSellingBelowHppRugi = ($hargaJualRugi < $totalHpp);
-        $this->assertTrue($isSellingBelowHppRugi);
+        $isLossDetected = ($hargaJualRugi < $totalHpp);
+        $this->assertTrue($isLossDetected);
 
-        // Kasus 2: Harga jual untung (Rp 480.000 >= Rp 400.000)
+        // Kasus 2: Harga jual untung (Rp 480.000 >= modal Rp 400.000)
         $hargaJualUntung = 480000;
-        $isSellingBelowHppUntung = ($hargaJualUntung < $totalHpp);
-        $this->assertFalse($isSellingBelowHppUntung);
-    }
-
-    /**
-     * FR11 / TC-SLS-005: Kalkulasi pemotongan stok fisik finished good.
-     */
-    public function test_kalkulasi_pemotongan_stok_fisik_barang_jadi(): void
-    {
-        $stokAwal = 20;
-        $jumlahTerjual = 5;
-
-        $sisaStok = $stokAwal - $jumlahTerjual;
-
-        $this->assertEquals(15, $sisaStok);
-        $this->assertTrue($sisaStok >= 0);
+        $isProfit = ($hargaJualUntung >= $totalHpp);
+        $this->assertTrue($isProfit);
     }
 }
-

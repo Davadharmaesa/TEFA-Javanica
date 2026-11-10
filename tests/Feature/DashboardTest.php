@@ -136,5 +136,156 @@ class DashboardTest extends TestCase
         $response->assertSee('4.2', false);
         $response->assertSee('350.000', false);
     }
+
+    /**
+     * TC-DASH-002: Penanganan tampilan antarmuka saat pangkalan data masih kosong (Empty State)
+     */
+    public function test_penanganan_tampilan_antarmuka_saat_database_kosong(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        $response = $this->actingAs($pic)->get('/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertViewHas('total_stok_biji_mentah', 0);
+        $response->assertViewHas('total_kopi_matang', 0);
+        $response->assertViewHas('penjualan_retail', 0);
+        $response->assertViewHas('avg_burnoff', 0);
+        $response->assertViewHas('has_warning', false);
+    }
+
+    /**
+     * TC-DASH-003: Penampilan indikator visual badge peringatan saat stok bahan baku menipis (< 5 Kg)
+     */
+    public function test_penampilan_indikator_peringatan_saat_stok_menipis(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        $greenBean = GreenBean::create([
+            'nama_biji' => 'GB Robusta Menipis',
+            'asal_kopi' => 'Dampit',
+        ]);
+
+        // Simulasikan stok hanya 3.500 gram (3.5 kg < 5 kg threshold)
+        GreenBeanStock::create([
+            'green_bean_id' => $greenBean->id,
+            'stok_gram' => 3500,
+            'harga_beli' => 80000,
+            'tanggal_beli' => now()->toDateString(),
+        ]);
+
+        $response = $this->actingAs($pic)->get('/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertViewHas('has_warning', true);
+
+        $stokMenipis = $response->viewData('stok_menipis');
+        $this->assertTrue($stokMenipis->contains('name', 'GB Robusta Menipis'));
+    }
+
+    /**
+     * TC-DASH-004: Filter tabel antrean pesanan MTO hanya menampilkan pesanan berstatus aktif
+     */
+    public function test_filter_tabel_antrean_mto_hanya_menampilkan_status_aktif(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Arabica Test',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 1000,
+            'satuan_dasar' => 'gram',
+        ]);
+
+        $packaging = Packaging::create([
+            'tipe' => 'Pouch',
+            'nama_kemasan' => 'Pouch 200g',
+            'kapasitas_gram' => 200,
+            'harga_satuan' => 2000,
+            'stok_pcs' => 10,
+        ]);
+
+        // Order aktif (Menunggu Konfirmasi)
+        $orderAktif = PesananKeluar::create([
+            'user_id' => $pic->id,
+            'roasted_bean_id' => $roastedBean->id,
+            'packaging_id' => $packaging->id,
+            'nama_pesanan' => 'Pelanggan Aktif',
+            'jumlah_gram_pesanan' => 500,
+            'jumlah_pcs' => 2,
+            'harga_jual_pesanan' => 60000,
+            'total_pembayaran' => 60000,
+            'status_pengiriman' => 'Menunggu Konfirmasi',
+            'status_pembayaran' => 'lunas',
+            'tanggal_pesanan' => now()->toDateString(),
+        ]);
+
+        // Order selesai
+        $orderSelesai = PesananKeluar::create([
+            'user_id' => $pic->id,
+            'roasted_bean_id' => $roastedBean->id,
+            'packaging_id' => $packaging->id,
+            'nama_pesanan' => 'Pelanggan Selesai',
+            'jumlah_gram_pesanan' => 500,
+            'jumlah_pcs' => 2,
+            'harga_jual_pesanan' => 60000,
+            'total_pembayaran' => 60000,
+            'status_pengiriman' => 'Selesai',
+            'status_pembayaran' => 'lunas',
+            'tanggal_pesanan' => now()->toDateString(),
+        ]);
+
+        $response = $this->actingAs($pic)->get('/dashboard');
+
+        $antrean = $response->viewData('antrean_mto');
+        $this->assertTrue($antrean->contains('id', $orderAktif->id));
+        $this->assertFalse($antrean->contains('id', $orderSelesai->id));
+    }
+
+    /**
+     * TC-DASH-005: Sinkronisasi feed log aktivitas terbaru setelah ada proses roasting baru selesai
+     */
+    public function test_sinkronisasi_feed_log_aktivitas_terbaru(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        $greenBean = GreenBean::create([
+            'nama_biji' => 'GB Toraja Sapan',
+            'asal_kopi' => 'Sulawesi',
+        ]);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Roasted Toraja',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 1000,
+            'satuan_dasar' => 'gram',
+        ]);
+
+        RoastingBatch::create([
+            'kode_batch' => 'BATCH-LOG-TEST',
+            'user_id' => $pic->id,
+            'green_bean_id' => $greenBean->id,
+            'roasted_bean_id' => $roastedBean->id,
+            'profil_sangrai' => 'Light to Medium',
+            'durasi_roasting' => 11,
+            'waktu_first_crack' => 8.0,
+            'waktu_development' => 80,
+            'durasi_pre_heating' => 5,
+            'suhu' => 202,
+            'berat_mentah_gudang' => 1.2,
+            'berat_matang_bersih' => 1.0,
+            'sisa_stok' => 1000,
+            'persentase_susut' => 16.67,
+            'tanggal_roasting' => now()->toDateString(),
+            'status_batch' => 'completed',
+            'biaya_bahan_baku' => 120000,
+        ]);
+
+        $response = $this->actingAs($pic)->get('/dashboard');
+
+        $recentLogs = $response->viewData('recent_logs');
+        $this->assertNotEmpty($recentLogs);
+        $this->assertStringContainsString('GB Toraja Sapan', $recentLogs->first()['description']);
+    }
 }
 

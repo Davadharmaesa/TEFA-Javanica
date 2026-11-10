@@ -7,25 +7,9 @@ use PHPUnit\Framework\TestCase;
 class DashboardMetricsUnitTest extends TestCase
 {
     /**
-     * FR12 / TC-DASH-001: Kalkulasi rumus rata-rata burnoff (persentase susut roasting).
+     * FR12 / TC-DASH-006: Unit Test Dashboard: Penanganan division by zero pada rumus burnoff rate saat data kosong
      */
-    public function test_rumus_kalkulasi_burnoff_rate_penyusutan_roasting(): void
-    {
-        $totalRawRoasted = 5.0; // kg
-        $totalCookedRoasted = 4.2; // kg
-
-        $avgBurnoff = $totalRawRoasted > 0
-            ? round((($totalRawRoasted - $totalCookedRoasted) / $totalRawRoasted) * 100, 1)
-            : 0;
-
-        // (5.0 - 4.2) / 5.0 * 100 = 0.8 / 5.0 * 100 = 16.0%
-        $this->assertEquals(16.0, $avgBurnoff);
-    }
-
-    /**
-     * FR12: Rumus burnoff rate aman dari pembagian dengan nol (division by zero) saat belum ada data produksi.
-     */
-    public function test_rumus_burnoff_rate_aman_dari_division_by_zero_saat_data_kosong(): void
+    public function test_penanganan_division_by_zero_pada_burnoff_rate(): void
     {
         $totalRawRoasted = 0.0;
         $totalCookedRoasted = 0.0;
@@ -38,25 +22,39 @@ class DashboardMetricsUnitTest extends TestCase
     }
 
     /**
-     * FR12: Konversi unit gramasi pangkalan data ke kilogram untuk metrik kartu stok.
+     * FR12 / TC-DASH-007: Unit Test Dashboard: Akurasi perhitungan matematis rata-rata persentase penyusutan (burnoff rate)
      */
-    public function test_konversi_stok_gram_ke_kilogram(): void
+    public function test_akurasi_perhitungan_matematis_burnoff_rate(): void
     {
-        $stokGram = 12000;
-        $stokKg = $stokGram / 1000;
+        $totalRawRoasted = 5.0; // kg
+        $totalCookedRoasted = 4.2; // kg
 
-        $this->assertEquals(12.0, $stokKg);
+        // (5.0 - 4.2) / 5.0 * 100 = 0.8 / 5.0 * 100 = 16.0%
+        $avgBurnoff = $totalRawRoasted > 0
+            ? round((($totalRawRoasted - $totalCookedRoasted) / $totalRawRoasted) * 100, 1)
+            : 0;
 
-        $stokDesimalGram = 4250;
-        $stokDesimalKg = $stokDesimalGram / 1000;
-
-        $this->assertEquals(4.25, $stokDesimalKg);
+        $this->assertEquals(16.0, $avgBurnoff);
     }
 
     /**
-     * FR12: Deteksi ambang batas (threshold) stok menipis (< 5 kg atau < 5.000 gram).
+     * FR12 / TC-DASH-008: Unit Test Dashboard: Akurasi konversi unit massa dari gram ke kilogram untuk metrik kartu stok
      */
-    public function test_deteksi_indikator_peringatan_stok_menipis(): void
+    public function test_akurasi_konversi_unit_massa_gram_ke_kilogram(): void
+    {
+        $stokGramA = 12000;
+        $stokKgA = $stokGramA / 1000;
+        $this->assertEquals(12.0, $stokKgA);
+
+        $stokGramB = 4250;
+        $stokKgB = $stokGramB / 1000;
+        $this->assertEquals(4.25, $stokKgB);
+    }
+
+    /**
+     * FR12 / TC-DASH-009: Unit Test Dashboard: Percabangan evaluasi ambang batas peringatan stok menipis (< 5 kg)
+     */
+    public function test_percabangan_evaluasi_threshold_peringatan_stok_menipis(): void
     {
         $thresholdGram = 5000;
 
@@ -71,23 +69,37 @@ class DashboardMetricsUnitTest extends TestCase
     }
 
     /**
-     * FR12: Akumulasi omzet retail hanya menghitung transaksi berstatus lunas.
+     * FR12 / TC-DASH-010: Unit Test Dashboard: Filter akumulasi omzet ritel harian hanya menghitung status 'lunas'
      */
-    public function test_akumulasi_omzet_retail_hanya_menghitung_status_lunas(): void
+    public function test_filter_akumulasi_omzet_ritel_hanya_menghitung_status_lunas(): void
     {
-        $transaksi = [
+        $transaksiHariIni = [
             ['total' => 350000, 'status' => 'lunas'],
             ['total' => 600000, 'status' => 'dp'],
-            ['total' => 200000, 'status' => 'lunas'],
             ['total' => 150000, 'status' => 'belum_bayar'],
         ];
 
-        $totalOmzetLunas = array_reduce($transaksi, function ($carry, $item) {
-            return $item['status'] === 'lunas' ? $carry + $item['total'] : $carry;
-        }, 0);
+        $totalOmzetLunas = 0;
+        foreach ($transaksiHariIni as $tx) {
+            if ($tx['status'] === 'lunas') {
+                $totalOmzetLunas += $tx['total'];
+            }
+        }
 
-        // 350.000 + 200.000 = 550.000
-        $this->assertEquals(550000, $totalOmzetLunas);
+        $this->assertEquals(350000, $totalOmzetLunas);
+    }
+
+    /**
+     * FR12 / TC-DASH-011: Unit Test Dashboard: Pembatasan query feed log aktivitas terbaru maksimal 5 entri
+     */
+    public function test_pembatasan_feed_log_aktivitas_terbaru_maksimal_lima(): void
+    {
+        $allLogs = range(1, 12); // Ada 12 aktivitas
+        $limit = 5;
+
+        $recentLogs = array_slice($allLogs, 0, $limit);
+
+        $this->assertCount(5, $recentLogs);
+        $this->assertEquals([1, 2, 3, 4, 5], $recentLogs);
     }
 }
-
