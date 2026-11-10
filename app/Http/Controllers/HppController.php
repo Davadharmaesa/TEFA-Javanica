@@ -9,6 +9,7 @@ use App\Models\Packaging;
 use App\Models\GreenBean;
 use App\Models\PesananKeluar;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class HppController extends Controller
 {
@@ -116,6 +117,11 @@ class HppController extends Controller
         // Hitung batas maksimum pcs hasil kemasan berdasarkan kapasitas batch kopi
         $maxPcsByCoffee = $pouch_capacity_gram > 0 ? floor($totalRoastedGram / $pouch_capacity_gram) : 0;
         $maxOutputPcs = $maxPcsByCoffee;
+        if ($maxOutputPcs > 0 && $hasil_kemasan_pcs > $maxOutputPcs) {
+            throw ValidationException::withMessages([
+                'hasil_kemasan_pcs' => ['Jumlah kemasan melebihi kapasitas kopi dalam batch.'],
+            ]);
+        }
 
         $share = 1.0;
         if ($totalRoastedGram > 0 && $pouch_capacity_gram > 0) {
@@ -180,6 +186,12 @@ class HppController extends Controller
             'harga_jual_final' => 'required|numeric',
             'packaging_id' => 'required|exists:packagings,id',
         ]);
+
+        if ($request->harga_jual_final < $request->total_hpp / $request->hasil_kemasan_pcs) {
+            throw ValidationException::withMessages([
+                'harga_jual_final' => ['Harga jual tidak boleh di bawah HPP per pcs.'],
+            ]);
+        }
 
         // Prevent duplicate calculation for the SAME batch and SAME packaging
         if (HppCalculation::where('roasting_batch_id', $request->roasting_batch_id)
