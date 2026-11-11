@@ -89,127 +89,146 @@ class HppController extends Controller
         $sticker_id = $request->sticker_id;
 
         $batch = RoastingBatch::findOrFail($batchData['id']);
+        $pouch = $pouch_id ? Packaging::find($pouch_id) : null;
+        $sticker = $sticker_id ? Packaging::find($sticker_id) : null;
 
+        $hpp = $this->calculateHppData($batch, (int) $hasil_kemasan_pcs, $pouch, $sticker);
+        $pekerjaList = \App\Models\LogPekerja::where('roasting_batch_id', $batch->id)
+            ->pluck('nama_pekerja')->unique()->values()->toArray();
+        $overheadList = Biaya::where('kategori', 'Overhead')
+            ->where('nama', 'not like', '%Listrik%')
+            ->pluck('nama')->toArray();
+
+        return response()->json([
+            'biaya_bahan_baku' => $hpp['biaya_bahan_baku'],
+            'biaya_listrik' => $hpp['biaya_listrik'],
+            'biaya_penyusutan' => $hpp['biaya_penyusutan'],
+            'biaya_gaji' => $hpp['biaya_gaji'],
+            'biaya_kemasan' => $hpp['biaya_kemasan'],
+            'total_hpp' => $hpp['total_hpp'],
+            'hpp_per_pcs' => $hpp['hpp_per_pcs'],
+            'biaya_tenaga_kerja_batch' => $hpp['biaya_tenaga_kerja_batch'],
+            'is_fallback_gaji' => $hpp['is_fallback_gaji'],
+            'pekerja_list' => $pekerjaList,
+            'biaya_overhead_custom_batch' => $hpp['biaya_overhead_custom_batch'],
+            'overhead_list' => $overheadList,
+            'max_output_pcs' => $hpp['max_output_pcs'],
+            'share_percentage' => $hpp['share_percentage'],
+        ]);
+    }
+
+    private function calculateHppData(
+        RoastingBatch $batch,
+        int $hasilKemasanPcs,
+        ?Packaging $pouch,
+        ?Packaging $sticker
+    ): array {
         $biayaListrikTarif = Biaya::where('nama', 'like', '%Listrik Mesin%')
             ->orWhere('nama', 'like', '%Listrik%')
-            ->first()->harga ?? 1500;
-            
-        // Overhead Lainnya: Semua Overhead selain Listrik
+            ->value('harga') ?? 1500;
         $biayaOverheadLainnyaTarif = Biaya::where('kategori', 'Overhead')
             ->where('nama', 'not like', '%Listrik%')
             ->sum('harga');
 
-        // Durasi Total Kerja Mesin = Masa Pre-heating + Menit First Crack + Detik Dev Tahan / 60
-        $durasiTotalKerja = $batch->durasi_pre_heating + $batch->waktu_first_crack + ($batch->waktu_development / 60);
-        // Hitung secara dinamis berdasarkan durasi (jam) dan daya mesin (0.75 kW untuk 750 Watt): tarif * kW * jam
+        $durasiTotalKerja = $batch->durasi_pre_heating
+            + $batch->waktu_first_crack
+            + ($batch->waktu_development / 60);
         $biayaTetapPreHeating = 1000;
         $biayaListrikBatch = ($durasiTotalKerja / 60) * 0.75 * $biayaListrikTarif;
-        
-        $pouch = $pouch_id ? Packaging::find($pouch_id) : null;
-        $sticker = $sticker_id ? Packaging::find($sticker_id) : null;
 
-        $pouch_capacity_gram = $pouch ? $pouch->kapasitas_gram : 0;
-        $pouch_hpp = $pouch ? $pouch->harga_satuan : 0;
-        $sticker_hpp = $sticker ? $sticker->harga_satuan : 0;
+        $kapasitasPouchGram = $pouch?->kapasitas_gram ?? 0;
+        $hargaPouch = $pouch?->harga_satuan ?? 0;
+        $hargaStiker = $sticker?->harga_satuan ?? 0;
+        $totalRoastedGram = $batch->berat_matang_bersih * 1000;
+        $maxOutputPcs = $kapasitasPouchGram > 0
+            ? (int) floor($totalRoastedGram / $kapasitasPouchGram)
+            : 0;
 
-        $totalRoastedGram = $batch->berat_matang_bersih * 1000; // in grams
-        
-        // Hitung batas maksimum pcs hasil kemasan berdasarkan kapasitas batch kopi
-        $maxPcsByCoffee = $pouch_capacity_gram > 0 ? floor($totalRoastedGram / $pouch_capacity_gram) : 0;
-        $maxOutputPcs = $maxPcsByCoffee;
-        if ($maxOutputPcs > 0 && $hasil_kemasan_pcs > $maxOutputPcs) {
+        if ($maxOutputPcs > 0 && $hasilKemasanPcs > $maxOutputPcs) {
             throw ValidationException::withMessages([
                 'hasil_kemasan_pcs' => ['Jumlah kemasan melebihi kapasitas kopi dalam batch.'],
             ]);
         }
 
         $share = 1.0;
-        if ($totalRoastedGram > 0 && $pouch_capacity_gram > 0) {
-            $share = min(1.0, ($hasil_kemasan_pcs * $pouch_capacity_gram) / $totalRoastedGram);
+        if ($totalRoastedGram > 0 && $kapasitasPouchGram > 0) {
+            $share = min(1.0, ($hasilKemasanPcs * $kapasitasPouchGram) / $totalRoastedGram);
         }
 
-        // Allocate costs based on share of batch packaged
         $biayaBahanBaku = $batch->biaya_bahan_baku * $share;
         $biayaListrik = ($biayaListrikBatch * $share) + $biayaTetapPreHeating;
         $biayaPenyusutan = $biayaOverheadLainnyaTarif * $share;
-        
-        // Tenaga Kerja: Hitung dari log_pekerja jika ada, jika tidak ada fallback ke master Tenaga Kerja sum
-        $biayaTenagaKerjaBatch = \App\Models\LogPekerja::where('roasting_batch_id', $batch->id)->sum('total_upah');
-        $is_fallback_gaji = false;
-        if ($biayaTenagaKerjaBatch <= 0) {
-            $is_fallback_gaji = true;
+        $biayaTenagaKerjaBatch = \App\Models\LogPekerja::where('roasting_batch_id', $batch->id)
+            ->sum('total_upah');
+        $isFallbackGaji = $biayaTenagaKerjaBatch <= 0;
+        if ($isFallbackGaji) {
             $biayaTenagaKerjaBatch = Biaya::where('kategori', 'Tenaga Kerja')->sum('harga') ?? 15000;
         }
         $biayaGaji = $biayaTenagaKerjaBatch * $share;
-        
-        // Kemasan: Pouch + Stiker
-        $biayaKemasan = ($pouch_hpp + $sticker_hpp) * $hasil_kemasan_pcs;
-        
+        $biayaKemasan = ($hargaPouch + $hargaStiker) * $hasilKemasanPcs;
         $totalHpp = $biayaBahanBaku + $biayaListrik + $biayaPenyusutan + $biayaGaji + $biayaKemasan;
 
-        $pekerjaList = \App\Models\LogPekerja::where('roasting_batch_id', $batch->id)->pluck('nama_pekerja')->unique()->values()->toArray();
-        
-        $overheadList = Biaya::where('kategori', 'Overhead')
-            ->where('nama', 'not like', '%Listrik%')
-            ->pluck('nama')
-            ->toArray();
-
-        return response()->json([
+        return [
             'biaya_bahan_baku' => $biayaBahanBaku,
             'biaya_listrik' => $biayaListrik,
             'biaya_penyusutan' => $biayaPenyusutan,
             'biaya_gaji' => $biayaGaji,
             'biaya_kemasan' => $biayaKemasan,
             'total_hpp' => $totalHpp,
-            'hpp_per_pcs' => $hasil_kemasan_pcs > 0 ? $totalHpp / $hasil_kemasan_pcs : 0,
+            'hpp_per_pcs' => $hasilKemasanPcs > 0 ? $totalHpp / $hasilKemasanPcs : 0,
             'biaya_tenaga_kerja_batch' => $biayaTenagaKerjaBatch,
-            'is_fallback_gaji' => $is_fallback_gaji,
-            'pekerja_list' => $pekerjaList,
+            'is_fallback_gaji' => $isFallbackGaji,
             'biaya_overhead_custom_batch' => $biayaOverheadLainnyaTarif,
-            'overhead_list' => $overheadList,
             'max_output_pcs' => $maxOutputPcs,
-            'share_percentage' => round($share * 100, 2)
-        ]);
+            'share_percentage' => round($share * 100, 2),
+        ];
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'roasting_batch_id' => 'required|exists:roasting_batch,id',
-            'hasil_kemasan_pcs' => 'required|numeric|min:1',
-            'biaya_bahan_baku' => 'required|numeric',
-            'biaya_listrik' => 'required|numeric',
-            'biaya_penyusutan' => 'required|numeric',
-            'biaya_gaji' => 'required|numeric',
-            'biaya_kemasan' => 'required|numeric',
-            'total_hpp' => 'required|numeric',
+            'hasil_kemasan_pcs' => 'required|integer|min:1',
             'harga_jual_final' => 'required|numeric',
             'packaging_id' => 'required|exists:packagings,id',
+            'sticker_id' => 'nullable|exists:packagings,id',
         ]);
 
-        if ($request->harga_jual_final < $request->total_hpp / $request->hasil_kemasan_pcs) {
+        $batch = RoastingBatch::findOrFail($validated['roasting_batch_id']);
+        $pouch = Packaging::findOrFail($validated['packaging_id']);
+        $sticker = isset($validated['sticker_id'])
+            ? Packaging::findOrFail($validated['sticker_id'])
+            : null;
+        $hpp = $this->calculateHppData(
+            $batch,
+            (int) $validated['hasil_kemasan_pcs'],
+            $pouch,
+            $sticker
+        );
+
+        if ($validated['harga_jual_final'] < $hpp['hpp_per_pcs']) {
             throw ValidationException::withMessages([
                 'harga_jual_final' => ['Harga jual tidak boleh di bawah HPP per pcs.'],
             ]);
         }
 
         // Prevent duplicate calculation for the SAME batch and SAME packaging
-        if (HppCalculation::where('roasting_batch_id', $request->roasting_batch_id)
-            ->where('packaging_id', $request->packaging_id)->exists()) {
+        if (HppCalculation::where('roasting_batch_id', $validated['roasting_batch_id'])
+            ->where('packaging_id', $validated['packaging_id'])->exists()) {
             return back()->with('error', 'Batch ini sudah dihitung HPP-nya untuk ukuran kemasan tersebut.');
         }
 
         HppCalculation::create([
-            'roasting_batch_id' => $request->roasting_batch_id,
-            'hasil_kemasan_pcs' => $request->hasil_kemasan_pcs,
-            'biaya_bahan_baku' => $request->biaya_bahan_baku,
-            'biaya_listrik' => $request->biaya_listrik,
-            'biaya_penyusutan' => $request->biaya_penyusutan,
-            'biaya_gaji' => $request->biaya_gaji,
-            'biaya_kemasan' => $request->biaya_kemasan,
-            'total_hpp' => $request->total_hpp,
-            'harga_jual_final' => $request->harga_jual_final,
-            'packaging_id' => $request->packaging_id,
+            'roasting_batch_id' => $validated['roasting_batch_id'],
+            'hasil_kemasan_pcs' => $validated['hasil_kemasan_pcs'],
+            'biaya_bahan_baku' => $hpp['biaya_bahan_baku'],
+            'biaya_listrik' => $hpp['biaya_listrik'],
+            'biaya_penyusutan' => $hpp['biaya_penyusutan'],
+            'biaya_gaji' => $hpp['biaya_gaji'],
+            'biaya_kemasan' => $hpp['biaya_kemasan'],
+            'total_hpp' => $hpp['total_hpp'],
+            'harga_jual_final' => $validated['harga_jual_final'],
+            'packaging_id' => $validated['packaging_id'],
         ]);
 
         return redirect()->route('hpp.index')->with('success', 'Laporan HPP berhasil disimpan.');
