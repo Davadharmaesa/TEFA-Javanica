@@ -253,6 +253,7 @@
                     <input type="hidden" name="total_hpp" :value="preview.total_hpp">
                     <input type="hidden" name="harga_jual_final" :value="form.harga_jual_final">
                     <input type="hidden" name="packaging_id" :value="form.selectedPouch">
+                    <input type="hidden" name="sticker_id" :value="form.selectedSticker">
                     
                     <button type="submit" 
                         class="px-6 py-3 bg-secondary text-white font-bold rounded-xl shadow-md hover:bg-secondary/90 transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed flex items-center gap-2"

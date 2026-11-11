@@ -457,4 +457,137 @@ class PreOrderSalesTest extends TestCase
             'stok_pcs' => 15,
         ]);
     }
+
+    /**
+     * TC-SLS-006: Penolakan pesanan saat kebutuhan gramasi kopi melebihi total stok gudang
+     */
+    public function test_penolakan_pesanan_saat_kebutuhan_kopi_melebihi_stok_gudang(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        $greenBean = GreenBean::create([
+            'nama_biji' => 'GB Arabika Ijen',
+            'asal_kopi' => 'Jawa Timur',
+        ]);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Kopi Arabica Ijen 250g',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 1000,
+            'satuan_dasar' => 'gram',
+        ]);
+
+        $packaging = Packaging::create([
+            'tipe' => 'Pouch',
+            'nama_kemasan' => 'Pouch 250g',
+            'kapasitas_gram' => 250,
+            'harga_satuan' => 3000,
+            'stok_pcs' => 50,
+        ]);
+
+        FinishedGood::create([
+            'roasted_bean_id' => $roastedBean->id,
+            'packaging_id' => $packaging->id,
+            'stok_pcs' => 4,
+        ]);
+
+        // Input pesanan butuh 2.500 g (10 pcs @ 250g), sedangkan stok hanya 1.000 g
+        $response = $this->actingAs($pic)->post('/sales/store', [
+            'customer_name' => 'Budi Lebih',
+            'roasted_bean_id' => $roastedBean->id,
+            'finished_good_id' => "{$roastedBean->id}-250",
+            'jumlah_pcs' => 10,
+            'jumlah_gram_pesanan' => 2500,
+            'harga_jual_pesanan' => 300000,
+            'status_pengiriman' => 'Diproses',
+            'metode_pembayaran' => 'lunas',
+        ]);
+
+        $response->assertSessionHasErrors();
+    }
+
+    /**
+     * TC-SLS-007: Transisi pembaruan status pengiriman pesanan (Diproses -> Dikirim -> Selesai)
+     */
+    public function test_transisi_pembaruan_status_pengiriman_pesanan(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Arabica Gayo',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 2000,
+            'satuan_dasar' => 'gram',
+        ]);
+
+        $order = PesananKeluar::create([
+            'user_id' => $pic->id,
+            'nama_pesanan' => 'Pelanggan Cafe Transisi',
+            'roasted_bean_id' => $roastedBean->id,
+            'jumlah_pcs' => 2,
+            'jumlah_gram_pesanan' => 500,
+            'harga_jual_pesanan' => 60000,
+            'total_pembayaran' => 60000,
+            'status_pembayaran' => 'lunas',
+            'status_pengiriman' => 'Diproses',
+            'tanggal_pesanan' => now()->toDateString(),
+        ]);
+
+        // 1. Update ke Dikirim
+        $response1 = $this->actingAs($pic)->patch("/sales/{$order->id}/status", [
+            'status_pengiriman' => 'Dikirim',
+        ]);
+        $response1->assertRedirect();
+        $order->refresh();
+        $this->assertEquals('Dikirim', $order->status_pengiriman);
+
+        // 2. Update ke Selesai
+        $response2 = $this->actingAs($pic)->patch("/sales/{$order->id}/status", [
+            'status_pengiriman' => 'Selesai',
+        ]);
+        $response2->assertRedirect();
+        $order->refresh();
+        $this->assertEquals('Selesai', $order->status_pengiriman);
+    }
+
+    /**
+     * TC-SLS-008: Pembatalan (Cancel) pesanan dan rollback pengembalian saldo stok fisik
+     */
+    public function test_pembatalan_pesanan_dan_rollback_pengembalian_saldo_stok_fisik(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Kopi Rollback Test',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 1000, // Misal stok sekarang 1000g setelah dipotong 500g
+            'satuan_dasar' => 'gram',
+        ]);
+
+        $order = PesananKeluar::create([
+            'user_id' => $pic->id,
+            'nama_pesanan' => 'Pelanggan Batal',
+            'roasted_bean_id' => $roastedBean->id,
+            'jumlah_pcs' => 2,
+            'jumlah_gram_pesanan' => 500,
+            'harga_jual_pesanan' => 50000,
+            'total_pembayaran' => 50000,
+            'status_pembayaran' => 'lunas',
+            'status_pengiriman' => 'Diproses',
+            'tanggal_pesanan' => now()->toDateString(),
+        ]);
+
+        // Hapus/batalkan pesanan
+        $response = $this->actingAs($pic)->delete("/sales/{$order->id}");
+        $response->assertRedirect();
+
+        // Verifikasi stok roasted bean dikembalikan bertambah 500g (1000 + 500 = 1500g)
+        $roastedBean->refresh();
+        $this->assertEquals(1500, $roastedBean->total_stok);
+
+        // Verifikasi record pesanan dihapus
+        $this->assertDatabaseMissing('pesanan_keluar', [
+            'id' => $order->id,
+        ]);
+    }
 }

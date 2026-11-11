@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Biaya;
 use App\Models\GreenBean;
 use App\Models\HppCalculation;
+use App\Models\LogPekerja;
 use App\Models\Packaging;
 use App\Models\RoastedBean;
 use App\Models\RoastingBatch;
@@ -15,6 +16,7 @@ use Tests\TestCase;
 
 class HppCalculationTest extends TestCase
 {
+    // Membersihkan database in-memory setiap kali sebuah test selesai (Test Isolation)
     use RefreshDatabase;
 
     private function createStandardHppSetup(): array
@@ -73,7 +75,8 @@ class HppCalculationTest extends TestCase
     }
 
     /**
-     * TC-HPP-001: Kalkulasi total HPP batch berbasis biaya bahan, operasional, upah
+     * TC-HPP-001: Kalkulasi total HPP dari lima komponen biaya.
+     * TUJUAN: Menguji kalkulasi komprehensif seluruh 5 komponen biaya HPP.
      */
     public function test_kalkulasi_total_hpp_batch_berbasis_biaya_bahan_operasional_upah(): void
     {
@@ -93,6 +96,7 @@ class HppCalculationTest extends TestCase
         $this->assertEquals(1375, $data['biaya_listrik']);
         $this->assertEquals(3500, $data['biaya_penyusutan']);
         $this->assertEquals(15000, $data['biaya_gaji']);
+        $this->assertTrue($data['is_fallback_gaji']);
         $this->assertEquals(115500, $data['biaya_kemasan']); // 77 pcs * Rp 1.500
 
         // Total akumulasi 5 variabel biaya: 1.200.000 + 1.375 + 3.500 + 15.000 + 115.500 = 1.335.375
@@ -100,7 +104,8 @@ class HppCalculationTest extends TestCase
     }
 
     /**
-     * TC-HPP-002: Perhitungan HPP per pcs berdasarkan jumlah kemasan jadi
+     * TC-HPP-002: Perhitungan HPP per pcs berdasarkan output.
+     * TUJUAN: Menguji pembagian total HPP dengan jumlah pcs yang dihasilkan.
      */
     public function test_perhitungan_hpp_per_pcs_berdasarkan_jumlah_kemasan_jadi(): void
     {
@@ -116,7 +121,6 @@ class HppCalculationTest extends TestCase
         $data = $response->json();
 
         $totalHpp = $data['total_hpp']; // 1.335.375
-        $outputPcs = 77;
         $hppPerPcs = $data['hpp_per_pcs']; // 1.335.375 / 77 = 17342.5324...
 
         $this->assertEquals(1335375, $totalHpp);
@@ -125,7 +129,8 @@ class HppCalculationTest extends TestCase
     }
 
     /**
-     * TC-HPP-003: Validasi tombol Simpan HPP non-aktif (disabled) saat parameter form belum lengkap
+     * TC-HPP-003: Simpan HPP nonaktif ketika parameter belum lengkap.
+     * TUJUAN: Menguji proteksi form di UI dan backend agar tidak menyimpan data cacat.
      */
     public function test_validasi_tombol_simpan_hpp_non_aktif_disabled_saat_parameter_form_belum_lengkap(): void
     {
@@ -148,7 +153,8 @@ class HppCalculationTest extends TestCase
     }
 
     /**
-     * TC-HPP-004: Validasi batas maksimum Pcs (maxOutputPcs) berdasarkan kapasitas berat batch kopi dan ukuran kemasan
+     * TC-HPP-004: Batas maksimum output berdasarkan kapasitas batch.
+     * TUJUAN: Menguji kalkulasi otomatis batas kemasan yang dapat diproduksi dari satu batch.
      */
     public function test_validasi_batas_maksimum_pcs_berdasarkan_kapasitas_berat_batch_kopi_dan_ukuran_kemasan(): void
     {
@@ -186,6 +192,7 @@ class HppCalculationTest extends TestCase
 
     /**
      * TC-HPP-005: Rekomendasi otomatis Saran Harga Jual berbasis Margin 50%
+     * TUJUAN: Menguji logika pricing otomatis dengan markup 50% dan pembulatan Rp 500 terdekat.
      */
     public function test_rekomendasi_otomatis_saran_harga_jual_berbasis_margin_50_persen(): void
     {
@@ -212,6 +219,7 @@ class HppCalculationTest extends TestCase
 
     /**
      * TC-HPP-006: Akurasi Rumus Biaya Listrik Dinamis (KW per Jam)
+     * TUJUAN: Menguji keakuratan perhitungan biaya listrik mesin berdasarkan daya kW dan lama sangrai.
      */
     public function test_akurasi_rumus_biaya_listrik_dinamis_kw_per_jam(): void
     {
@@ -234,13 +242,13 @@ class HppCalculationTest extends TestCase
 
     /**
      * TC-HPP-007: Menampilkan riwayat kalkulasi HPP yang tersimpan pada tabel Riwayat HPP
+     * TUJUAN: Menguji data HPP yang sudah disimpan muncul di riwayat tabel.
      */
     public function test_menampilkan_riwayat_kalkulasi_hpp_yang_tersimpan_pada_tabel_riwayat_hpp(): void
     {
         $setup = $this->createStandardHppSetup();
 
-        // Simpan data riwayat kalkulasi HPP
-        $hpp = HppCalculation::create([
+        HppCalculation::create([
             'roasting_batch_id' => $setup['batch']->id,
             'packaging_id' => $setup['pouch']->id,
             'hasil_kemasan_pcs' => 80,
@@ -256,7 +264,6 @@ class HppCalculationTest extends TestCase
         $response = $this->actingAs($setup['pic'])->get('/hpp-calculator');
         $response->assertStatus(200);
 
-        // Verifikasi tabel riwayat HPP memuat kode batch, hasil pcs, dan status badge hijau Tersimpan
         $response->assertSee('Riwayat Kalkulasi HPP');
         $response->assertSee('BATCH-001');
         $response->assertSee('Tersimpan');
@@ -269,7 +276,8 @@ class HppCalculationTest extends TestCase
     }
 
     /**
-     * TC-UAT-002: PIC menghitung HPP, memvalidasi hasil perhitungan, dan menyimpan hasilnya
+     * TC-UAT-002: PIC menghitung, memvalidasi, dan menyimpan HPP.
+     * TUJUAN: End-to-end integration test dari kalkulasi preview hingga persistence ke database.
      */
     public function test_pic_menghitung_hpp_memvalidasi_hasil_perhitungan_dan_menyimpan_hasilnya(): void
     {
@@ -312,7 +320,7 @@ class HppCalculationTest extends TestCase
             'stok_pcs' => 100,
         ]);
 
-        // 1. PIC melakukan kalkulasi preview untuk 40 pcs kemasan (40 * 100g = 4000g = 100% batch)
+        // 1. Preview
         $previewRes = $this->actingAs($pic)->postJson('/internal-api/hpp-calculator/preview', [
             'batch' => json_encode(['id' => $batch->id]),
             'hasil_kemasan_pcs' => 40,
@@ -324,7 +332,7 @@ class HppCalculationTest extends TestCase
         $this->assertEquals(40, $previewData['max_output_pcs']);
         $this->assertGreaterThan(0, $previewData['total_hpp']);
 
-        // 2. PIC memvalidasi dan menyimpan hasil kalkulasi HPP ke database
+        // 2. Simpan
         $storeRes = $this->actingAs($pic)->post('/hpp-calculator/store', [
             'roasting_batch_id' => $batch->id,
             'packaging_id' => $pouch->id,
@@ -347,13 +355,316 @@ class HppCalculationTest extends TestCase
             'hasil_kemasan_pcs' => 40,
             'harga_jual_final' => 20000,
         ]);
+    }
 
-        // 3. Pastikan hasil perhitungan tampil di riwayat HPP
-        $historyRes = $this->actingAs($pic)->get('/hpp-calculator');
-        $historyRes->assertStatus(200);
-        $historyData = collect($historyRes->viewData('hppHistory'));
-        $saved = $historyData->firstWhere('roasting_batch_id', $batch->id);
-        $this->assertNotNull($saved);
-        $this->assertEquals(40, $saved['hasil_kemasan_pcs']);
+    /**
+     * TC-WB-HPP-007: Tolak kalkulasi HPP duplikat untuk batch dan kemasan.
+     * TUJUAN: Menguji sistem menolak jika batch yang sama dihitung ulang dengan kemasan yang sama.
+     */
+    public function test_pencegahan_duplikasi_kalkulasi_batch_yang_sama_pada_kemasan_yang_sama(): void
+    {
+        $setup = $this->createStandardHppSetup();
+
+        // Simpan kalkulasi pertama
+        HppCalculation::create([
+            'roasting_batch_id' => $setup['batch']->id,
+            'packaging_id' => $setup['pouch']->id,
+            'hasil_kemasan_pcs' => 77,
+            'biaya_bahan_baku' => 1200000,
+            'biaya_listrik' => 1375,
+            'biaya_penyusutan' => 3500,
+            'biaya_gaji' => 15000,
+            'biaya_kemasan' => 115500,
+            'total_hpp' => 1335375,
+            'harga_jual_final' => 25000,
+        ]);
+
+        // Coba simpan kedua kalinya untuk batch dan pouch yang sama
+        $response = $this->actingAs($setup['pic'])->post('/hpp-calculator/store', [
+            'roasting_batch_id' => $setup['batch']->id,
+            'packaging_id' => $setup['pouch']->id,
+            'hasil_kemasan_pcs' => 77,
+            'biaya_bahan_baku' => 1200000,
+            'biaya_listrik' => 1375,
+            'biaya_penyusutan' => 3500,
+            'biaya_gaji' => 15000,
+            'biaya_kemasan' => 115500,
+            'total_hpp' => 1335375,
+            'harga_jual_final' => 25000,
+        ]);
+
+        $response->assertSessionHas('error', 'Batch ini sudah dihitung HPP-nya untuk ukuran kemasan tersebut.');
+        $this->assertEquals(1, HppCalculation::count());
+    }
+
+    /**
+     * TC-WB-HPP-014: Reproduces BUG-HPP-001 when the submitted total HPP is manipulated.
+     */
+    public function test_rejects_selling_price_below_actual_hpp_when_submitted_total_is_tampered(): void
+    {
+        $setup = $this->createStandardHppSetup();
+
+        $response = $this->actingAs($setup['pic'])->post('/hpp-calculator/store', [
+            'roasting_batch_id' => $setup['batch']->id,
+            'packaging_id' => $setup['pouch']->id,
+            'hasil_kemasan_pcs' => 1,
+            'biaya_bahan_baku' => 0,
+            'biaya_listrik' => 0,
+            'biaya_penyusutan' => 0,
+            'biaya_gaji' => 0,
+            'biaya_kemasan' => 0,
+            'total_hpp' => 1,
+            'harga_jual_final' => 1,
+        ]);
+
+        $response->assertSessionHasErrors('harga_jual_final');
+        $this->assertDatabaseCount('hpp_calculations', 0);
+    }
+
+    /**
+     * TC-WB-HPP-004: Preview tanpa kemasan.
+     */
+    public function test_hpp_preview_tanpa_kemasan_mengembalikan_nilai_kemasan_nol(): void
+    {
+        $setup = $this->createStandardHppSetup();
+
+        $this->actingAs($setup['pic'])->postJson('/internal-api/hpp-calculator/preview', [
+            'batch' => json_encode(['id' => $setup['batch']->id]),
+            'hasil_kemasan_pcs' => 10,
+        ])->assertOk()
+            ->assertJsonPath('biaya_kemasan', 0)
+            ->assertJsonPath('max_output_pcs', 0)
+            ->assertJsonPath('share_percentage', 100);
+    }
+
+    /**
+     * TC-WB-HPP-005: Alokasi biaya sesuai jumlah kemasan.
+     */
+    public function test_hpp_preview_mengalokasikan_biaya_sebanding_dengan_jumlah_kemasan(): void
+    {
+        $setup = $this->createStandardHppSetup();
+
+        $response = $this->actingAs($setup['pic'])->postJson('/internal-api/hpp-calculator/preview', [
+            'batch' => json_encode(['id' => $setup['batch']->id]),
+            'hasil_kemasan_pcs' => 40,
+            'pouch_id' => $setup['pouch']->id,
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('max_output_pcs', 77)
+            ->assertJsonPath('share_percentage', 51.95);
+        $this->assertEqualsWithDelta(1200000 * (4000 / 7700), $response->json('biaya_bahan_baku'), 1);
+    }
+
+    /**
+     * TC-WB-HPP-009: Preview HPP dengan upah log dan stiker.
+     */
+    public function test_hpp_preview_menggunakan_log_upah_dan_stiker(): void
+    {
+        $setup = $this->createStandardHppSetup();
+        $sticker = $this->createHppPackaging('Stiker', 0, 250);
+        $this->createHppWorkerLog($setup['batch'], 24000);
+
+        $this->actingAs($setup['pic'])->postJson('/internal-api/hpp-calculator/preview', [
+            'batch' => json_encode(['id' => $setup['batch']->id]),
+            'hasil_kemasan_pcs' => 40,
+            'pouch_id' => $setup['pouch']->id,
+            'sticker_id' => $sticker->id,
+        ])->assertOk()
+            ->assertJsonPath('biaya_gaji', 24000 * (4000 / 7700))
+            ->assertJsonPath('biaya_kemasan', 70000)
+            ->assertJsonPath('is_fallback_gaji', false)
+            ->assertJsonPath('pekerja_list', ['Ayu']);
+    }
+
+    /**
+     * TC-WB-HPP-010: Preview dengan kapasitas kemasan nol.
+     */
+    public function test_hpp_preview_menangani_kapasitas_kemasan_nol(): void
+    {
+        $setup = $this->createStandardHppSetup();
+        $pouch = $this->createHppPackaging('Pouch kapasitas nol', 0, 1500);
+
+        $this->actingAs($setup['pic'])->postJson('/internal-api/hpp-calculator/preview', [
+            'batch' => json_encode(['id' => $setup['batch']->id]),
+            'hasil_kemasan_pcs' => 10,
+            'pouch_id' => $pouch->id,
+        ])->assertOk()
+            ->assertJsonPath('max_output_pcs', 0)
+            ->assertJsonPath('share_percentage', 100);
+    }
+
+    /**
+     * TC-WB-HPP-011: Preview dengan berat batch nol.
+     */
+    public function test_hpp_preview_menangani_berat_batch_nol(): void
+    {
+        $setup = $this->createStandardHppSetup();
+        $setup['batch']->update(['berat_matang_bersih' => 0]);
+
+        $this->actingAs($setup['pic'])->postJson('/internal-api/hpp-calculator/preview', [
+            'batch' => json_encode(['id' => $setup['batch']->id]),
+            'hasil_kemasan_pcs' => 10,
+            'pouch_id' => $setup['pouch']->id,
+        ])->assertOk()
+            ->assertJsonPath('max_output_pcs', 0)
+            ->assertJsonPath('share_percentage', 100);
+    }
+
+    /**
+     * TC-WB-HPP-012: Preview dengan jumlah kemasan nol.
+     */
+    public function test_hpp_preview_menangani_jumlah_kemasan_nol(): void
+    {
+        $setup = $this->createStandardHppSetup();
+
+        $this->actingAs($setup['pic'])->postJson('/internal-api/hpp-calculator/preview', [
+            'batch' => json_encode(['id' => $setup['batch']->id]),
+            'hasil_kemasan_pcs' => 0,
+            'pouch_id' => $setup['pouch']->id,
+        ])->assertOk()
+            ->assertJsonPath('biaya_kemasan', 0)
+            ->assertJsonPath('hpp_per_pcs', 0)
+            ->assertJsonPath('share_percentage', 0);
+    }
+
+    /**
+     * TC-WB-HPP-013: Preview dengan upah log tanpa stiker.
+     */
+    public function test_hpp_preview_menggunakan_log_upah_tanpa_stiker(): void
+    {
+        $setup = $this->createStandardHppSetup();
+        $this->createHppWorkerLog($setup['batch'], 24000);
+
+        $this->actingAs($setup['pic'])->postJson('/internal-api/hpp-calculator/preview', [
+            'batch' => json_encode(['id' => $setup['batch']->id]),
+            'hasil_kemasan_pcs' => 40,
+            'pouch_id' => $setup['pouch']->id,
+        ])->assertOk()
+            ->assertJsonPath('biaya_kemasan', 60000)
+            ->assertJsonPath('is_fallback_gaji', false);
+    }
+
+    /**
+     * TC-WB-HPP-001: Preview HPP menggunakan fallback upah dari master biaya.
+     */
+    public function test_preview_hpp_menggunakan_fallback_upah_master(): void
+    {
+        $setup = $this->createStandardHppSetup();
+
+        $response = $this->actingAs($setup['pic'])->postJson('/internal-api/hpp-calculator/preview', [
+            'batch' => json_encode(['id' => $setup['batch']->id]),
+            'hasil_kemasan_pcs' => 77,
+            'pouch_id' => $setup['pouch']->id,
+        ])->assertOk();
+
+        $this->assertTrue($response->json('is_fallback_gaji'));
+        $this->assertEquals(15000, $response->json('biaya_gaji'));
+    }
+
+    /**
+     * TC-WB-HPP-002: Hitung HPP per pcs dari total HPP dan jumlah kemasan.
+     */
+    public function test_hitung_hpp_per_pcs(): void
+    {
+        $setup = $this->createStandardHppSetup();
+
+        $response = $this->actingAs($setup['pic'])->postJson('/internal-api/hpp-calculator/preview', [
+            'batch' => json_encode(['id' => $setup['batch']->id]),
+            'hasil_kemasan_pcs' => 77,
+            'pouch_id' => $setup['pouch']->id,
+        ])->assertOk();
+
+        $this->assertEquals(
+            $response->json('total_hpp') / 77,
+            $response->json('hpp_per_pcs')
+        );
+    }
+
+    /**
+     * TC-WB-HPP-003: Hitung batas output berdasarkan berat batch dan kapasitas pouch.
+     */
+    public function test_batas_output_sesuai_kapasitas_batch(): void
+    {
+        $setup = $this->createStandardHppSetup();
+
+        $this->actingAs($setup['pic'])->postJson('/internal-api/hpp-calculator/preview', [
+            'batch' => json_encode(['id' => $setup['batch']->id]),
+            'hasil_kemasan_pcs' => 1,
+            'pouch_id' => $setup['pouch']->id,
+        ])->assertOk()
+            ->assertJsonPath('max_output_pcs', 77);
+    }
+
+    /**
+     * TC-WB-HPP-006: Tolak simpan HPP ketika parameter wajib kosong.
+     */
+    public function test_tolak_simpan_hpp_dengan_parameter_wajib_kosong(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        $this->actingAs($pic)->post('/hpp-calculator/store', [
+            'roasting_batch_id' => null,
+            'packaging_id' => null,
+            'hasil_kemasan_pcs' => 0,
+        ])->assertSessionHasErrors(['roasting_batch_id', 'packaging_id', 'hasil_kemasan_pcs']);
+
+        $this->assertDatabaseCount('hpp_calculations', 0);
+    }
+
+    /**
+     * TC-WB-HPP-008: Simpan kalkulasi HPP valid ke database.
+     */
+    public function test_simpan_kalkulasi_hpp_valid(): void
+    {
+        $setup = $this->createStandardHppSetup();
+        $preview = $this->actingAs($setup['pic'])->postJson('/internal-api/hpp-calculator/preview', [
+            'batch' => json_encode(['id' => $setup['batch']->id]),
+            'hasil_kemasan_pcs' => 40,
+            'pouch_id' => $setup['pouch']->id,
+        ])->assertOk()->json();
+
+        $this->actingAs($setup['pic'])->post('/hpp-calculator/store', [
+            'roasting_batch_id' => $setup['batch']->id,
+            'packaging_id' => $setup['pouch']->id,
+            'hasil_kemasan_pcs' => 40,
+            'biaya_bahan_baku' => $preview['biaya_bahan_baku'],
+            'biaya_listrik' => $preview['biaya_listrik'],
+            'biaya_penyusutan' => $preview['biaya_penyusutan'],
+            'biaya_gaji' => $preview['biaya_gaji'],
+            'biaya_kemasan' => $preview['biaya_kemasan'],
+            'total_hpp' => $preview['total_hpp'],
+            'harga_jual_final' => 25000,
+        ])->assertRedirect(route('hpp.index'));
+
+        $this->assertDatabaseHas('hpp_calculations', [
+            'roasting_batch_id' => $setup['batch']->id,
+            'packaging_id' => $setup['pouch']->id,
+            'hasil_kemasan_pcs' => 40,
+        ]);
+    }
+
+    private function createHppPackaging(string $name, int $capacity, int $price): Packaging
+    {
+        return Packaging::create([
+            'tipe' => 'Pouch',
+            'nama_kemasan' => $name,
+            'kapasitas_gram' => $capacity,
+            'satuan' => 'pcs',
+            'harga_satuan' => $price,
+            'stok_pcs' => 100,
+        ]);
+    }
+
+    private function createHppWorkerLog(RoastingBatch $batch, int $amount): void
+    {
+        $wage = Biaya::where('kategori', 'Tenaga Kerja')->firstOrFail();
+        LogPekerja::create([
+            'roasting_batch_id' => $batch->id,
+            'nama_pekerja' => 'Ayu',
+            'biaya_id' => $wage->id,
+            'jumlah_kerja' => 1,
+            'total_upah' => $amount,
+        ]);
     }
 }

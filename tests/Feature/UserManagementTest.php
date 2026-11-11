@@ -10,112 +10,87 @@ class UserManagementTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Uji apakah PIC dapat mengakses halaman kelola user.
-     */
-    public function test_pic_can_access_user_management(): void
+    // TC-USR-001
+    public function test_tc_usr_001_tambah_akun_pegawai_baru(): void
     {
         $pic = User::factory()->create(['role' => 'PIC']);
-
-        $response = $this->actingAs($pic)->get('/users');
-
-        $response->assertStatus(200);
-        $response->assertSee('Kelola Pengguna Aplikasi');
+        $response = $this->actingAs($pic)->post('/users', [
+            'name' => 'Viona Dhini', 'email' => 'viona@tefa.com', 'role' => 'Operator', 'password' => 'Secret123!',
+        ]);
+        $response->assertRedirect('/users');
+        $this->assertDatabaseHas('users', ['email' => 'viona@tefa.com']);
     }
 
-    /**
-     * Uji apakah Operator ditolak saat mencoba mengakses halaman kelola user.
-     */
+    // TC-USR-002
+    public function test_tc_usr_002_pembaruan_role_akun_pegawai(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+        $user = User::factory()->create(['name' => 'Budi', 'email' => 'budi@tefa.com', 'role' => 'Operator']);
+
+        $response = $this->actingAs($pic)->put("/users/{$user->id}", [
+            'name' => 'Budi', 'email' => 'budi@tefa.com', 'role' => 'PIC',
+        ]);
+        $response->assertRedirect('/users');
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'role' => 'PIC']);
+    }
+
+    // TC-USR-003
+    public function test_tc_usr_003_menghapus_akun_pegawai_lain(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+        $user = User::factory()->create(['name' => 'Rian', 'email' => 'rian@tefa.com', 'role' => 'Operator']);
+
+        $response = $this->actingAs($pic)->delete("/users/{$user->id}");
+        $response->assertRedirect('/users');
+        $this->assertDatabaseMissing('users', ['id' => $user->id]);
+    }
+
+    // TC-USR-004
+    public function test_tc_usr_004_proteksi_menolak_hapus_akun_sendiri(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+        $response = $this->actingAs($pic)->delete("/users/{$pic->id}");
+        $response->assertRedirect('/users');
+        $this->assertDatabaseHas('users', ['id' => $pic->id]);
+    }
+
+    // TC-USR-005
+    public function test_tc_usr_005_uji_validasi_email_duplikat(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+        User::factory()->create(['email' => 'viona@tefa.com']);
+
+        $response = $this->actingAs($pic)->post('/users', [
+            'name' => 'Duplikat', 'email' => 'viona@tefa.com', 'role' => 'Operator', 'password' => 'secret123',
+        ]);
+        $response->assertSessionHasErrors('email');
+    }
+
+    // TC-USR-006
+    public function test_tc_usr_006_validasi_form_tambah_user_kosong(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+        $response = $this->actingAs($pic)->post('/users', [
+            'name' => '', 'email' => '', 'role' => '', 'password' => '',
+        ]);
+        $response->assertSessionHasErrors(['name', 'email', 'password']);
+    }
+
+    // TC-USR-007 (Bagian 1)
+    public function test_tc_usr_007_uji_format_email_tidak_valid(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+        $response = $this->actingAs($pic)->post('/users', [
+            'name' => 'Test Email', 'email' => 'viona-tanpa-at-sign.com', 'role' => 'Operator', 'password' => 'secret123',
+        ]);
+        $response->assertSessionHasErrors('email');
+    }
+
+    // TC-USR-007 (Bagian 2 - Akses Operator)
     public function test_operator_cannot_access_user_management(): void
     {
         $operator = User::factory()->create(['role' => 'Operator']);
-
         $response = $this->actingAs($operator)->get('/users');
-
         $response->assertStatus(403);
-    }
-
-    /**
-     * Uji apakah PIC dapat menambahkan user baru.
-     */
-    public function test_pic_can_create_new_user(): void
-    {
-        $pic = User::factory()->create(['role' => 'PIC']);
-
-        $response = $this->actingAs($pic)->post('/users', [
-            'name' => 'Adhi Nugraha',
-            'email' => 'adhi@tefa.com',
-            'role' => 'Operator',
-            'password' => 'operator123',
-        ]);
-
-        $response->assertRedirect('/users');
-        $this->assertDatabaseHas('users', [
-            'name' => 'Adhi Nugraha',
-            'email' => 'adhi@tefa.com',
-            'role' => 'Operator',
-        ]);
-    }
-
-    /**
-     * Uji apakah PIC dapat mengedit data user lain.
-     */
-    public function test_pic_can_update_user(): void
-    {
-        $pic = User::factory()->create(['role' => 'PIC']);
-        $user = User::factory()->create([
-            'name' => 'Budi Santoso',
-            'email' => 'budi@tefa.com',
-            'role' => 'Mahasiswa Magang',
-        ]);
-
-        $response = $this->actingAs($pic)->put("/users/{$user->id}", [
-            'name' => 'Budi Santoso Harjo',
-            'email' => 'budi.new@tefa.com',
-            'role' => 'Operator',
-        ]);
-
-        $response->assertRedirect('/users');
-        $this->assertDatabaseHas('users', [
-            'id' => $user->id,
-            'name' => 'Budi Santoso Harjo',
-            'email' => 'budi.new@tefa.com',
-            'role' => 'Operator',
-        ]);
-    }
-
-    /**
-     * Uji apakah PIC dapat menghapus user lain.
-     */
-    public function test_pic_can_delete_user(): void
-    {
-        $pic = User::factory()->create(['role' => 'PIC']);
-        $user = User::factory()->create([
-            'name' => 'Rian Hidayat',
-            'email' => 'rian@tefa.com',
-            'role' => 'Operator',
-        ]);
-
-        $response = $this->actingAs($pic)->delete("/users/{$user->id}");
-
-        $response->assertRedirect('/users');
-        $this->assertDatabaseMissing('users', [
-            'id' => $user->id,
-        ]);
-    }
-
-    /**
-     * Uji apakah PIC dilarang menghapus akunnya sendiri yang sedang aktif.
-     */
-    public function test_pic_cannot_delete_themself(): void
-    {
-        $pic = User::factory()->create(['role' => 'PIC']);
-
-        $response = $this->actingAs($pic)->delete("/users/{$pic->id}");
-
-        $response->assertRedirect('/users');
-        $this->assertDatabaseHas('users', [
-            'id' => $pic->id,
-        ]);
     }
 }

@@ -84,7 +84,7 @@ class MasterDataApiController extends Controller
     public function storeBiaya(Request $request)
     {
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
+            'nama' => 'required|string|max:255|unique:biaya,nama',
             'kategori' => 'required|string|max:255',
             'satuan' => 'required|string|max:255',
             'harga' => 'required|integer|min:0',
@@ -96,7 +96,7 @@ class MasterDataApiController extends Controller
     public function updateBiaya(Request $request, $id)
     {
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
+            'nama' => ['required', 'string', 'max:255', Rule::unique('biaya', 'nama')->ignore($id)],
             'kategori' => 'required|string|max:255',
             'satuan' => 'required|string|max:255',
             'harga' => 'required|integer|min:0',
@@ -108,6 +108,10 @@ class MasterDataApiController extends Controller
 
     public function destroyBiaya($id)
     {
+        if (\App\Models\LogPekerja::where('biaya_id', $id)->exists()) {
+            return response()->json(['message' => 'Komponen Biaya tidak dapat dihapus karena sudah terhubung dengan data keuangan atau kalkulasi HPP!'], 400);
+        }
+
         try {
             $biaya = Biaya::findOrFail($id);
             $biaya->delete();
@@ -130,7 +134,7 @@ class MasterDataApiController extends Controller
     public function storeGreenBean(Request $request)
     {
         $validated = $request->validate([
-            'nama_biji' => 'required|string|max:255',
+            'nama_biji' => 'required|string|max:255|unique:green_bean,nama_biji',
             'asal_kopi' => 'nullable|string|max:255',
         ]);
 
@@ -183,7 +187,7 @@ class MasterDataApiController extends Controller
     public function storeRoastedBean(Request $request)
     {
         $validated = $request->validate([
-            'nama_kopi' => 'required|string|max:255',
+            'nama_kopi' => 'required|string|max:255|unique:roasted_bean,nama_kopi',
             'bentuk_akhir' => 'required|string|max:255',
         ]);
 
