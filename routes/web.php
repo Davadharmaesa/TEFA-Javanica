@@ -64,6 +64,8 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/packaging/{id}', [\App\Http\Controllers\InventoryController::class, 'destroyPackaging'])->name('destroy-packaging');
         });
 
+        Route::post('/pengemasan/clear-residue', [\App\Http\Controllers\Api\PackagingApiController::class, 'clearResidue'])->name('pengemasan.clear-residue');
+
         // Sales (PIC & Operator)
         Route::prefix('sales')->name('sales.')->group(function () {
             Route::get('/', [\App\Http\Controllers\SalesController::class, 'index'])->name('index');

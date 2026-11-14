@@ -232,7 +232,7 @@
                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                         </svg>
                                     </button>
-                                    <form :action="'/inventory/green-bean/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data stok Green Bean ini?');">
+                                    <form :action="'{{ url('/inventory/green-bean') }}/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data stok Green Bean ini?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus Stok">
@@ -306,7 +306,7 @@
                             </svg>
                             Koreksi
                         </button>
-                        <form :action="'/inventory/green-bean/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data stok Green Bean ini?');">
+                        <form :action="'{{ url('/inventory/green-bean') }}/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data stok Green Bean ini?');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8B3A3A] bg-[#8B3A3A]/5 hover:bg-[#8B3A3A]/10 rounded-lg transition-colors">
@@ -412,7 +412,7 @@
                                             </svg>
                                         </button>
                                     </template>
-                                    <form :action="'/inventory/roasted-bean/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data Batch Roasting ini? Total stok Gudang juga akan otomatis berkurang.');">
+                                    <form :action="'{{ url('/inventory/roasted-bean') }}/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data Batch Roasting ini? Total stok Gudang juga akan otomatis berkurang.');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-1.5 text-[#8B3A3A] hover:text-red-600 hover:bg-red-600/10 rounded-md transition-colors" title="Hapus Batch">
@@ -487,7 +487,7 @@
                                 Buang Residu
                             </button>
                         </template>
-                        <form :action="'/inventory/roasted-bean/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data Batch Roasting ini? Total stok Gudang juga akan otomatis berkurang.');">
+                        <form :action="'{{ url('/inventory/roasted-bean') }}/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data Batch Roasting ini? Total stok Gudang juga akan otomatis berkurang.');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8B3A3A] bg-[#8B3A3A]/5 hover:bg-[#8B3A3A]/10 rounded-lg transition-colors">
@@ -1197,7 +1197,7 @@
 
                 this.isPackLoading = true;
                 try {
-                    const res = await fetch('/internal-api/pengemasan/process', {
+                    const res = await fetch('{{ url('/internal-api/pengemasan/process') }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1252,9 +1252,9 @@
 
             getFormAction() {
                 let base = '';
-                if (this.activeTab === 'greenbean') base = '/inventory/green-bean';
-                if (this.activeTab === 'roastedbean') base = '/inventory/roasted-bean';
-                if (this.activeTab === 'produk') base = '/inventory/packaging';
+                if (this.activeTab === 'greenbean') base = '{{ url('/inventory/green-bean') }}';
+                if (this.activeTab === 'roastedbean') base = '{{ url('/inventory/roasted-bean') }}';
+                if (this.activeTab === 'produk') base = '{{ url('/inventory/packaging') }}';
 
                 if (this.isEditMode && this.editId) return base + '/' + this.editId;
                 return base;
@@ -1266,7 +1266,7 @@
                 }
 
                 try {
-                    const res = await fetch('/pengemasan/clear-residue', {
+                    const res = await fetch('{{ url('/internal-api/pengemasan/clear-residue') }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

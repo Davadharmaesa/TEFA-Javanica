@@ -536,9 +536,9 @@
 
             getFormAction() {
                 if (this.isEditMode && this.editId) {
-                    return '/users/' + this.editId;
+                    return '{{ url('/users') }}/' + this.editId;
                 }
-                return '/users';
+                return '{{ url('/users') }}';
             }
         }));
     });

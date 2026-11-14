@@ -14,7 +14,7 @@
             }
             this.loading = true;
             try {
-                let res = await fetch('/internal-api/search?q=' + encodeURIComponent(this.searchQuery));
+                let res = await fetch('{{ url('/internal-api/search') }}?q=' + encodeURIComponent(this.searchQuery));
                 if (res.ok) {
                     this.searchResults = await res.json();
                 }
@@ -27,7 +27,7 @@
         async fetchDefaults() {
             this.loading = true;
             try {
-                let res = await fetch('/internal-api/search');
+                let res = await fetch('{{ url('/internal-api/search') }}');
                 if (res.ok) {
                     this.searchResults = await res.json();
                 }

@@ -716,10 +716,10 @@
             async fetchData() {
                 try {
                     const [gbRes, rbRes, biayaRes, pkgRes] = await Promise.all([
-                        fetch('/internal-api/master/green-beans'),
-                        fetch('/internal-api/master/roasted-beans'),
-                        fetch('/internal-api/master/biaya'),
-                        fetch('/internal-api/master/packagings')
+                        fetch('{{ url('/internal-api/master/green-beans') }}'),
+                        fetch('{{ url('/internal-api/master/roasted-beans') }}'),
+                        fetch('{{ url('/internal-api/master/biaya') }}'),
+                        fetch('{{ url('/internal-api/master/packagings') }}')
                     ]);
                     if (gbRes.ok) this.dataGreenBean = await gbRes.json();
                     if (rbRes.ok) this.dataRoastedBean = await rbRes.json();
@@ -819,10 +819,10 @@
                 if(!this.itemToDelete) return;
 
                 let url = '';
-                if(this.activeTab === 'biaya') url = `/internal-api/master/biaya/${this.itemToDelete.id}`;
-                if(this.activeTab === 'greenbean') url = `/internal-api/master/green-beans/${this.itemToDelete.id}`;
-                if(this.activeTab === 'roastedbean') url = `/internal-api/master/roasted-beans/${this.itemToDelete.id}`;
-                if(this.activeTab === 'packaging') url = `/internal-api/master/packagings/${this.itemToDelete.id}`;
+                if(this.activeTab === 'biaya') url = '{{ url('/internal-api/master/biaya') }}/' + this.itemToDelete.id;
+                if(this.activeTab === 'greenbean') url = '{{ url('/internal-api/master/green-beans') }}/' + this.itemToDelete.id;
+                if(this.activeTab === 'roastedbean') url = '{{ url('/internal-api/master/roasted-beans') }}/' + this.itemToDelete.id;
+                if(this.activeTab === 'packaging') url = '{{ url('/internal-api/master/packagings') }}/' + this.itemToDelete.id;
 
                 try {
                     const res = await fetch(url, {
@@ -848,7 +848,7 @@
             async saveData() {
                 if(this.activeTab === 'greenbean') {
                     const method = this.formGreenBean.id ? 'PUT' : 'POST';
-                    const url = this.formGreenBean.id ? `/internal-api/master/green-beans/${this.formGreenBean.id}` : `/internal-api/master/green-beans`;
+                    const url = this.formGreenBean.id ? '{{ url('/internal-api/master/green-beans') }}/' + this.formGreenBean.id : '{{ url('/internal-api/master/green-beans') }}';
                     const res = await fetch(url, {
                         method: method,
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json',
@@ -858,7 +858,7 @@
                     if(res.ok) this.fetchData();
                 } else if(this.activeTab === 'roastedbean') {
                     const method = this.formRoastedBean.id ? 'PUT' : 'POST';
-                    const url = this.formRoastedBean.id ? `/internal-api/master/roasted-beans/${this.formRoastedBean.id}` : `/internal-api/master/roasted-beans`;
+                    const url = this.formRoastedBean.id ? '{{ url('/internal-api/master/roasted-beans') }}/' + this.formRoastedBean.id : '{{ url('/internal-api/master/roasted-beans') }}';
                     const res = await fetch(url, {
                         method: method,
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json',
@@ -868,7 +868,7 @@
                     if(res.ok) this.fetchData();
                 } else if(this.activeTab === 'biaya') {
                     const method = this.formBiaya.id ? 'PUT' : 'POST';
-                    const url = this.formBiaya.id ? `/internal-api/master/biaya/${this.formBiaya.id}` : `/internal-api/master/biaya`;
+                    const url = this.formBiaya.id ? '{{ url('/internal-api/master/biaya') }}/' + this.formBiaya.id : '{{ url('/internal-api/master/biaya') }}';
                     const res = await fetch(url, {
                         method: method,
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json',
@@ -878,7 +878,7 @@
                     if(res.ok) this.fetchData();
                 } else if(this.activeTab === 'packaging') {
                     const method = this.formPackaging.id ? 'PUT' : 'POST';
-                    const url = this.formPackaging.id ? `/internal-api/master/packagings/${this.formPackaging.id}` : `/internal-api/master/packagings`;
+                    const url = this.formPackaging.id ? '{{ url('/internal-api/master/packagings') }}/' + this.formPackaging.id : '{{ url('/internal-api/master/packagings') }}';
                     const customTipe = this.formPackaging.tipe === 'Lainnya' ? this.formPackaging.custom_tipe.trim() : this.formPackaging.tipe;
                     const customSatuan = this.formPackaging.satuan === 'Lainnya' ? this.formPackaging.custom_satuan.trim() : this.formPackaging.satuan;
 

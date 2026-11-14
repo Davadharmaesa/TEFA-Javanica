@@ -472,7 +472,7 @@
 
                 this.loading = true;
                 try {
-                    const res = await fetch('/internal-api/hpp-calculator/preview', {
+                    const res = await fetch('{{ url('/internal-api/hpp-calculator/preview') }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

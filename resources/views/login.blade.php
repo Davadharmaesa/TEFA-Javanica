@@ -275,7 +275,7 @@
                     this.error = '';
                     this.loading = true;
                     try {
-                        const response = await fetch('/login', {
+                        const response = await fetch('{{ url('/login') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -304,7 +304,7 @@
                                     }
                                 });
                             } else {
-                                window.location.href = '/dashboard';
+                                window.location.href = '{{ route('dashboard') }}';
                             }
                         } else {
                             this.error = data.message || 'Email atau Password salah.';
@@ -321,7 +321,7 @@
                     this.error = '';
                     this.loading = true;
                     try {
-                        const response = await fetch('/verify-2fa', {
+                        const response = await fetch('{{ url('/verify-2fa') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -337,7 +337,7 @@
                         const data = await response.json();
 
                         if (response.ok) {
-                            window.location.href = '/dashboard';
+                            window.location.href = '{{ route('dashboard') }}';
                         } else {
                             this.error = data.message || 'Kode OTP Salah!';
                         }

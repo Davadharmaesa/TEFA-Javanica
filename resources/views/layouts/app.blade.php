@@ -28,6 +28,7 @@
                 }
             }
         })();
+        window.APP_URL = "{{ url('/') }}";
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>

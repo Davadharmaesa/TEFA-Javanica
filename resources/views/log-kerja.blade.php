@@ -194,9 +194,9 @@
             async fetchData() {
                 try {
                     const [batchesRes, tugasRes, historyRes] = await Promise.all([
-                        fetch('/internal-api/log-kerja/batches'),
-                        fetch('/internal-api/log-kerja/tugas'),
-                        fetch('/internal-api/log-kerja/history')
+                        fetch('{{ url('/internal-api/log-kerja/batches') }}'),
+                        fetch('{{ url('/internal-api/log-kerja/tugas') }}'),
+                        fetch('{{ url('/internal-api/log-kerja/history') }}')
                     ]);
 
                     if (batchesRes.ok) this.activeBatches = await batchesRes.json();
@@ -247,7 +247,7 @@
                 this.loading = true;
                 
                 try {
-                    const url = this.editMode ? `/internal-api/log-kerja/${this.editId}` : '/internal-api/log-kerja';
+                    const url = this.editMode ? '{{ url('/internal-api/log-kerja') }}/' + this.editId : '{{ url('/internal-api/log-kerja') }}';
                     const method = this.editMode ? 'PUT' : 'POST';
 
                     const res = await fetch(url, {
@@ -276,7 +276,7 @@
             async deleteLog(id) {
                 if (!confirm('Apakah anda yakin ingin menghapus log ini?')) return;
                 try {
-                    const res = await fetch(`/internal-api/log-kerja/${id}`, {
+                    const res = await fetch('{{ url('/internal-api/log-kerja') }}/' + id, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),

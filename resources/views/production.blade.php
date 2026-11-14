@@ -701,10 +701,10 @@
             async fetchData() {
                 try {
                     const [gbRes, rbRes, batchRes, statsRes] = await Promise.all([
-                        fetch('/internal-api/roasting/green-beans').catch(() => ({ok: false})),
-                        fetch('/internal-api/roasting/roasted-beans').catch(() => ({ok: false})),
-                        fetch('/internal-api/roasting/batches').catch(() => ({ok: false})),
-                        fetch('/internal-api/roasting/stats').catch(() => ({ok: false}))
+                        fetch('{{ url('/internal-api/roasting/green-beans') }}').catch(() => ({ok: false})),
+                        fetch('{{ url('/internal-api/roasting/roasted-beans') }}').catch(() => ({ok: false})),
+                        fetch('{{ url('/internal-api/roasting/batches') }}').catch(() => ({ok: false})),
+                        fetch('{{ url('/internal-api/roasting/stats') }}').catch(() => ({ok: false}))
                     ]);
                     
                     if(gbRes.ok) this.greenBeans = await gbRes.json();
@@ -752,7 +752,7 @@
                     // Simulate API network delay
                     await new Promise(r => setTimeout(r, 600));
                     
-                    const res = await fetch('/internal-api/roasting/batches', {
+                    const res = await fetch('{{ url('/internal-api/roasting/batches') }}', {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json', 

@@ -94,30 +94,32 @@
 
         // Menu Dasar (Bisa diakses siapapun)
         $navItems = [
-        ['name' => 'Beranda', 'path' => 'dashboard', 'href' => route('dashboard'), 'icon' => 'home'],
-        ['name' => 'Roasting', 'path' => 'production', 'href' => '/production', 'icon' => 'coffee'],
-        ['name' => 'Catatan Kerja', 'path' => 'log-kerja', 'href' => '/log-kerja', 'icon' => 'users'],
-        ['name' => 'Gudang', 'path' => 'inventory', 'href' => '/inventory', 'icon' => 'package'],
+            ['name' => 'Beranda', 'path' => 'dashboard', 'href' => route('dashboard'), 'icon' => 'home'],
+            ['name' => 'Roasting', 'path' => 'production', 'href' => url('/production'), 'icon' => 'coffee'],
+            ['name' => 'Catatan Kerja', 'path' => 'log-kerja', 'href' => url('/log-kerja'), 'icon' => 'users'],
+            ['name' => 'Gudang', 'path' => 'inventory', 'href' => url('/inventory'), 'icon' => 'package'],
         ];
 
         // Penjualan bisa diakses oleh PIC dan Operator (Pak Deka)
         if (in_array($role, ['pic', 'operator'])) {
-        $navItems[] = ['name' => 'Penjualan', 'path' => 'sales', 'href' => '/sales', 'icon' => 'shopping-cart'];
+            $navItems[] = ['name' => 'Penjualan', 'path' => 'sales', 'href' => url('/sales'), 'icon' => 'shopping-cart'];
         }
 
         // Menu Akuntansi & Manajerial khusus PIC
         if ($role === 'pic') {
-        $navItems = array_merge($navItems, [
-        ['name' => 'Kalkulator HPP', 'path' => 'hpp-calculator', 'href' => '/hpp-calculator', 'icon' => 'calculator'],
-        ['name' => 'Master Data', 'path' => 'master', 'href' => '/master', 'icon' => 'database'],
-        ['name' => 'Laporan', 'path' => 'reports', 'href' => '/reports', 'icon' => 'file-text'],
-        ['name' => 'Kelola User', 'path' => 'users', 'href' => '/users', 'icon' => 'users-manage'],
-        ]);
+            $navItems = array_merge($navItems, [
+                ['name' => 'Kalkulator HPP', 'path' => 'hpp-calculator', 'href' => url('/hpp-calculator'), 'icon' => 'calculator'],
+                ['name' => 'Master Data', 'path' => 'master', 'href' => url('/master'), 'icon' => 'database'],
+                ['name' => 'Laporan', 'path' => 'reports', 'href' => url('/reports'), 'icon' => 'file-text'],
+                ['name' => 'Kelola User', 'path' => 'users', 'href' => url('/users'), 'icon' => 'users-manage'],
+            ]);
         }
         @endphp
 
         @foreach($navItems as $item)
-        @php $isActive = request()->is($item['path'] . '*'); @endphp
+        @php
+            $isActive = request()->is($item['path'] . '*') || request()->is('*/' . $item['path'] . '*');
+        @endphp
         <a
             href="{{ $item['href'] }}"
             @if($isActive) id="active-nav-item" @endif
