@@ -288,7 +288,14 @@
                             })
                         });
 
-                        const data = await response.json();
+                        let data = {};
+                        try {
+                            data = await response.json();
+                        } catch (parseErr) {
+                            console.error('Failed to parse JSON response:', parseErr);
+                            this.error = 'Server merespon dengan status ' + response.status + ' (' + response.statusText + ').';
+                            return;
+                        }
 
                         if (response.ok) {
                             if (data.requires_2fa || data.requires_2fa_setup) {
@@ -311,7 +318,7 @@
                         }
                     } catch (e) {
                         console.error('Login Error:', e);
-                        this.error = 'Koneksi gagal atau sesi kadaluarsa. Silakan refresh (F5).';
+                        this.error = 'Koneksi gagal: ' + (e.message || 'Periksa koneksi jaringan.');
                     } finally {
                         this.loading = false;
                     }
@@ -334,7 +341,14 @@
                             })
                         });
 
-                        const data = await response.json();
+                        let data = {};
+                        try {
+                            data = await response.json();
+                        } catch (parseErr) {
+                            console.error('Failed to parse JSON response:', parseErr);
+                            this.error = 'Server merespon dengan status ' + response.status + ' (' + response.statusText + ').';
+                            return;
+                        }
 
                         if (response.ok) {
                             window.location.href = '{{ route('dashboard') }}';
@@ -343,7 +357,7 @@
                         }
                     } catch (e) {
                         console.error('MFA Error:', e);
-                        this.error = 'Terjadi kesalahan jaringan saat verifikasi.';
+                        this.error = 'Terjadi kesalahan jaringan: ' + (e.message || 'Gagal verifikasi.');
                     } finally {
                         this.loading = false;
                     }

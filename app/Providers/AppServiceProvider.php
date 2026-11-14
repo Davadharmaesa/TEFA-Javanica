@@ -21,8 +21,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
-        if ($this->app->environment('production')) {
+        if ($this->app->environment('production') || str_starts_with(config('app.url'), 'https://')) {
             URL::forceScheme('https');
+        }
+
+        if (config('app.url')) {
+            URL::forceRootUrl(config('app.url'));
         }
 
         \Illuminate\Support\Facades\View::composer('layout.header', function ($view) {
