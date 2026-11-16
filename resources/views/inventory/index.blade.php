@@ -403,12 +403,10 @@
                                         </svg>
                                     </button>
                                     <template x-if="item.sisa_stok > 0">
-                                        <button @click="clearResidue(item)" class="p-1.5 text-[#8A6B4E] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Selesaikan Batch (Buang Residu)">
+                                        <button @click="clearResidue(item)" class="p-1.5 text-[#526B42] hover:text-[#526B42] hover:bg-[#526B42]/10 rounded-md transition-colors" title="Selesaikan Batch (Tutup Residu)">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <polyline points="3 6 5 6 21 6"></polyline>
-                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                <line x1="10" y1="11" x2="10" y2="17"></line>
-                                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                             </svg>
                                         </button>
                                     </template>
@@ -479,12 +477,12 @@
                             Koreksi
                         </button>
                         <template x-if="item.sisa_stok > 0">
-                            <button @click="clearResidue(item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#8A6B4E] bg-[#8A6B4E]/5 hover:bg-[#8A6B4E]/10 rounded-lg transition-colors">
+                            <button @click="clearResidue(item)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#526B42] bg-[#526B42]/10 hover:bg-[#526B42]/20 rounded-lg transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                 </svg>
-                                Buang Residu
+                                Selesaikan Batch
                             </button>
                         </template>
                         <form :action="'{{ url('/inventory/roasted-bean') }}/' + item.id" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data Batch Roasting ini? Total stok Gudang juga akan otomatis berkurang.');">

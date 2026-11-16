@@ -31,7 +31,7 @@ class WhatsappService
         }
 
         try {
-            $response = Http::withHeaders(array_filter([
+            $response = Http::timeout(1)->connectTimeout(1)->withHeaders(array_filter([
                 'X-API-KEY' => $this->apiKey,
                 'apikey' => $this->apiKey,
             ]))->post("{$this->baseUrl}/send-message", [

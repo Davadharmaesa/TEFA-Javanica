@@ -749,9 +749,6 @@
                         berat_matang_bersih: this.form.berat_matang_bersih
                     };
                     
-                    // Simulate API network delay
-                    await new Promise(r => setTimeout(r, 600));
-                    
                     const res = await fetch('{{ url('/internal-api/roasting/batches') }}', {
                         method: 'POST',
                         headers: { 
