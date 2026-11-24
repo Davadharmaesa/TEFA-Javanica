@@ -65,7 +65,7 @@ class PackagingProcessTest extends TestCase
         ]);
 
         // Volume batch: 1.000 g; Kemasan: 250 g; Jumlah: 4 pcs
-        $response = $this->actingAs($pic)->postJson('/internal-api/pengemasan/process', [
+        $response = $this->actingAs($pic)->post('/internal-api/pengemasan/process', [
             'roasted_bean_id' => $roastedBean->id,
             'packaging_id' => $packaging->id,
             'jumlah_stok_digunakan_gram' => 1000,
