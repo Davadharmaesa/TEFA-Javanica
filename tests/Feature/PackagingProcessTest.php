@@ -92,74 +92,9 @@ class PackagingProcessTest extends TestCase
     }
 
     /**
-     * TC-PCK-002: Pencatatan pembagian kopi massal dengan sisa residu gramasi otomatis
+     * TC-PCK-002: Pencatatan instruksi pengemasan dengan jumlah kopi melebihi stok yang tersedia
      */
-    public function test_pencatatan_pembagian_kopi_massal_dengan_sisa_residu_gramasi_otomatis(): void
-    {
-        $pic = User::factory()->create(['role' => 'PIC']);
-
-        $greenBean = GreenBean::create([
-            'nama_biji' => 'GB Arabika Sindoro',
-            'asal_kopi' => 'Jawa Tengah',
-        ]);
-
-        $roastedBean = RoastedBean::create([
-            'nama_kopi' => 'Roasted Arabika Sindoro',
-            'bentuk_akhir' => 'Biji Utuh',
-            'total_stok' => 1050,
-            'satuan_dasar' => 'gram',
-        ]);
-
-        RoastingBatch::create([
-            'kode_batch' => 'BATCH-PCK-002',
-            'user_id' => $pic->id,
-            'green_bean_id' => $greenBean->id,
-            'roasted_bean_id' => $roastedBean->id,
-            'profil_sangrai' => 'Medium',
-            'durasi_roasting' => 12,
-            'waktu_first_crack' => 8.5,
-            'waktu_development' => 90,
-            'durasi_pre_heating' => 5,
-            'suhu' => 205,
-            'berat_mentah_gudang' => 1.3,
-            'berat_mentah_sortasi' => 1.2,
-            'berat_matang_kotor' => 1.1,
-            'berat_matang_bersih' => 1.05,
-            'sisa_stok' => 1050,
-            'persentase_susut' => 16.67,
-            'tanggal_roasting' => now()->toDateString(),
-            'status_batch' => 'completed',
-            'biaya_bahan_baku' => 130000,
-        ]);
-
-        $packaging = Packaging::create([
-            'tipe' => 'Standing Pouch 250gr',
-            'nama_kemasan' => 'Pouch 250g Kraft',
-            'kapasitas_gram' => 250,
-            'harga_satuan' => 3000,
-            'stok_pcs' => 10,
-        ]);
-
-        // Volume: 1.050 g; Kemasan: 250 g -> 4 pcs kemasan, sisa 50 g
-        $response = $this->actingAs($pic)->postJson('/internal-api/pengemasan/process', [
-            'roasted_bean_id' => $roastedBean->id,
-            'packaging_id' => $packaging->id,
-            'jumlah_stok_digunakan_gram' => 1050,
-            'ukuran_kemasan_gram' => 250,
-        ]);
-
-        $response->assertStatus(200)
-            ->assertJsonPath('data.hasil_kemasan_pcs', 4)
-            ->assertJsonPath('data.sisa_gram_dicatat', 50);
-
-        $roastedBean->refresh();
-        $this->assertEquals(50, $roastedBean->sisa_stok);
-    }
-
-    /**
-     * TC-PCK-003: Penolakan instruksi saat berat kopi melebihi stok gudang yang tersedia
-     */
-    public function test_penolakan_instruksi_saat_berat_kopi_melebihi_stok_gudang_yang_tersedia(): void
+    public function test_pencatatan_instruksi_pengemasan_dengan_jumlah_kopi_melebihi_stok_yang_tersedia(): void
     {
         $pic = User::factory()->create(['role' => 'PIC']);
 
@@ -176,7 +111,7 @@ class PackagingProcessTest extends TestCase
         ]);
 
         $batch = RoastingBatch::create([
-            'kode_batch' => 'BATCH-PCK-003',
+            'kode_batch' => 'BATCH-PCK-002',
             'user_id' => $pic->id,
             'green_bean_id' => $greenBean->id,
             'roasted_bean_id' => $roastedBean->id,
@@ -225,6 +160,72 @@ class PackagingProcessTest extends TestCase
 
         $batch->refresh();
         $this->assertEquals(500, $batch->sisa_stok);
+    }
+
+    /**
+     * TC-PCK-003: Pengujian pengemasan dengan jumlah output minimum 1 pcs
+     */
+    public function test_pengujian_pengemasan_dengan_jumlah_output_minimum_1_pcs(): void
+    {
+        $pic = User::factory()->create(['role' => 'PIC']);
+
+        $greenBean = GreenBean::create([
+            'nama_biji' => 'GB Arabika Sindoro',
+            'asal_kopi' => 'Jawa Tengah',
+        ]);
+
+        $roastedBean = RoastedBean::create([
+            'nama_kopi' => 'Roasted Arabika Sindoro',
+            'bentuk_akhir' => 'Biji Utuh',
+            'total_stok' => 100,
+            'satuan_dasar' => 'gram',
+        ]);
+
+        RoastingBatch::create([
+            'kode_batch' => 'BATCH-PCK-003',
+            'user_id' => $pic->id,
+            'green_bean_id' => $greenBean->id,
+            'roasted_bean_id' => $roastedBean->id,
+            'profil_sangrai' => 'Medium',
+            'durasi_roasting' => 10,
+            'waktu_first_crack' => 8.0,
+            'waktu_development' => 60,
+            'durasi_pre_heating' => 5,
+            'suhu' => 200,
+            'berat_mentah_gudang' => 0.15,
+            'berat_matang_bersih' => 0.1,
+            'sisa_stok' => 100,
+            'persentase_susut' => 15.0,
+            'tanggal_roasting' => now()->toDateString(),
+            'status_batch' => 'completed',
+            'biaya_bahan_baku' => 15000,
+        ]);
+
+        $packaging = Packaging::create([
+            'tipe' => 'Pouch 100g',
+            'nama_kemasan' => 'Sample Pouch 100g',
+            'kapasitas_gram' => 100,
+            'harga_satuan' => 1500,
+            'stok_pcs' => 5,
+        ]);
+
+        // Volume batch: 100 g; Kemasan: 100 g; Output: 1 pcs
+        $response = $this->actingAs($pic)->postJson('/internal-api/pengemasan/process', [
+            'roasted_bean_id' => $roastedBean->id,
+            'packaging_id' => $packaging->id,
+            'jumlah_stok_digunakan_gram' => 100,
+            'ukuran_kemasan_gram' => 100,
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.hasil_kemasan_pcs', 1)
+            ->assertJsonPath('data.sisa_gram_dicatat', 0);
+
+        $this->assertDatabaseHas('finished_goods', [
+            'roasted_bean_id' => $roastedBean->id,
+            'packaging_id' => $packaging->id,
+            'stok_pcs' => 1,
+        ]);
     }
 
     /**
